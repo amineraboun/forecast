@@ -29,7 +29,7 @@ def plot_series(
     """Plot one or more time series.
 
     Parameters
-    ----------
+    
     series : pd.Series or iterable of pd.Series
         One or more time series
     labels : list, default = None
@@ -46,12 +46,12 @@ def plot_series(
         and upper boundaries of confidence interval.
 
     Returns
-    -------
+    
     fig : plt.Figure
     ax : plt.Axis
 
     Examples
-    --------
+    
     >>> from sktime.utils.plotting import plot_series
     >>> from sktime.datasets import load_airline
     >>> y = load_airline()
