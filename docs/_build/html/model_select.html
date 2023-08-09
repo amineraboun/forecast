@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="eb">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
@@ -8,7 +8,7 @@
     <title>Model Combination &#8212; forecast 0.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=525cde36"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=160ad2a6"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -50,9 +50,9 @@ Evaluate how to best combine the different models based on their oos performance
 </dd>
 <dt>models_d<span class="classifier">dict, optional</span></dt><dd><p>A dictionary containing various forecasting models for comparison. Default is None.</p>
 </dd>
-<dt>mode<span class="classifier">str, optional</span></dt><dd><p>The aggregation mode. Default is ‘nbest_average_horizon’.</p>
+<dt>mode<span class="classifier">str, optional</span></dt><dd><p>The aggregation mode. Default is 'nbest_average_horizon'.</p>
 </dd>
-<dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance score. Default is ‘RMSE’.</p>
+<dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance score. Default is 'RMSE'.</p>
 </dd>
 <dt>nbest<span class="classifier">int, optional</span></dt><dd><p>Number of best models to aggregate. Default is 2.</p>
 </dd>
@@ -108,7 +108,7 @@ If both LF_list and models_d are None.</p>
 <p>Parameters</p>
 <blockquote>
 <div><dl class="simple">
-<dt>on<span class="classifier">str, optional</span></dt><dd><p>The period for the in-sample fitting. Default is ‘all’.</p>
+<dt>on<span class="classifier">str, optional</span></dt><dd><p>The period for the in-sample fitting. Default is 'all'.</p>
 </dd>
 <dt>fh<span class="classifier">ForecastingHorizon, optional</span></dt><dd><p>The forecasting horizon. Default is None and it takes the value entered at initialization..</p>
 </dd>
@@ -129,7 +129,7 @@ If both LF_list and models_d are None.</p>
 <p>Parameters</p>
 <blockquote>
 <div><dl class="simple">
-<dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance metric to use for model comparison. Should be either ‘RMSE’ or ‘MAPE’. Default is None and it takes the value entered at initialization.</p>
+<dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance metric to use for model comparison. Should be either 'RMSE' or 'MAPE'. Default is None and it takes the value entered at initialization.</p>
 </dd>
 <dt>nbest<span class="classifier">int, optional</span></dt><dd><p>The number of best models to select based on horizon performance. Default is None and it takes the value entered at initialization.</p>
 </dd>
@@ -151,15 +151,15 @@ If both LF_list and models_d are None.</p>
 <p>Parameters</p>
 <blockquote>
 <div><dl class="simple">
-<dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance metric for comparison. Should be either ‘RMSE’ or ‘MAPE’. Default is ‘RMSE’.</p>
+<dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance metric for comparison. Should be either 'RMSE' or 'MAPE'. Default is 'RMSE'.</p>
 </dd>
-<dt>view<span class="classifier">str, optional</span></dt><dd><p>The view mode for comparison, either ‘horizon’ or ‘cutoff’. Default is ‘horizon’.</p>
+<dt>view<span class="classifier">str, optional</span></dt><dd><p>The view mode for comparison, either 'horizon' or 'cutoff'. Default is 'horizon'.</p>
 </dd>
 <dt>xlabel<span class="classifier">str, optional</span></dt><dd><p>The label for the x-axis. Default is an empty string.</p>
 </dd>
 <dt>ylabel<span class="classifier">str, optional</span></dt><dd><p>The label for the y-axis. Default is an empty string.</p>
 </dd>
-<dt>title<span class="classifier">str, optional</span></dt><dd><p>The title of the plot. Default is ‘Out of Sample Performance’.</p>
+<dt>title<span class="classifier">str, optional</span></dt><dd><p>The title of the plot. Default is 'Out of Sample Performance'.</p>
 </dd>
 <dt>ax<span class="classifier">matplotlib.axes._subplots.AxesSubplot, optional</span></dt><dd><p>The matplotlib axes to use for plotting. Default is None.</p>
 </dd>
@@ -189,15 +189,15 @@ If both LF_list and models_d are None.</p>
 </dd>
 <dt>y_pred_interval<span class="classifier">tuple, optional</span></dt><dd><p>Prediction interval for the aggregated prediction. Default is None.</p>
 </dd>
-<dt>interval_label<span class="classifier">str, optional</span></dt><dd><p>Label for the prediction interval. Default is ‘prediction interval’.</p>
+<dt>interval_label<span class="classifier">str, optional</span></dt><dd><p>Label for the prediction interval. Default is 'prediction interval'.</p>
 </dd>
-<dt>aggregation_label<span class="classifier">str, optional</span></dt><dd><p>Label for the aggregated prediction. Default is ‘Model Agg’.</p>
+<dt>aggregation_label<span class="classifier">str, optional</span></dt><dd><p>Label for the aggregated prediction. Default is 'Model Agg'.</p>
 </dd>
 <dt>xlabel<span class="classifier">str, optional</span></dt><dd><p>Label for the x-axis. Default is an empty string.</p>
 </dd>
 <dt>ylabel<span class="classifier">str, optional</span></dt><dd><p>Label for the y-axis. Default is an empty string.</p>
 </dd>
-<dt>title<span class="classifier">str, optional</span></dt><dd><p>Title of the plot. Default is ‘Prediction’.</p>
+<dt>title<span class="classifier">str, optional</span></dt><dd><p>Title of the plot. Default is 'Prediction'.</p>
 </dd>
 <dt>ax<span class="classifier">matplotlib.axes._subplots.AxesSubplot, optional</span></dt><dd><p>Matplotlib axes to use for plotting. Default is None.</p>
 </dd>
@@ -231,16 +231,16 @@ If both LF_list and models_d are None.</p>
 Available values:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>‘best’: The prediction is based on the best model.</p></li>
-<li><p>‘best_horizon’: The prediction is based on the best model for each horizon.</p></li>
-<li><p>‘average’: The average of the prediction of all models.</p></li>
-<li><p>‘inverse_score’: The weighted average prediction, where weights are inversely proportional to the model performance score.</p></li>
-<li><p>‘nbest_average’: Average of the n best models. The n is given by the parameter nbest.</p></li>
-<li><p>‘nbest_average_horizon’: Average of the n best models for each horizon. The n is given by the parameter nbest.</p></li>
+<li><p>'best': The prediction is based on the best model.</p></li>
+<li><p>'best_horizon': The prediction is based on the best model for each horizon.</p></li>
+<li><p>'average': The average of the prediction of all models.</p></li>
+<li><p>'inverse_score': The weighted average prediction, where weights are inversely proportional to the model performance score.</p></li>
+<li><p>'nbest_average': Average of the n best models. The n is given by the parameter nbest.</p></li>
+<li><p>'nbest_average_horizon': Average of the n best models for each horizon. The n is given by the parameter nbest.</p></li>
 </ul>
 </div></blockquote>
 </dd>
-<dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance metric to use for model comparison. Should be either ‘RMSE’ or ‘MAPE’. Default is None and it takes the value entered at initialization..</p>
+<dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance metric to use for model comparison. Should be either 'RMSE' or 'MAPE'. Default is None and it takes the value entered at initialization..</p>
 </dd>
 <dt>nbest<span class="classifier">int, optional</span></dt><dd><p>The number of best models to select based on horizon performance. Default is None and it takes the value entered at initialization..</p>
 </dd>
@@ -264,7 +264,7 @@ Available values:</p>
 <p>Parameters</p>
 <blockquote>
 <div><dl class="simple">
-<dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance metric to use for model comparison. Should be either ‘RMSE’ or ‘MAPE’. Default is None and it takes the value entered at initialization.</p>
+<dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance metric to use for model comparison. Should be either 'RMSE' or 'MAPE'. Default is None and it takes the value entered at initialization.</p>
 </dd>
 <dt>nbest<span class="classifier">int, optional</span></dt><dd><p>The number of best models to select based on horizon performance. Default is None and it takes the value entered at initialization.</p>
 </dd>
@@ -298,16 +298,16 @@ Available values:</p>
 Available values:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>‘best’: The prediction is based on the best model.</p></li>
-<li><p>‘best_horizon’: The prediction is based on the best model for each horizon.</p></li>
-<li><p>‘average’: The average of the prediction of all models.</p></li>
-<li><p>‘inverse_score’: The weighted average prediction, where weights are inversely proportional to the model performance score.</p></li>
-<li><p>‘nbest_average’: Average of the n best models. The n is given by the parameter nbest.</p></li>
-<li><p>‘nbest_average_horizon’: Average of the n best models for each horizon. The n is given by the parameter nbest.</p></li>
+<li><p>'best': The prediction is based on the best model.</p></li>
+<li><p>'best_horizon': The prediction is based on the best model for each horizon.</p></li>
+<li><p>'average': The average of the prediction of all models.</p></li>
+<li><p>'inverse_score': The weighted average prediction, where weights are inversely proportional to the model performance score.</p></li>
+<li><p>'nbest_average': Average of the n best models. The n is given by the parameter nbest.</p></li>
+<li><p>'nbest_average_horizon': Average of the n best models for each horizon. The n is given by the parameter nbest.</p></li>
 </ul>
 </div></blockquote>
 </dd>
-<dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance metric to use for model comparison. Should be either ‘RMSE’ or ‘MAPE’. Default is None and it takes the value entered at initialization..</p>
+<dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance metric to use for model comparison. Should be either 'RMSE' or 'MAPE'. Default is None and it takes the value entered at initialization..</p>
 </dd>
 <dt>nbest<span class="classifier">int, optional</span></dt><dd><p>The number of best models to select based on horizon performance. Default is None and it takes the value entered at initialization. and it takes the value entered at initialization..</p>
 </dd>

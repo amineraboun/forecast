@@ -16,7 +16,6 @@ from forecast.utils.plotting import plot_series
 # Model Selection
 ##############################################################################
 
-
 class ForecastModelSelect:
 
     """
@@ -311,21 +310,13 @@ class ForecastModelSelect:
         return avg_oos_hist[score]
 
     def predict(self,
-
                 X: Optional[pd.DataFrame] = None, 
-
                 fh: Optional[ForecastingHorizon] = None,
-
                 coverage: float = 0.9,
-
                 mode: Optional[str] = None,
-
                 score: Optional[str] = None,
-
                 nbest: Optional[int] = None,
-
                 ret_underlying: bool = False
-
                ) -> Tuple[pd.Series, pd.DataFrame]:
         """
         Make forecasts using the specified aggregation mode.
@@ -359,7 +350,6 @@ class ForecastModelSelect:
             tuple
                 A tuple containing the aggregated prediction and prediction intervals.
         """
-
         preds = {}; pred_ints = {};
 
         for _lf in self.LF_list:
