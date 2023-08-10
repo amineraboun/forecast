@@ -39,7 +39,7 @@ class ForecastModelSelect:
             The performance score. Default is 'RMSE'.
         nbest : int, optional
             Number of best models to aggregate. Default is 2.
-        **kwargs
+        kwargs
             Additional keyword arguments to be passed to the Forecast initialization.
 
     Raises
@@ -228,7 +228,7 @@ class ForecastModelSelect:
         self.best_x_overall = {}
         self.model_rank_perhorizon = {}
         self.avg_oos_horizon = {}
-        for score in ['RMSE', 'MAPE']:		
+        for score in ['RMSE', 'MAPE']:
 
             r = self.summary_horizon.unstack().unstack(1)[score].unstack()
 
@@ -289,13 +289,13 @@ class ForecastModelSelect:
             nbest = max(nbest, nevals)
 
         cond = 'eval_models' not in self.__dict__.keys()
-        if cond:	
+        if cond:
             print('\nTo select best. We have to evaluate the models out of sample')
             print('Run evaluate ...')
             self.evaluate()
 
         avg_oos_hist = {}
-        for score in ['RMSE', 'MAPE']:		
+        for score in ['RMSE', 'MAPE']:
             _oos = {_lf_eval.forecaster_name:_lf_eval.oos_eval[score] for _lf_eval in self.eval_models}
             _oos = pd.concat(_oos.values(),  axis=1, keys= _oos.keys())
 
@@ -332,12 +332,12 @@ class ForecastModelSelect:
             mode : str, optional
                 The aggregation mode for predictions. Default is None and it takes the value entered at initialization.. 
                 Available values:
-                    * 'best': The prediction is based on the best model.
-                    * 'best_horizon': The prediction is based on the best model for each horizon.
-                    * 'average': The average of the prediction of all models.
-                    * 'inverse_score': The weighted average prediction, where weights are inversely proportional to the model performance score.
-                    * 'nbest_average': Average of the n best models. The n is given by the parameter nbest.
-                    * 'nbest_average_horizon': Average of the n best models for each horizon. The n is given by the parameter nbest.
+                * 'best': The prediction is based on the best model.
+                * 'best_horizon': The prediction is based on the best model for each horizon.
+                * 'average': The average of the prediction of all models.
+                * 'inverse_score': The weighted average prediction, where weights are inversely proportional to the model performance score.
+                * 'nbest_average': Average of the n best models. The n is given by the parameter nbest.
+                * 'nbest_average_horizon': Average of the n best models for each horizon. The n is given by the parameter nbest.
             score : str, optional
                 The performance metric to use for model comparison. Should be either 'RMSE' or 'MAPE'. Default is None and it takes the value entered at initialization..
             nbest : int, optional
@@ -389,12 +389,12 @@ class ForecastModelSelect:
             mode : str, optional
                 The aggregation mode for predictions. Default is None and it takes the value entered at initialization..
                 Available values:
-                    * 'best': The prediction is based on the best model.
-                    * 'best_horizon': The prediction is based on the best model for each horizon.
-                    * 'average': The average of the prediction of all models.
-                    * 'inverse_score': The weighted average prediction, where weights are inversely proportional to the model performance score.
-                    * 'nbest_average': Average of the n best models. The n is given by the parameter nbest.
-                    * 'nbest_average_horizon': Average of the n best models for each horizon. The n is given by the parameter nbest.
+                * 'best': The prediction is based on the best model.
+                * 'best_horizon': The prediction is based on the best model for each horizon.
+                * 'average': The average of the prediction of all models.
+                * 'inverse_score': The weighted average prediction, where weights are inversely proportional to the model performance score.
+                * 'nbest_average': Average of the n best models. The n is given by the parameter nbest.
+                * 'nbest_average_horizon': Average of the n best models for each horizon. The n is given by the parameter nbest.
             score : str, optional
                 The performance metric to use for model comparison. Should be either 'RMSE' or 'MAPE'. Default is None and it takes the value entered at initialization..
             nbest : int, optional

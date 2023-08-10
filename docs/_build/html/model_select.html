@@ -56,7 +56,7 @@ Evaluate how to best combine the different models based on their oos performance
 </dd>
 <dt>nbest<span class="classifier">int, optional</span></dt><dd><p>Number of best models to aggregate. Default is 2.</p>
 </dd>
-<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs</dt><dd><p>Additional keyword arguments to be passed to the Forecast initialization.</p>
+<dt>kwargs</dt><dd><p>Additional keyword arguments to be passed to the Forecast initialization.</p>
 </dd>
 </dl>
 </div></blockquote>
@@ -220,7 +220,7 @@ If both LF_list and models_d are None.</p>
 <dd><p>Make forecasts using the specified aggregation mode.</p>
 <p>Parameters</p>
 <blockquote>
-<div><dl>
+<div><dl class="simple">
 <dt>X<span class="classifier">pd.DataFrame, optional</span></dt><dd><p>The exogenous variables used for prediction. Default is None and it takes the value entered at initialization..</p>
 </dd>
 <dt>fh<span class="classifier">ForecastingHorizon, optional</span></dt><dd><p>The forecasting horizon. Default is None and it takes the value entered at initialization..</p>
@@ -228,17 +228,13 @@ If both LF_list and models_d are None.</p>
 <dt>coverage<span class="classifier">float, optional</span></dt><dd><p>The prediction interval coverage. Default is 0.9.</p>
 </dd>
 <dt>mode<span class="classifier">str, optional</span></dt><dd><p>The aggregation mode for predictions. Default is None and it takes the value entered at initialization.. 
-Available values:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>'best': The prediction is based on the best model.</p></li>
-<li><p>'best_horizon': The prediction is based on the best model for each horizon.</p></li>
-<li><p>'average': The average of the prediction of all models.</p></li>
-<li><p>'inverse_score': The weighted average prediction, where weights are inversely proportional to the model performance score.</p></li>
-<li><p>'nbest_average': Average of the n best models. The n is given by the parameter nbest.</p></li>
-<li><p>'nbest_average_horizon': Average of the n best models for each horizon. The n is given by the parameter nbest.</p></li>
-</ul>
-</div></blockquote>
+Available values:
+* 'best': The prediction is based on the best model.
+* 'best_horizon': The prediction is based on the best model for each horizon.
+* 'average': The average of the prediction of all models.
+* 'inverse_score': The weighted average prediction, where weights are inversely proportional to the model performance score.
+* 'nbest_average': Average of the n best models. The n is given by the parameter nbest.
+* 'nbest_average_horizon': Average of the n best models for each horizon. The n is given by the parameter nbest.</p>
 </dd>
 <dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance metric to use for model comparison. Should be either 'RMSE' or 'MAPE'. Default is None and it takes the value entered at initialization..</p>
 </dd>
@@ -285,7 +281,7 @@ Available values:</p>
 <dd><p>Function to update the prediction for all the models and aggregate them based on the specific mode.</p>
 <p>Parameters</p>
 <blockquote>
-<div><dl>
+<div><dl class="simple">
 <dt>newdata<span class="classifier">pd.DataFrame</span></dt><dd><p>The new data for updating the predictions.</p>
 </dd>
 <dt>refit<span class="classifier">bool, optional</span></dt><dd><p>If False, generate the prediction without fitting the model. If True, fit the underlying models again, evaluate them out of sample, select the best models, and aggregate the predictions. Default is False.</p>
@@ -295,17 +291,13 @@ Available values:</p>
 <dt>coverage<span class="classifier">float, optional</span></dt><dd><p>The prediction interval coverage. Default is 0.9.</p>
 </dd>
 <dt>mode<span class="classifier">str, optional</span></dt><dd><p>The aggregation mode for predictions. Default is None and it takes the value entered at initialization..
-Available values:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>'best': The prediction is based on the best model.</p></li>
-<li><p>'best_horizon': The prediction is based on the best model for each horizon.</p></li>
-<li><p>'average': The average of the prediction of all models.</p></li>
-<li><p>'inverse_score': The weighted average prediction, where weights are inversely proportional to the model performance score.</p></li>
-<li><p>'nbest_average': Average of the n best models. The n is given by the parameter nbest.</p></li>
-<li><p>'nbest_average_horizon': Average of the n best models for each horizon. The n is given by the parameter nbest.</p></li>
-</ul>
-</div></blockquote>
+Available values:
+* 'best': The prediction is based on the best model.
+* 'best_horizon': The prediction is based on the best model for each horizon.
+* 'average': The average of the prediction of all models.
+* 'inverse_score': The weighted average prediction, where weights are inversely proportional to the model performance score.
+* 'nbest_average': Average of the n best models. The n is given by the parameter nbest.
+* 'nbest_average_horizon': Average of the n best models for each horizon. The n is given by the parameter nbest.</p>
 </dd>
 <dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance metric to use for model comparison. Should be either 'RMSE' or 'MAPE'. Default is None and it takes the value entered at initialization..</p>
 </dd>
