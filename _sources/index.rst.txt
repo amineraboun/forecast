@@ -10,11 +10,8 @@ Welcome to forecast's documentation!
    :maxdepth: 2
    :caption: Contents:
    
+   readme
    forecast
-   model_select
-   plotting
-
-
 
 Indices and tables
 ==================
