@@ -63,7 +63,8 @@ y_pred, y_pred_ints, preds, pred_ints =  model.predict(score='RMSE', ret_underly
 LFMS.plot_prediction(y_pred = y_pred,
                      models_preds = preds,
                      y_pred_interval = y_pred_ints, 
-                     title = 'Prediction') ```
+                     title = 'Prediction')
+```
 
 ## Documentation
 
