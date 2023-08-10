@@ -31,8 +31,41 @@
 
           <div class="body" role="main">
             
-  <section id="utils-plotting-series">
-<h1>Utils: Plotting Series<a class="headerlink" href="#utils-plotting-series" title="Permalink to this heading">¶</a></h1>
+  <section id="module-forecast.utils.plotting">
+<span id="utils-plotting-series"></span><h1>Utils: Plotting Series<a class="headerlink" href="#module-forecast.utils.plotting" title="Permalink to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="forecast.utils.plotting.plot_series">
+<span class="sig-prename descclassname"><span class="pre">forecast.utils.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">markers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(15,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'prediction</span> <span class="pre">interval'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.utils.plotting.plot_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot one or more time series.</p>
+<p>Parameters</p>
+<dl class="simple">
+<dt>series<span class="classifier">pd.Series or iterable of pd.Series</span></dt><dd><p>One or more time series</p>
+</dd>
+<dt>labels<span class="classifier">list, default = None</span></dt><dd><p>Names of series, will be displayed in figure legend</p>
+</dd>
+<dt>markers: list, default = None</dt><dd><p>Markers of data points, if None the marker &quot;o&quot; is used by default.
+The length of the list has to match with the number of series.</p>
+</dd>
+<dt>colors: list, default = None</dt><dd><p>The colors to use for plotting each series. Must contain one color per series</p>
+</dd>
+<dt>title: str, default = None</dt><dd><p>The text to use as the figure's suptitle</p>
+</dd>
+<dt>pred_interval: pd.DataFrame, default = None</dt><dd><p>Output of <cite>forecaster.predict_interval()</cite>. Contains columns for lower
+and upper boundaries of confidence interval.</p>
+</dd>
+</dl>
+<p>Returns</p>
+<p>fig : plt.Figure
+ax : plt.Axis</p>
+<p>Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sktime.utils.plotting</span> <span class="kn">import</span> <span class="n">plot_series</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sktime.datasets</span> <span class="kn">import</span> <span class="n">load_airline</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">load_airline</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_series</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd></dl>
+
 </section>
 
 
@@ -57,7 +90,10 @@
 <li class="toctree-l1"><a class="reference internal" href="forecast.html">Single Model: Main Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="forecast.html#single-model-plot-classes">Single Model: Plot Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model_select.html">Model Combination</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Utils: Plotting Series</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Utils: Plotting Series</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#forecast.utils.plotting.plot_series"><code class="docutils literal notranslate"><span class="pre">plot_series()</span></code></a></li>
+</ul>
+</li>
 </ul>
 
 <div class="relations">
