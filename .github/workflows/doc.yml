@@ -17,11 +17,13 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install --upgrade pip
-        pip install sphinx sphinx-rtd-theme
+        poetry install -vv
+        poetry run pip install --upgrade pip
+        poetry run pip install sphinx sphinx-rtd-theme
            
     - name: Generate documenation
       run: |
+        poetry shell
         cd docs
         make html
     
