@@ -1,7 +1,7 @@
 # Git ignore
 .idea
 .venv
-
+docs/_build/*
 *.ipynb_checkpoints
 **/__pycache__
 
