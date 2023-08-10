@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "forecast_ar"
-version = "0.0.0"
+version = "0.0.1"
 description = "Automation of forecast models testing, combining and predicting"
 authors = ["amineraboun <amineraboun@gmail.com>"]
 repository ="https://github.com/amineraboun/forecast"

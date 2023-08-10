@@ -28,7 +28,17 @@ pip install forecast
 data = pd.Series(np.cumsum(np.random.normal(0, 1, size=1000)), 
                  index=pd.date_range(end='31/12/2022', periods=1000)).rename('y').to_frame()
 
-from forecast.model_select import ForecastModelSelect
+from forecast_ar.model_select import ForecastModelSelect
+# models necessary to define the forecasting models 
+from sktime.forecasting.naive import NaiveForecaster
+from sktime.forecasting.statsforecast import (
+    StatsForecastAutoARIMA,
+    StatsForecastAutoETS, 
+    StatsForecastAutoTheta
+)
+from sktime.forecasting.tbats import TBATS
+from sktime.forecasting.fbprophet import Prophet
+
 ForecastingModels = {
 "Naive": NaiveForecaster(),
 "AutoARIMA": StatsForecastAutoARIMA(),
@@ -60,7 +70,7 @@ model.plot_model_compare(score='MAPE', view='cutoff')
 y_pred, y_pred_ints, preds, pred_ints =  model.predict(score='RMSE', ret_underlying=True)
 
 # Visualize prediction
-LFMS.plot_prediction(y_pred = y_pred,
+model.plot_prediction(y_pred = y_pred,
                      models_preds = preds,
                      y_pred_interval = y_pred_ints, 
                      title = 'Prediction')
