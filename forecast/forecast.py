@@ -107,7 +107,7 @@ pandas_frequency_dict = {
 
 class Forecast(object):
     """
-    Liquidity Forecast class for managing and evaluating forecast models.
+    Forecast class for managing and evaluating forecast models.
 
     Parameters
     
