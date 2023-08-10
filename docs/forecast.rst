@@ -1,17 +1,26 @@
-Single Model: Main Classes
---------------------------
+
+# Main Forecast Classes
+
+## Single Model
 
 .. autoclass:: forecast.forecast.Forecast
    :members:
 
-.. autoclass:: forecast.forecast.ForecastFit
+## Model Combination
+
+.. autoclass:: forecast.model_select.ForecastModelSelect
    :members:
    
+Supporting Classes For Single Model
+-----------------------------------
+.. autoclass:: forecast.forecast.ForecastFit
+   :members:
+
 .. autoclass:: forecast.forecast.ForecastEval
    :members:
    
-Single Model: Plot Classes
---------------------------
+Supporting Classes for Plots Single Model
+-----------------------------------------
 .. autoclass:: forecast.forecast.ForecastPlot
    :members:
 
@@ -21,11 +30,7 @@ Single Model: Plot Classes
 .. autoclass:: forecast.forecast.ForecastEvalPlot
    :members:
    
-Model Combination
------------------
-.. autoclass:: forecast.model_select.ForecastModelSelect
-   :members:
-
+   
 Utils: Plotting Series
 ----------------------
 .. automodule:: forecast.utils.plotting
