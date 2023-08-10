@@ -1,4 +1,0 @@
-Model Combination
------------------
-.. autoclass:: forecast.model_select.ForecastModelSelect
-   :members:

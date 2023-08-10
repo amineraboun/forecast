@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "forecast"
+name = "forecast_ar"
 version = "0.0.0"
 description = "Automation of forecast models testing, combining and predicting"
 authors = ["amineraboun <amineraboun@gmail.com>"]
@@ -27,6 +27,9 @@ tqdm = "^4.66.0"
 matplotlib = "^3.7.2"
 seaborn = "^0.12.2"
 sphinx = "^7.1.2"
+nbsphinx = "^0.9.2"
+sphinx-mdinclude = "^0.5.3"
+pandoc = "^2.3"
 
 
 [tool.poetry.dev-dependencies]
