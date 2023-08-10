@@ -6,7 +6,9 @@ on: [push]
 jobs:
   deploy-documentation:
     runs-on: ubuntu-latest
-    steps:
+    steps:git add .
+    git coimmit -m 'add requirements installation '
+    git p
     - uses: actions/checkout@v3
 
     # Install dependencies
@@ -18,6 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade pip
+        pip install -r requirements.txt
         pip install sphinx sphinx-rtd-theme
            
     - name: Generate documenation
