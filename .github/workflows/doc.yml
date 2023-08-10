@@ -25,6 +25,7 @@ jobs:
         poetry install -vv
         poetry run pip install --upgrade pip
         poetry run pip install sphinx sphinx-rtd-theme
+        poetry run pip install sphinx-mdinclude
            
     - name: Generate documenation
       run: |
