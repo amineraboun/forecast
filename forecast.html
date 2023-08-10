@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Single Model: Main Classes &#8212; forecast 0.0.0 documentation</title>
+    <title>Supporting Classes For Single Model &#8212; forecast 0.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -14,7 +14,7 @@
     <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Readme File" href="readme.html" />
+    <link rel="prev" title="forecast" href="readme.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -31,8 +31,8 @@
 
           <div class="body" role="main">
             
-  <section id="single-model-main-classes">
-<h1>Single Model: Main Classes<a class="headerlink" href="#single-model-main-classes" title="Permalink to this heading">¶</a></h1>
+  <p># Main Forecast Classes</p>
+<p>## Single Model</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="forecast.forecast.Forecast">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">forecast.forecast.</span></span><span class="sig-name descname"><span class="pre">Forecast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depvar_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pct_initial_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecaster_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Naive'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecaster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exog_l</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'B'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.Forecast" title="Permalink to this definition">¶</a></dt>
@@ -198,335 +198,7 @@ Possibility to refit the model.</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="forecast.forecast.ForecastFit">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">forecast.forecast.</span></span><span class="sig-name descname"><span class="pre">ForecastFit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Forecast</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#forecast.forecast.Forecast" title="forecast.forecast.Forecast"><span class="pre">Forecast</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastFit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class for fitting the forecast model and computing insample performance metrics.</p>
-<p>Parameters</p>
-<blockquote>
-<div><dl class="simple">
-<dt>Forecast<span class="classifier">Forecast</span></dt><dd><p>An instance of the Forecast class.</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>Returns</p>
-<blockquote>
-<div><p>None</p>
-</div></blockquote>
-<dl class="py method">
-<dt class="sig sig-object py" id="forecast.forecast.ForecastFit.insample_perf">
-<span class="sig-name descname"><span class="pre">insample_perf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#forecast.forecast.ForecastFit.insample_perf" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute insample performance metrics (RMSE and MAPE) for the fitted model.</p>
-<p>Returns</p>
-<blockquote>
-<div><dl class="simple">
-<dt>dict</dt><dd><p>A dictionary containing the computed insample performance metrics.</p>
-</dd>
-</dl>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="forecast.forecast.ForecastFit.insample_predictions">
-<span class="sig-name descname"><span class="pre">insample_predictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#forecast.forecast.ForecastFit.insample_predictions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the insample predictions for the fitted model.</p>
-<p>Parameters</p>
-<blockquote>
-<div><dl class="simple">
-<dt>nsample<span class="classifier">int, optional</span></dt><dd><p>The number of samples to compute. Default is 100.</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>Returns</p>
-<blockquote>
-<div><dl class="simple">
-<dt>pd.DataFrame</dt><dd><p>A DataFrame containing the insample predictions.</p>
-</dd>
-</dl>
-</div></blockquote>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="forecast.forecast.ForecastEval">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">forecast.forecast.</span></span><span class="sig-name descname"><span class="pre">ForecastEval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Forecast</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#forecast.forecast.Forecast" title="forecast.forecast.Forecast"><span class="pre">Forecast</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastEval" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class for evaluating the forecaster out-of-sample.</p>
-<p>Parameters</p>
-<blockquote>
-<div><dl class="simple">
-<dt>Forecast<span class="classifier">Forecast</span></dt><dd><p>An instance of the Forecast class.</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>Returns</p>
-<blockquote>
-<div><p>None</p>
-</div></blockquote>
-<dl class="py method">
-<dt class="sig sig-object py" id="forecast.forecast.ForecastEval.summary_horizon">
-<span class="sig-name descname"><span class="pre">summary_horizon</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#forecast.forecast.ForecastEval.summary_horizon" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a summary of out-of-sample forecast results per horizon.</p>
-<p>Returns</p>
-<blockquote>
-<div><dl class="simple">
-<dt>pd.DataFrame</dt><dd><p>A DataFrame containing summary performance metrics (RMSE and MAPE) for each horizon.</p>
-</dd>
-</dl>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="forecast.forecast.ForecastEval.summary_results">
-<span class="sig-name descname"><span class="pre">summary_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#forecast.forecast.ForecastEval.summary_results" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a summary of out-of-sample forecast results.</p>
-<p>Returns</p>
-<blockquote>
-<div><dl class="simple">
-<dt>pd.DataFrame</dt><dd><p>A DataFrame containing various summary statistics of the out-of-sample forecasts.</p>
-</dd>
-</dl>
-</div></blockquote>
-</dd></dl>
-
-</dd></dl>
-
-</section>
-<section id="single-model-plot-classes">
-<h1>Single Model: Plot Classes<a class="headerlink" href="#single-model-plot-classes" title="Permalink to this heading">¶</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="forecast.forecast.ForecastPlot">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">forecast.forecast.</span></span><span class="sig-name descname"><span class="pre">ForecastPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">LF</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#forecast.forecast.Forecast" title="forecast.forecast.Forecast"><span class="pre">Forecast</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastPlot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plotting utility class for Forecast.</p>
-<p>Parameters</p>
-<blockquote>
-<div><dl class="simple">
-<dt>LF<span class="classifier">Forecast</span></dt><dd><p>An instance of the Forecast class.</p>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="simple">
-<dt>Returns:</dt><dd><p>None</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="forecast.forecast.ForecastPlot.plot_cv_procedure">
-<span class="sig-name descname"><span class="pre">plot_cv_procedure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['Window',</span> <span class="pre">'Forecasting</span> <span class="pre">horizon']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Window</span> <span class="pre">number'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Cross</span> <span class="pre">Validation</span> <span class="pre">Procedure'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#forecast.forecast.ForecastPlot.plot_cv_procedure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the cross-validation procedure.</p>
-<p>Parameters</p>
-<blockquote>
-<div><dl class="simple">
-<dt>ax<span class="classifier">plt.Axes, optional</span></dt><dd><p>The Axes object for the plot.</p>
-</dd>
-<dt>labels<span class="classifier">List[str], optional</span></dt><dd><p>Labels for the plot. Default is [&quot;Window&quot;, &quot;Forecasting horizon&quot;].</p>
-</dd>
-<dt>ylabel<span class="classifier">str, optional</span></dt><dd><p>Label for the y-axis. Default is &quot;Window number&quot;.</p>
-</dd>
-<dt>xlabel<span class="classifier">str, optional</span></dt><dd><p>Label for the x-axis. Default is &quot;Time&quot;.</p>
-</dd>
-<dt>title<span class="classifier">str, optional</span></dt><dd><p>The title of the plot. Default is &quot;Cross Validation Procedure&quot;.</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>Returns</p>
-<blockquote>
-<div><p>None</p>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="forecast.forecast.ForecastPlot.plot_prediction">
-<span class="sig-name descname"><span class="pre">plot_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred_ints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'prediction</span> <span class="pre">interval'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['y_train',</span> <span class="pre">'y_pred']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Prediction'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(15,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastPlot.plot_prediction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the forecast predictions and the confidence intervals.</p>
-<p>Parameters</p>
-<blockquote>
-<div><dl class="simple">
-<dt>y_pred<span class="classifier">pd.Series</span></dt><dd><p>The predicted values.</p>
-</dd>
-<dt>y_pred_ints<span class="classifier">pd.DataFrame, optional</span></dt><dd><p>The DataFrame containing the prediction intervals.</p>
-</dd>
-<dt>interval_label<span class="classifier">str, optional</span></dt><dd><p>Label for the prediction interval. Default is 'prediction interval'.</p>
-</dd>
-<dt>labels<span class="classifier">List[str], optional</span></dt><dd><p>Labels for the plot. Default is [&quot;y_train&quot;, &quot;y_pred&quot;].</p>
-</dd>
-<dt>xlabel<span class="classifier">str, optional</span></dt><dd><p>Label for the x-axis.</p>
-</dd>
-<dt>ylabel<span class="classifier">str, optional</span></dt><dd><p>Label for the y-axis.</p>
-</dd>
-<dt>title<span class="classifier">str, optional</span></dt><dd><p>The title of the plot. Default is 'Prediction'.</p>
-</dd>
-<dt>ax<span class="classifier">plt.Axes, optional</span></dt><dd><p>The Axes object for the plot.</p>
-</dd>
-<dt>figsize<span class="classifier">Tuple[float, float], optional</span></dt><dd><p>The figure size. Default is (15, 6).</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>Returns</p>
-<blockquote>
-<div><p>None</p>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="forecast.forecast.ForecastPlot.plot_prediction_true">
-<span class="sig-name descname"><span class="pre">plot_prediction_true</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred_ints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'prediction</span> <span class="pre">interval'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['y_train',</span> <span class="pre">'y_true',</span> <span class="pre">'y_pred']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Prediction'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(15,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastPlot.plot_prediction_true" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the forecast predictions, true values, and the confidence intervals.</p>
-<p>Parameters</p>
-<blockquote>
-<div><dl class="simple">
-<dt>y_pred<span class="classifier">pd.Series</span></dt><dd><p>The predicted values.</p>
-</dd>
-<dt>y_pred_ints<span class="classifier">pd.DataFrame, optional</span></dt><dd><p>The DataFrame containing the prediction intervals.</p>
-</dd>
-<dt>interval_label<span class="classifier">str, optional</span></dt><dd><p>Label for the prediction interval. Default is 'prediction interval'.</p>
-</dd>
-<dt>labels<span class="classifier">List[str], optional</span></dt><dd><p>Labels for the plot. Default is [&quot;y_train&quot;, &quot;y_true&quot;, &quot;y_pred&quot;].</p>
-</dd>
-<dt>xlabel<span class="classifier">str, optional</span></dt><dd><p>Label for the x-axis.</p>
-</dd>
-<dt>ylabel<span class="classifier">str, optional</span></dt><dd><p>Label for the y-axis.</p>
-</dd>
-<dt>title<span class="classifier">str, optional</span></dt><dd><p>The title of the plot. Default is 'Prediction'.</p>
-</dd>
-<dt>ax<span class="classifier">plt.Axes, optional</span></dt><dd><p>The Axes object for the plot.</p>
-</dd>
-<dt>figsize<span class="classifier">Tuple[float, float], optional</span></dt><dd><p>The figure size. Default is (15, 6).</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>Returns</p>
-<blockquote>
-<div><p>None</p>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="forecast.forecast.ForecastPlot.plot_train_test">
-<span class="sig-name descname"><span class="pre">plot_train_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['y_train',</span> <span class="pre">'y_test']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Train-Test</span> <span class="pre">sets'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(15,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#forecast.forecast.ForecastPlot.plot_train_test" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the dependent variable separating the train from the test windows.</p>
-<p>Parameters</p>
-<blockquote>
-<div><dl class="simple">
-<dt>labels<span class="classifier">List[str], optional</span></dt><dd><p>Labels for the plot. Default is [&quot;y_train&quot;, &quot;y_test&quot;].</p>
-</dd>
-<dt>xlabel<span class="classifier">str, optional</span></dt><dd><p>Label for the x-axis.</p>
-</dd>
-<dt>ylabel<span class="classifier">str, optional</span></dt><dd><p>Label for the y-axis.</p>
-</dd>
-<dt>title<span class="classifier">str, optional</span></dt><dd><p>The title of the plot. Default is 'Train-Test sets'.</p>
-</dd>
-<dt>ax<span class="classifier">plt.Axes, optional</span></dt><dd><p>The Axes object for the plot.</p>
-</dd>
-<dt>figsize<span class="classifier">Tuple[float, float], optional</span></dt><dd><p>The figure size. Default is (15, 6).</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>Returns</p>
-<blockquote>
-<div><p>None</p>
-</div></blockquote>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="forecast.forecast.ForecastFitPlot">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">forecast.forecast.</span></span><span class="sig-name descname"><span class="pre">ForecastFitPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">LFF</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#forecast.forecast.ForecastFit" title="forecast.forecast.ForecastFit"><span class="pre">ForecastFit</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastFitPlot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plotting utility class for ForecastFit.</p>
-<p>Parameters</p>
-<blockquote>
-<div><dl class="simple">
-<dt>LFF<span class="classifier">ForecastFit</span></dt><dd><p>An instance of the ForecastFit class.</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>Returns</p>
-<blockquote>
-<div><p>None</p>
-</div></blockquote>
-<dl class="py method">
-<dt class="sig sig-object py" id="forecast.forecast.ForecastFitPlot.plot_insample_performance">
-<span class="sig-name descname"><span class="pre">plot_insample_performance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'RMSE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Insample</span> <span class="pre">Performance'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastFitPlot.plot_insample_performance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the insample performance metrics.</p>
-<p>Parameters</p>
-<blockquote>
-<div><dl class="simple">
-<dt>metric<span class="classifier">str, optional</span></dt><dd><p>The performance metric to plot. Default is 'RMSE'.</p>
-</dd>
-<dt>title<span class="classifier">str, optional</span></dt><dd><p>The title of the plot. Default is 'Insample Performance'.</p>
-</dd>
-</dl>
-</div></blockquote>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="forecast.forecast.ForecastEvalPlot">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">forecast.forecast.</span></span><span class="sig-name descname"><span class="pre">ForecastEvalPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">LFE</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#forecast.forecast.ForecastEval" title="forecast.forecast.ForecastEval"><span class="pre">ForecastEval</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastEvalPlot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plotting utility class for ForecastEval.</p>
-<p>Parameters</p>
-<blockquote>
-<div><dl class="simple">
-<dt>LFE<span class="classifier">ForecastEval</span></dt><dd><p>An instance of the ForecastEval class.</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>Returns</p>
-<blockquote>
-<div><p>None</p>
-</div></blockquote>
-<dl class="py method">
-<dt class="sig sig-object py" id="forecast.forecast.ForecastEvalPlot.plot_oos_horizon">
-<span class="sig-name descname"><span class="pre">plot_oos_horizon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'RMSE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Out</span> <span class="pre">of</span> <span class="pre">Sample</span> <span class="pre">Performance</span> <span class="pre">-</span> <span class="pre">Average</span> <span class="pre">per</span> <span class="pre">Horizons'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(15,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastEvalPlot.plot_oos_horizon" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot out-of-sample performance metric per horizon.</p>
-<p>Parameters</p>
-<blockquote>
-<div><dl class="simple">
-<dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance metric to plot. Default is 'RMSE'.</p>
-</dd>
-<dt>xlabel<span class="classifier">str, optional</span></dt><dd><p>Label for the x-axis.</p>
-</dd>
-<dt>ylabel<span class="classifier">str, optional</span></dt><dd><p>Label for the y-axis.</p>
-</dd>
-<dt>title<span class="classifier">str, optional</span></dt><dd><p>The title of the plot. Default is 'Out of Sample Performance - Average per Horizons'.</p>
-</dd>
-<dt>ax<span class="classifier">plt.Axes, optional</span></dt><dd><p>The Axes object for the plot.</p>
-</dd>
-<dt>figsize<span class="classifier">Tuple[float, float], optional</span></dt><dd><p>The figure size. Default is (15, 6).</p>
-</dd>
-</dl>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="forecast.forecast.ForecastEvalPlot.plot_oos_score">
-<span class="sig-name descname"><span class="pre">plot_oos_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'RMSE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Out</span> <span class="pre">of</span> <span class="pre">Sample</span> <span class="pre">Performance</span> <span class="pre">-</span> <span class="pre">Average</span> <span class="pre">on</span> <span class="pre">All</span> <span class="pre">Horizons'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(15,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastEvalPlot.plot_oos_score" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot out-of-sample performance metric historically.</p>
-<p>Parameters</p>
-<blockquote>
-<div><dl class="simple">
-<dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance metric to plot. Default is 'RMSE'.</p>
-</dd>
-<dt>xlabel<span class="classifier">str, optional</span></dt><dd><p>Label for the x-axis.</p>
-</dd>
-<dt>ylabel<span class="classifier">str, optional</span></dt><dd><p>Label for the y-axis.</p>
-</dd>
-<dt>title<span class="classifier">str, optional</span></dt><dd><p>The title of the plot. Default is 'Out of Sample Performance - Average on All Horizons'.</p>
-</dd>
-<dt>ax<span class="classifier">plt.Axes, optional</span></dt><dd><p>The Axes object for the plot.</p>
-</dd>
-<dt>figsize<span class="classifier">Tuple[float, float], optional</span></dt><dd><p>The figure size. Default is (15, 6).</p>
-</dd>
-</dl>
-</div></blockquote>
-</dd></dl>
-
-</dd></dl>
-
-</section>
-<section id="model-combination">
-<h1>Model Combination<a class="headerlink" href="#model-combination" title="Permalink to this heading">¶</a></h1>
+<p>## Model Combination</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="forecast.model_select.ForecastModelSelect">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">forecast.model_select.</span></span><span class="sig-name descname"><span class="pre">ForecastModelSelect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">LF_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#forecast.forecast.Forecast" title="forecast.forecast.Forecast"><span class="pre">Forecast</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models_d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'nbest_average_horizon'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'RMSE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.model_select.ForecastModelSelect" title="Permalink to this definition">¶</a></dt>
@@ -812,6 +484,334 @@ Available values:
 
 </dd></dl>
 
+<section id="supporting-classes-for-single-model">
+<h1>Supporting Classes For Single Model<a class="headerlink" href="#supporting-classes-for-single-model" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="forecast.forecast.ForecastFit">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">forecast.forecast.</span></span><span class="sig-name descname"><span class="pre">ForecastFit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Forecast</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#forecast.forecast.Forecast" title="forecast.forecast.Forecast"><span class="pre">Forecast</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastFit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for fitting the forecast model and computing insample performance metrics.</p>
+<p>Parameters</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Forecast<span class="classifier">Forecast</span></dt><dd><p>An instance of the Forecast class.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Returns</p>
+<blockquote>
+<div><p>None</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="forecast.forecast.ForecastFit.insample_perf">
+<span class="sig-name descname"><span class="pre">insample_perf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#forecast.forecast.ForecastFit.insample_perf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute insample performance metrics (RMSE and MAPE) for the fitted model.</p>
+<p>Returns</p>
+<blockquote>
+<div><dl class="simple">
+<dt>dict</dt><dd><p>A dictionary containing the computed insample performance metrics.</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="forecast.forecast.ForecastFit.insample_predictions">
+<span class="sig-name descname"><span class="pre">insample_predictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#forecast.forecast.ForecastFit.insample_predictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the insample predictions for the fitted model.</p>
+<p>Parameters</p>
+<blockquote>
+<div><dl class="simple">
+<dt>nsample<span class="classifier">int, optional</span></dt><dd><p>The number of samples to compute. Default is 100.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Returns</p>
+<blockquote>
+<div><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>A DataFrame containing the insample predictions.</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="forecast.forecast.ForecastEval">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">forecast.forecast.</span></span><span class="sig-name descname"><span class="pre">ForecastEval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Forecast</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#forecast.forecast.Forecast" title="forecast.forecast.Forecast"><span class="pre">Forecast</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastEval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for evaluating the forecaster out-of-sample.</p>
+<p>Parameters</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Forecast<span class="classifier">Forecast</span></dt><dd><p>An instance of the Forecast class.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Returns</p>
+<blockquote>
+<div><p>None</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="forecast.forecast.ForecastEval.summary_horizon">
+<span class="sig-name descname"><span class="pre">summary_horizon</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#forecast.forecast.ForecastEval.summary_horizon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a summary of out-of-sample forecast results per horizon.</p>
+<p>Returns</p>
+<blockquote>
+<div><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>A DataFrame containing summary performance metrics (RMSE and MAPE) for each horizon.</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="forecast.forecast.ForecastEval.summary_results">
+<span class="sig-name descname"><span class="pre">summary_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#forecast.forecast.ForecastEval.summary_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a summary of out-of-sample forecast results.</p>
+<p>Returns</p>
+<blockquote>
+<div><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>A DataFrame containing various summary statistics of the out-of-sample forecasts.</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="supporting-classes-for-plots-single-model">
+<h1>Supporting Classes for Plots Single Model<a class="headerlink" href="#supporting-classes-for-plots-single-model" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="forecast.forecast.ForecastPlot">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">forecast.forecast.</span></span><span class="sig-name descname"><span class="pre">ForecastPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">LF</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#forecast.forecast.Forecast" title="forecast.forecast.Forecast"><span class="pre">Forecast</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plotting utility class for Forecast.</p>
+<p>Parameters</p>
+<blockquote>
+<div><dl class="simple">
+<dt>LF<span class="classifier">Forecast</span></dt><dd><p>An instance of the Forecast class.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>None</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="forecast.forecast.ForecastPlot.plot_cv_procedure">
+<span class="sig-name descname"><span class="pre">plot_cv_procedure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['Window',</span> <span class="pre">'Forecasting</span> <span class="pre">horizon']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Window</span> <span class="pre">number'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Cross</span> <span class="pre">Validation</span> <span class="pre">Procedure'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#forecast.forecast.ForecastPlot.plot_cv_procedure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the cross-validation procedure.</p>
+<p>Parameters</p>
+<blockquote>
+<div><dl class="simple">
+<dt>ax<span class="classifier">plt.Axes, optional</span></dt><dd><p>The Axes object for the plot.</p>
+</dd>
+<dt>labels<span class="classifier">List[str], optional</span></dt><dd><p>Labels for the plot. Default is [&quot;Window&quot;, &quot;Forecasting horizon&quot;].</p>
+</dd>
+<dt>ylabel<span class="classifier">str, optional</span></dt><dd><p>Label for the y-axis. Default is &quot;Window number&quot;.</p>
+</dd>
+<dt>xlabel<span class="classifier">str, optional</span></dt><dd><p>Label for the x-axis. Default is &quot;Time&quot;.</p>
+</dd>
+<dt>title<span class="classifier">str, optional</span></dt><dd><p>The title of the plot. Default is &quot;Cross Validation Procedure&quot;.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Returns</p>
+<blockquote>
+<div><p>None</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="forecast.forecast.ForecastPlot.plot_prediction">
+<span class="sig-name descname"><span class="pre">plot_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred_ints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'prediction</span> <span class="pre">interval'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['y_train',</span> <span class="pre">'y_pred']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Prediction'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(15,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastPlot.plot_prediction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the forecast predictions and the confidence intervals.</p>
+<p>Parameters</p>
+<blockquote>
+<div><dl class="simple">
+<dt>y_pred<span class="classifier">pd.Series</span></dt><dd><p>The predicted values.</p>
+</dd>
+<dt>y_pred_ints<span class="classifier">pd.DataFrame, optional</span></dt><dd><p>The DataFrame containing the prediction intervals.</p>
+</dd>
+<dt>interval_label<span class="classifier">str, optional</span></dt><dd><p>Label for the prediction interval. Default is 'prediction interval'.</p>
+</dd>
+<dt>labels<span class="classifier">List[str], optional</span></dt><dd><p>Labels for the plot. Default is [&quot;y_train&quot;, &quot;y_pred&quot;].</p>
+</dd>
+<dt>xlabel<span class="classifier">str, optional</span></dt><dd><p>Label for the x-axis.</p>
+</dd>
+<dt>ylabel<span class="classifier">str, optional</span></dt><dd><p>Label for the y-axis.</p>
+</dd>
+<dt>title<span class="classifier">str, optional</span></dt><dd><p>The title of the plot. Default is 'Prediction'.</p>
+</dd>
+<dt>ax<span class="classifier">plt.Axes, optional</span></dt><dd><p>The Axes object for the plot.</p>
+</dd>
+<dt>figsize<span class="classifier">Tuple[float, float], optional</span></dt><dd><p>The figure size. Default is (15, 6).</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Returns</p>
+<blockquote>
+<div><p>None</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="forecast.forecast.ForecastPlot.plot_prediction_true">
+<span class="sig-name descname"><span class="pre">plot_prediction_true</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred_ints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'prediction</span> <span class="pre">interval'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['y_train',</span> <span class="pre">'y_true',</span> <span class="pre">'y_pred']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Prediction'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(15,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastPlot.plot_prediction_true" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the forecast predictions, true values, and the confidence intervals.</p>
+<p>Parameters</p>
+<blockquote>
+<div><dl class="simple">
+<dt>y_pred<span class="classifier">pd.Series</span></dt><dd><p>The predicted values.</p>
+</dd>
+<dt>y_pred_ints<span class="classifier">pd.DataFrame, optional</span></dt><dd><p>The DataFrame containing the prediction intervals.</p>
+</dd>
+<dt>interval_label<span class="classifier">str, optional</span></dt><dd><p>Label for the prediction interval. Default is 'prediction interval'.</p>
+</dd>
+<dt>labels<span class="classifier">List[str], optional</span></dt><dd><p>Labels for the plot. Default is [&quot;y_train&quot;, &quot;y_true&quot;, &quot;y_pred&quot;].</p>
+</dd>
+<dt>xlabel<span class="classifier">str, optional</span></dt><dd><p>Label for the x-axis.</p>
+</dd>
+<dt>ylabel<span class="classifier">str, optional</span></dt><dd><p>Label for the y-axis.</p>
+</dd>
+<dt>title<span class="classifier">str, optional</span></dt><dd><p>The title of the plot. Default is 'Prediction'.</p>
+</dd>
+<dt>ax<span class="classifier">plt.Axes, optional</span></dt><dd><p>The Axes object for the plot.</p>
+</dd>
+<dt>figsize<span class="classifier">Tuple[float, float], optional</span></dt><dd><p>The figure size. Default is (15, 6).</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Returns</p>
+<blockquote>
+<div><p>None</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="forecast.forecast.ForecastPlot.plot_train_test">
+<span class="sig-name descname"><span class="pre">plot_train_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['y_train',</span> <span class="pre">'y_test']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Train-Test</span> <span class="pre">sets'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(15,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#forecast.forecast.ForecastPlot.plot_train_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the dependent variable separating the train from the test windows.</p>
+<p>Parameters</p>
+<blockquote>
+<div><dl class="simple">
+<dt>labels<span class="classifier">List[str], optional</span></dt><dd><p>Labels for the plot. Default is [&quot;y_train&quot;, &quot;y_test&quot;].</p>
+</dd>
+<dt>xlabel<span class="classifier">str, optional</span></dt><dd><p>Label for the x-axis.</p>
+</dd>
+<dt>ylabel<span class="classifier">str, optional</span></dt><dd><p>Label for the y-axis.</p>
+</dd>
+<dt>title<span class="classifier">str, optional</span></dt><dd><p>The title of the plot. Default is 'Train-Test sets'.</p>
+</dd>
+<dt>ax<span class="classifier">plt.Axes, optional</span></dt><dd><p>The Axes object for the plot.</p>
+</dd>
+<dt>figsize<span class="classifier">Tuple[float, float], optional</span></dt><dd><p>The figure size. Default is (15, 6).</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Returns</p>
+<blockquote>
+<div><p>None</p>
+</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="forecast.forecast.ForecastFitPlot">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">forecast.forecast.</span></span><span class="sig-name descname"><span class="pre">ForecastFitPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">LFF</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#forecast.forecast.ForecastFit" title="forecast.forecast.ForecastFit"><span class="pre">ForecastFit</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastFitPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plotting utility class for ForecastFit.</p>
+<p>Parameters</p>
+<blockquote>
+<div><dl class="simple">
+<dt>LFF<span class="classifier">ForecastFit</span></dt><dd><p>An instance of the ForecastFit class.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Returns</p>
+<blockquote>
+<div><p>None</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="forecast.forecast.ForecastFitPlot.plot_insample_performance">
+<span class="sig-name descname"><span class="pre">plot_insample_performance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'RMSE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Insample</span> <span class="pre">Performance'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastFitPlot.plot_insample_performance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the insample performance metrics.</p>
+<p>Parameters</p>
+<blockquote>
+<div><dl class="simple">
+<dt>metric<span class="classifier">str, optional</span></dt><dd><p>The performance metric to plot. Default is 'RMSE'.</p>
+</dd>
+<dt>title<span class="classifier">str, optional</span></dt><dd><p>The title of the plot. Default is 'Insample Performance'.</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="forecast.forecast.ForecastEvalPlot">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">forecast.forecast.</span></span><span class="sig-name descname"><span class="pre">ForecastEvalPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">LFE</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#forecast.forecast.ForecastEval" title="forecast.forecast.ForecastEval"><span class="pre">ForecastEval</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastEvalPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plotting utility class for ForecastEval.</p>
+<p>Parameters</p>
+<blockquote>
+<div><dl class="simple">
+<dt>LFE<span class="classifier">ForecastEval</span></dt><dd><p>An instance of the ForecastEval class.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Returns</p>
+<blockquote>
+<div><p>None</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="forecast.forecast.ForecastEvalPlot.plot_oos_horizon">
+<span class="sig-name descname"><span class="pre">plot_oos_horizon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'RMSE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Out</span> <span class="pre">of</span> <span class="pre">Sample</span> <span class="pre">Performance</span> <span class="pre">-</span> <span class="pre">Average</span> <span class="pre">per</span> <span class="pre">Horizons'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(15,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastEvalPlot.plot_oos_horizon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot out-of-sample performance metric per horizon.</p>
+<p>Parameters</p>
+<blockquote>
+<div><dl class="simple">
+<dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance metric to plot. Default is 'RMSE'.</p>
+</dd>
+<dt>xlabel<span class="classifier">str, optional</span></dt><dd><p>Label for the x-axis.</p>
+</dd>
+<dt>ylabel<span class="classifier">str, optional</span></dt><dd><p>Label for the y-axis.</p>
+</dd>
+<dt>title<span class="classifier">str, optional</span></dt><dd><p>The title of the plot. Default is 'Out of Sample Performance - Average per Horizons'.</p>
+</dd>
+<dt>ax<span class="classifier">plt.Axes, optional</span></dt><dd><p>The Axes object for the plot.</p>
+</dd>
+<dt>figsize<span class="classifier">Tuple[float, float], optional</span></dt><dd><p>The figure size. Default is (15, 6).</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="forecast.forecast.ForecastEvalPlot.plot_oos_score">
+<span class="sig-name descname"><span class="pre">plot_oos_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'RMSE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Out</span> <span class="pre">of</span> <span class="pre">Sample</span> <span class="pre">Performance</span> <span class="pre">-</span> <span class="pre">Average</span> <span class="pre">on</span> <span class="pre">All</span> <span class="pre">Horizons'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(15,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#forecast.forecast.ForecastEvalPlot.plot_oos_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot out-of-sample performance metric historically.</p>
+<p>Parameters</p>
+<blockquote>
+<div><dl class="simple">
+<dt>score<span class="classifier">str, optional</span></dt><dd><p>The performance metric to plot. Default is 'RMSE'.</p>
+</dd>
+<dt>xlabel<span class="classifier">str, optional</span></dt><dd><p>Label for the x-axis.</p>
+</dd>
+<dt>ylabel<span class="classifier">str, optional</span></dt><dd><p>Label for the y-axis.</p>
+</dd>
+<dt>title<span class="classifier">str, optional</span></dt><dd><p>The title of the plot. Default is 'Out of Sample Performance - Average on All Horizons'.</p>
+</dd>
+<dt>ax<span class="classifier">plt.Axes, optional</span></dt><dd><p>The Axes object for the plot.</p>
+</dd>
+<dt>figsize<span class="classifier">Tuple[float, float], optional</span></dt><dd><p>The figure size. Default is (15, 6).</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-forecast.utils.plotting">
 <span id="utils-plotting-series"></span><h1>Utils: Plotting Series<a class="headerlink" href="#module-forecast.utils.plotting" title="Permalink to this heading">¶</a></h1>
@@ -869,22 +869,36 @@ ax : plt.Axis</p>
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="readme.html">Readme File</a></li>
-<li class="toctree-l1"><a class="reference internal" href="readme.html#forecast">forecast</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Single Model: Main Classes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#forecast.forecast.Forecast"><code class="docutils literal notranslate"><span class="pre">Forecast</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">forecast</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">Forecast</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#forecast.forecast.Forecast.evaluate"><code class="docutils literal notranslate"><span class="pre">Forecast.evaluate()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#forecast.forecast.Forecast.fit"><code class="docutils literal notranslate"><span class="pre">Forecast.fit()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#forecast.forecast.Forecast.predict"><code class="docutils literal notranslate"><span class="pre">Forecast.predict()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#forecast.forecast.Forecast.split_procedure_summary"><code class="docutils literal notranslate"><span class="pre">Forecast.split_procedure_summary()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#forecast.forecast.Forecast.update"><code class="docutils literal notranslate"><span class="pre">Forecast.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#forecast.model_select.ForecastModelSelect"><code class="docutils literal notranslate"><span class="pre">ForecastModelSelect</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#forecast.model_select.ForecastModelSelect.add_forecast"><code class="docutils literal notranslate"><span class="pre">ForecastModelSelect.add_forecast()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#forecast.model_select.ForecastModelSelect.evaluate"><code class="docutils literal notranslate"><span class="pre">ForecastModelSelect.evaluate()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#forecast.model_select.ForecastModelSelect.fit"><code class="docutils literal notranslate"><span class="pre">ForecastModelSelect.fit()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#forecast.model_select.ForecastModelSelect.oos_per_cutoff"><code class="docutils literal notranslate"><span class="pre">ForecastModelSelect.oos_per_cutoff()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#forecast.model_select.ForecastModelSelect.plot_model_compare"><code class="docutils literal notranslate"><span class="pre">ForecastModelSelect.plot_model_compare()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#forecast.model_select.ForecastModelSelect.plot_prediction"><code class="docutils literal notranslate"><span class="pre">ForecastModelSelect.plot_prediction()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#forecast.model_select.ForecastModelSelect.predict"><code class="docutils literal notranslate"><span class="pre">ForecastModelSelect.predict()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#forecast.model_select.ForecastModelSelect.select_best"><code class="docutils literal notranslate"><span class="pre">ForecastModelSelect.select_best()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#forecast.model_select.ForecastModelSelect.update"><code class="docutils literal notranslate"><span class="pre">ForecastModelSelect.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#supporting-classes-for-single-model">Supporting Classes For Single Model</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#forecast.forecast.ForecastFit"><code class="docutils literal notranslate"><span class="pre">ForecastFit</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#forecast.forecast.ForecastEval"><code class="docutils literal notranslate"><span class="pre">ForecastEval</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#single-model-plot-classes">Single Model: Plot Classes</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="#supporting-classes-for-plots-single-model">Supporting Classes for Plots Single Model</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#forecast.forecast.ForecastPlot"><code class="docutils literal notranslate"><span class="pre">ForecastPlot</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#forecast.forecast.ForecastFitPlot"><code class="docutils literal notranslate"><span class="pre">ForecastFitPlot</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#forecast.forecast.ForecastEvalPlot"><code class="docutils literal notranslate"><span class="pre">ForecastEvalPlot</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#model-combination">Model Combination</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#forecast.model_select.ForecastModelSelect"><code class="docutils literal notranslate"><span class="pre">ForecastModelSelect</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="#module-forecast.utils.plotting">Utils: Plotting Series</a><ul>
@@ -897,7 +911,7 @@ ax : plt.Axis</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="readme.html" title="previous chapter">Readme File</a></li>
+      <li>Previous: <a href="readme.html" title="previous chapter">forecast</a></li>
   </ul></li>
 </ul>
 </div>
