@@ -62,7 +62,17 @@
 <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1000</span><span class="p">)),</span>
                  <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="s1">&#39;31/12/2022&#39;</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">1000</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
 
-<span class="kn">from</span> <span class="nn">forecast.model_select</span> <span class="kn">import</span> <span class="n">ForecastModelSelect</span>
+<span class="kn">from</span> <span class="nn">forecast_ar.model_select</span> <span class="kn">import</span> <span class="n">ForecastModelSelect</span>
+<span class="c1"># models necessary to define the forecasting models</span>
+<span class="kn">from</span> <span class="nn">sktime.forecasting.naive</span> <span class="kn">import</span> <span class="n">NaiveForecaster</span>
+<span class="kn">from</span> <span class="nn">sktime.forecasting.statsforecast</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">StatsForecastAutoARIMA</span><span class="p">,</span>
+    <span class="n">StatsForecastAutoETS</span><span class="p">,</span>
+    <span class="n">StatsForecastAutoTheta</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">sktime.forecasting.tbats</span> <span class="kn">import</span> <span class="n">TBATS</span>
+<span class="kn">from</span> <span class="nn">sktime.forecasting.fbprophet</span> <span class="kn">import</span> <span class="n">Prophet</span>
+
 <span class="n">ForecastingModels</span> <span class="o">=</span> <span class="p">{</span>
 <span class="s2">&quot;Naive&quot;</span><span class="p">:</span> <span class="n">NaiveForecaster</span><span class="p">(),</span>
 <span class="s2">&quot;AutoARIMA&quot;</span><span class="p">:</span> <span class="n">StatsForecastAutoARIMA</span><span class="p">(),</span>
@@ -94,7 +104,7 @@
 <span class="n">y_pred</span><span class="p">,</span> <span class="n">y_pred_ints</span><span class="p">,</span> <span class="n">preds</span><span class="p">,</span> <span class="n">pred_ints</span> <span class="o">=</span>  <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">score</span><span class="o">=</span><span class="s1">&#39;RMSE&#39;</span><span class="p">,</span> <span class="n">ret_underlying</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Visualize prediction</span>
-<span class="n">LFMS</span><span class="o">.</span><span class="n">plot_prediction</span><span class="p">(</span><span class="n">y_pred</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">,</span>
+<span class="n">model</span><span class="o">.</span><span class="n">plot_prediction</span><span class="p">(</span><span class="n">y_pred</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">,</span>
                      <span class="n">models_preds</span> <span class="o">=</span> <span class="n">preds</span><span class="p">,</span>
                      <span class="n">y_pred_interval</span> <span class="o">=</span> <span class="n">y_pred_ints</span><span class="p">,</span>
                      <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Prediction&#39;</span><span class="p">)</span>
