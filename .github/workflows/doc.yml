@@ -22,7 +22,8 @@ jobs:
            
     - name: Generate documenation
       run: |
-        make docs/html
+        cd docs
+        make html
     
     # Push the HTML generated documentation to github-pages
     - name: GitHub Pages action
