@@ -28,9 +28,8 @@ jobs:
            
     - name: Generate documenation
       run: |
-        poetry shell
         cd docs
-        make html
+        poetry run make html
     
     # Push the HTML generated documentation to github-pages
     - name: GitHub Pages action
