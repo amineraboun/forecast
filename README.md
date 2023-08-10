@@ -18,35 +18,56 @@ forecast is a Python library built upon the foundation of the sktime library, de
 Install Your Package Name using pip:
 
 ```bash
-pip install your-package-name
+pip install forecast
 ```
 
 ## Usage
 
 ```python
 # Import the necessary classes from your-package-name
-from forecast.model_select import YourClassName
+data = pd.Series(np.cumsum(np.random.normal(0, 1, size=1000)), 
+                 index=pd.date_range(end='31/12/2022', periods=1000)).rename('y').to_frame()
 
-# Create an instance of YourClassName
-model = YourClassName()
+from forecast.model_select import ForecastModelSelect
+ForecastingModels = {
+"Naive": NaiveForecaster(),
+"AutoARIMA": StatsForecastAutoARIMA(),
+"AutoETS": StatsForecastAutoETS(),
+"AutoTheta": StatsForecastAutoTheta(),
+"TBATS": TBATS(),
+"Prophet": Prophet(),
+}
+model = ForecastModelSelect(
+            data= data,
+            depvar_str = 'y',                 
+            exog_l=None,
+            fh = 10,
+            pct_initial_window=0.75,
+            step_length = 25,
+            models_d = ForecastingModels,
+            freq = 'B',
+            mode = 'nbest_average_horizon',
+            score = 'RMSE', 
+            nbest = 2)
 
-# Make predictions using the predict method
-predictions = model.predict(X, fh, mode='best', score='RMSE')
-
-# Update predictions with new data using the update method
-updated_predictions = model.update(newdata, refit=True, mode='average')
-
+# compare models
+model.select_best(score = 'MAPE')
 # Visualize model comparison
-model.plot_model_compare(score='RMSE', view='horizon')
-model.plot_model_compare(score='RMSE', view='cutoff')
+model.plot_model_compare(score='MAPE', view='horizon')
+model.plot_model_compare(score='MAPE', view='cutoff')
 
-# Visualize model prediction
-model.plot_prediction(predictions, models_preds=None, title='Prediction')
-```
+# Generate prediction
+y_pred, y_pred_ints, preds, pred_ints =  model.predict(score='RMSE', ret_underlying=True)
+
+# Visualize prediction
+LFMS.plot_prediction(y_pred = y_pred,
+                     models_preds = preds,
+                     y_pred_interval = y_pred_ints, 
+                     title = 'Prediction') ```
 
 ## Documentation
 
-For detailed information about available classes, methods, and parameters, please refer to the [Documentation](link-to-your-documentation).
+For detailed information about available classes, methods, and parameters, please refer to the [Documentation](https://amineraboun.github.io/forecast/).
 
 ## License
 

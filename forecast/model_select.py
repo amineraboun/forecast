@@ -536,7 +536,7 @@ class ForecastModelSelect:
         y = self.LF_list[0].y
         y_train = y.loc[y.index<y_pred.index[0]]
         zoom_y_train = y_train.iloc[-5*len(y_pred):]
-
+    
         if models_preds is not None:
             model_names = models_preds.columns
             models_preds = [models_preds[c] for c in model_names]
