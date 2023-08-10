@@ -20,3 +20,13 @@ Single Model: Plot Classes
    
 .. autoclass:: forecast.forecast.ForecastEvalPlot
    :members:
+   
+Model Combination
+-----------------
+.. autoclass:: forecast.model_select.ForecastModelSelect
+   :members:
+
+Utils: Plotting Series
+----------------------
+.. automodule:: forecast.utils.plotting
+   :members:
