@@ -24,12 +24,15 @@ pip install forecast_combine
 ## Usage
 
 ```python
-# Import the necessary classes from your-package-name
+# Read the data
 data = pd.Series(np.cumsum(np.random.normal(0, 1, size=1000)), 
-                 index=pd.date_range(end='31/12/2022', periods=1000)).rename('y').to_frame()
+                 index=pd.date_range(end='31/12/2022', periods=1000)
+                ).rename('y').to_frame()
 
+# Import the package
 from forecast_combine.model_select import ForecastModelSelect
-# models necessary to define the forecasting models 
+
+# Import the packages of the models to test
 from sktime.forecasting.naive import NaiveForecaster
 from sktime.forecasting.statsforecast import (
     StatsForecastAutoARIMA,
@@ -40,13 +43,14 @@ from sktime.forecasting.tbats import TBATS
 from sktime.forecasting.fbprophet import Prophet
 
 ForecastingModels = {
-"Naive": NaiveForecaster(),
-"AutoARIMA": StatsForecastAutoARIMA(),
-"AutoETS": StatsForecastAutoETS(),
-"AutoTheta": StatsForecastAutoTheta(),
-"TBATS": TBATS(),
-"Prophet": Prophet(),
+    "Naive": NaiveForecaster(),
+    "AutoARIMA": StatsForecastAutoARIMA(),
+    "AutoETS": StatsForecastAutoETS(),
+    "AutoTheta": StatsForecastAutoTheta(),
+    "TBATS": TBATS(),
+    "Prophet": Prophet()
 }
+
 model = ForecastModelSelect(
             data= data,
             depvar_str = 'y',                 
