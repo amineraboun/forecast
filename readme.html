@@ -58,12 +58,15 @@
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import the necessary classes from your-package-name</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Read the data</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1000</span><span class="p">)),</span>
-                 <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="s1">&#39;31/12/2022&#39;</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">1000</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+                 <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="s1">&#39;31/12/2022&#39;</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
 
+<span class="c1"># Import the package</span>
 <span class="kn">from</span> <span class="nn">forecast_combine.model_select</span> <span class="kn">import</span> <span class="n">ForecastModelSelect</span>
-<span class="c1"># models necessary to define the forecasting models</span>
+
+<span class="c1"># Import the packages of the models to test</span>
 <span class="kn">from</span> <span class="nn">sktime.forecasting.naive</span> <span class="kn">import</span> <span class="n">NaiveForecaster</span>
 <span class="kn">from</span> <span class="nn">sktime.forecasting.statsforecast</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">StatsForecastAutoARIMA</span><span class="p">,</span>
@@ -74,13 +77,14 @@
 <span class="kn">from</span> <span class="nn">sktime.forecasting.fbprophet</span> <span class="kn">import</span> <span class="n">Prophet</span>
 
 <span class="n">ForecastingModels</span> <span class="o">=</span> <span class="p">{</span>
-<span class="s2">&quot;Naive&quot;</span><span class="p">:</span> <span class="n">NaiveForecaster</span><span class="p">(),</span>
-<span class="s2">&quot;AutoARIMA&quot;</span><span class="p">:</span> <span class="n">StatsForecastAutoARIMA</span><span class="p">(),</span>
-<span class="s2">&quot;AutoETS&quot;</span><span class="p">:</span> <span class="n">StatsForecastAutoETS</span><span class="p">(),</span>
-<span class="s2">&quot;AutoTheta&quot;</span><span class="p">:</span> <span class="n">StatsForecastAutoTheta</span><span class="p">(),</span>
-<span class="s2">&quot;TBATS&quot;</span><span class="p">:</span> <span class="n">TBATS</span><span class="p">(),</span>
-<span class="s2">&quot;Prophet&quot;</span><span class="p">:</span> <span class="n">Prophet</span><span class="p">(),</span>
+    <span class="s2">&quot;Naive&quot;</span><span class="p">:</span> <span class="n">NaiveForecaster</span><span class="p">(),</span>
+    <span class="s2">&quot;AutoARIMA&quot;</span><span class="p">:</span> <span class="n">StatsForecastAutoARIMA</span><span class="p">(),</span>
+    <span class="s2">&quot;AutoETS&quot;</span><span class="p">:</span> <span class="n">StatsForecastAutoETS</span><span class="p">(),</span>
+    <span class="s2">&quot;AutoTheta&quot;</span><span class="p">:</span> <span class="n">StatsForecastAutoTheta</span><span class="p">(),</span>
+    <span class="s2">&quot;TBATS&quot;</span><span class="p">:</span> <span class="n">TBATS</span><span class="p">(),</span>
+    <span class="s2">&quot;Prophet&quot;</span><span class="p">:</span> <span class="n">Prophet</span><span class="p">()</span>
 <span class="p">}</span>
+
 <span class="n">model</span> <span class="o">=</span> <span class="n">ForecastModelSelect</span><span class="p">(</span>
             <span class="n">data</span><span class="o">=</span> <span class="n">data</span><span class="p">,</span>
             <span class="n">depvar_str</span> <span class="o">=</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span>
@@ -17595,9 +17599,11 @@ Fitting the model on the whole sample ...
 <li class="toctree-l2"><a class="reference internal" href="#example-2-combination-of-several-models">Example 2: Combination of Several Models</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="forecast.html">Supporting Classes For Single Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="forecast.html"><code class="docutils literal notranslate"><span class="pre">Forecast</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="forecast.html#forecast_combine.model_select.ForecastModelSelect"><code class="docutils literal notranslate"><span class="pre">ForecastModelSelect</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="forecast.html#supporting-classes-for-single-model">Supporting Classes For Single Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="forecast.html#supporting-classes-for-plots-single-model">Supporting Classes for Plots Single Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="forecast.html#utils-plotting-series">Utils: Plotting Series</a></li>
+<li class="toctree-l1"><a class="reference internal" href="forecast.html#module-forecast_combine.utils.plotting">Utils: Plotting Series</a></li>
 </ul>
 
 <div class="relations">

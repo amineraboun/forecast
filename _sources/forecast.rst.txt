@@ -3,35 +3,35 @@
 
 ## Single Model
 
-.. autoclass:: forecast_ar.forecast.Forecast
+.. autoclass:: forecast_combine.forecast.Forecast
    :members:
 
 ## Model Combination
 
-.. autoclass:: forecast_ar.model_select.ForecastModelSelect
+.. autoclass:: forecast_combine.model_select.ForecastModelSelect
    :members:
    
 Supporting Classes For Single Model
 -----------------------------------
-.. autoclass:: forecast_ar.forecast.ForecastFit
+.. autoclass:: forecast_combine.forecast.ForecastFit
    :members:
 
-.. autoclass:: forecast_ar.forecast.ForecastEval
+.. autoclass:: forecast_combine.forecast.ForecastEval
    :members:
    
 Supporting Classes for Plots Single Model
 -----------------------------------------
-.. autoclass:: forecast_ar.forecast.ForecastPlot
+.. autoclass:: forecast_combine.forecast.ForecastPlot
    :members:
 
-.. autoclass:: forecast_ar.forecast.ForecastFitPlot
+.. autoclass:: forecast_combine.forecast.ForecastFitPlot
    :members:
    
-.. autoclass:: forecast_ar.forecast.ForecastEvalPlot
+.. autoclass:: forecast_combine.forecast.ForecastEvalPlot
    :members:
    
    
 Utils: Plotting Series
 ----------------------
-.. automodule:: forecast_ar.utils.plotting
+.. automodule:: forecast_combine.utils.plotting
    :members:
