@@ -1,10 +1,10 @@
-# forecast_ar
+# forecast_combine
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
 
-forecast is a Python library built upon the foundation of the sktime library, designed to simplify and streamline the process of forecasting and prediction model aggregation. It provides tools for aggregating predictions from multiple models, evaluating their performance, and visualizing the results. Whether you're working on time series forecasting, data analysis, or any other predictive modeling task, forecast offers a convenient and efficient way to handle aggregation and comparison.
+forecast_combine is a Python library built upon the foundation of the sktime library, designed to simplify and streamline the process of forecasting and prediction model aggregation. It provides tools for aggregating predictions from multiple models, evaluating their performance, and visualizing the results. Whether you're working on time series forecasting, data analysis, or any other predictive modeling task, forecast_combine offers a convenient and efficient way to handle aggregation and comparison.
 
 ## Key Features
 
@@ -18,7 +18,7 @@ forecast is a Python library built upon the foundation of the sktime library, de
 Install Your Package Name using pip:
 
 ```bash
-pip install forecast
+pip install forecast_combine
 ```
 
 ## Usage
@@ -28,7 +28,7 @@ pip install forecast
 data = pd.Series(np.cumsum(np.random.normal(0, 1, size=1000)), 
                  index=pd.date_range(end='31/12/2022', periods=1000)).rename('y').to_frame()
 
-from forecast_ar.model_select import ForecastModelSelect
+from forecast_combine.model_select import ForecastModelSelect
 # models necessary to define the forecasting models 
 from sktime.forecasting.naive import NaiveForecaster
 from sktime.forecasting.statsforecast import (

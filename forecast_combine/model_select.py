@@ -9,8 +9,8 @@ from typing import Union, Optional, Tuple, List, Dict, Any
 from warnings import simplefilter
 simplefilter('ignore')
 
-from forecast_ar.forecast import *
-from forecast_ar.utils.plotting import plot_series
+from forecast_combine.forecast import *
+from forecast_combine.utils.plotting import plot_series
 
 ##############################################################################
 # Model Selection

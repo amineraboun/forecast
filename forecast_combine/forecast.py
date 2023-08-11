@@ -19,7 +19,7 @@ plt.rc('xtick', labelsize='large')
 plt.rc('ytick', labelsize='large')   
 plt.rc('legend', fontsize='large')   
 plt.rc('figure', titlesize='x-large') 
-from forecast_ar.utils.plotting import plot_series
+from forecast_combine.utils.plotting import plot_series
 
 # Forcast models
 from sktime.forecasting.naive import NaiveForecaster

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "forecast_ar"
+name = "forecast_combine"
 version = "0.0.1"
 description = "Automation of forecast models testing, combining and predicting"
 authors = ["amineraboun <amineraboun@gmail.com>"]
