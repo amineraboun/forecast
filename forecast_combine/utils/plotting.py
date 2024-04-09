@@ -10,8 +10,20 @@ from sktime.utils.validation._dependencies import _check_soft_dependencies
 from sktime.utils.validation.forecasting import check_interval_df, check_y
 from sktime.utils.validation.series import check_consistent_index_type
 from sktime.datatypes import convert_to
+from typing import List
+from warnings import simplefilter, warn
 
 
+def _check_colors(colors, n_series):
+    """Verify color list is correct length and contains only colors."""
+    from matplotlib.colors import is_color_like
+
+    if n_series == len(colors) and all([is_color_like(c) for c in colors]):
+        return True
+    warn(
+        "Color list must be same length as `series` and contain only matplotlib colors"
+    )
+    return False
 
 def plot_series(
     *series,
@@ -26,36 +38,37 @@ def plot_series(
     pred_interval=None,
 	interval_label ='prediction interval'
 ):
-    """Plot one or more time series.
+    """
+    Plot one or more time series.
 
-    Parameters
-    
-    series : pd.Series or iterable of pd.Series
-        One or more time series
-    labels : list, default = None
-        Names of series, will be displayed in figure legend
-    markers: list, default = None
-        Markers of data points, if None the marker "o" is used by default.
-        The length of the list has to match with the number of series.
-    colors: list, default = None
-        The colors to use for plotting each series. Must contain one color per series
-    title: str, default = None
-        The text to use as the figure's suptitle
-    pred_interval: pd.DataFrame, default = None
-        Output of `forecaster.predict_interval()`. Contains columns for lower
-        and upper boundaries of confidence interval.
+    Parameters:
+    -----------    
+        series : pd.Series or iterable of pd.Series
+            One or more time series
+        labels : list, default = None
+            Names of series, will be displayed in figure legend
+        markers: list, default = None
+            Markers of data points, if None the marker "o" is used by default.
+            The length of the list has to match with the number of series.
+        colors: list, default = None
+            The colors to use for plotting each series. Must contain one color per series
+        title: str, default = None
+            The text to use as the figure's suptitle
+        pred_interval: pd.DataFrame, default = None
+            Output of `forecaster.predict_interval()`. Contains columns for lower
+            and upper boundaries of confidence interval.
 
-    Returns
-    
-    fig : plt.Figure
-    ax : plt.Axis
+    Returns:
+    --------    
+        fig : plt.Figure
+        ax : plt.Axis
 
-    Examples
-    
+    Examples:
+    ---------    
     >>> from sktime.utils.plotting import plot_series
     >>> from sktime.datasets import load_airline
     >>> y = load_airline()
-    >>> fig, ax = plot_series(y)  # doctest: +SKIP
+    >>> fig, ax = plot_series(y) 
     """
     
     _check_soft_dependencies("matplotlib", "seaborn")
@@ -124,17 +137,15 @@ def plot_series(
     xs_flat = list(flatten(xs))
 
     # set x label of data point to the matching index
-    def format_fn(tick_val, tick_pos):
+    def format_fn(tick_val, _):
         if int(tick_val) in xs_flat:
             return index[int(tick_val)]
         else:
             return ""
 
-	
     # dynamically set x label ticks and spacing from index labels
     ax.xaxis.set_major_formatter(FuncFormatter(format_fn))
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-	
 	
 	# Change the xtickslabels
     reformat_xticks = lambda x: x if x=='' else pd.to_datetime(x).strftime('%Y-%m-%d')
@@ -152,7 +163,8 @@ def plot_series(
     _ylabel = ylabel if ylabel is not None else series[0].name
     ax.set_ylabel(_ylabel)
 
-    ax.legend(loc='best', frameon=False)
+    if legend:
+        ax.legend(loc='best', frameon=False)
 	
     if pred_interval is not None:
         check_interval_df(pred_interval, series[-1].index)
@@ -174,6 +186,100 @@ def plot_interval(ax, interval_df, legend_label ='prediction interval'):
         color=ax.get_lines()[-1].get_c(),
         label=f"{int(cov * 100)}% {legend_label}",
     )
-    ax.legend()
+    ax.legend(frameon=False, loc = 'best')
     return ax
+
+def plot_windows(y: pd.Series,
+                train_windows: List[np.ndarray],
+                test_windows: List[np.ndarray],
+                ax: plt.Axes,
+                labels: List[str],
+                ylabel: str,
+                xlabel: str,
+                title: str) -> None:
+    """
+    Visualize training and test windows.
+
+    Parameters:
+    -----------        
+        train_windows : List[np.ndarray]
+            List of training window indices.
+        test_windows : List[np.ndarray]
+            List of test window indices.
+        ax : plt.Axes
+            The Axes object for the plot.
+        labels : List[str]
+            Labels for the plot.
+        ylabel : str
+            Label for the y-axis.
+        xlabel : str
+            Label for the x-axis.
+        title : str
+            The title of the plot.
+
+    Returns:
+    --------
+        fig : plt.Figure
+            If ax was None, a new figure is created and returned
+            If ax was not None, the same ax is returned with plot added
+        ax : plt.Axis             
+            Axes containing the plot 
+    """
+    assert len(labels)==2, 'wrong number of labels'
+    simplefilter("ignore", category=UserWarning)
+
+    def get_y(length, split):
+        # Create a constant vector based on the split for y-axis."""
+        return np.ones(length) * split
+    # reformat_xticks = lambda x: x if x=='' else pd.to_datetime(x).strftime('%Y-%m-%d')
+
+    n_splits = len(train_windows)
+    n_timepoints = len(y)
+    len_test = len(test_windows[0])
+
+    train_color, test_color = sns.color_palette("colorblind")[:2]
+
+    if ax is None:
+        f, ax = plt.subplots(figsize=plt.figaspect(0.3))
+
+    for i in range(n_splits):
+        train = train_windows[i]
+        test = test_windows[i]
+
+        ax.plot(
+            np.arange(n_timepoints), get_y(n_timepoints, i), marker="o", c="lightgray"
+        )
+        ax.plot(
+            train,
+            get_y(len(train), i),
+            marker="o",
+            c=train_color,
+            label=labels[0],
+        )
+        ax.plot(
+            test,
+            get_y(len_test, i),
+            marker="o",
+            c=test_color,
+            label=labels[1],
+        )
+    
+    xticklabels = [int(item) for item in ax.get_xticks()[1:-1]]
+    xticklabels = [''] + [y.index[i].strftime('%Y-%m-%d') for i in xticklabels] + ['']
+    ax.invert_yaxis()
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+    ax.set(
+        title=title,
+        ylabel=ylabel,
+        xlabel=xlabel,
+        xticklabels = xticklabels,
+    )
+    # remove duplicate labels/handles
+    handles, labels = [(leg[:2]) for leg in ax.get_legend_handles_labels()]
+    ax.legend(handles, labels, frameon=False)
+
+    if ax is None:			
+        return f, ax
+    else:
+        return ax
 

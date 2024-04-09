@@ -1,20 +1,22 @@
 import pandas as pd
-import numpy as np
-import os
-import matplotlib.pyplot as plt
-import seaborn as sns
-
 from typing import Union, Optional, Tuple, List, Dict, Any
 
 from warnings import simplefilter
 simplefilter('ignore')
 
-from forecast_combine.forecast import *
+from .forecast import Forecast
 from forecast_combine.utils.plotting import plot_series
+from sktime.forecasting.base import ForecastingHorizon
 
-##############################################################################
-# Model Selection
-##############################################################################
+import matplotlib.pyplot as plt
+plt.rc('axes', titlesize='large')    
+plt.rc('axes', labelsize='large')   
+plt.rc('xtick', labelsize='large')   
+plt.rc('ytick', labelsize='large')   
+plt.rc('legend', fontsize='large')   
+plt.rc('figure', titlesize='x-large') 
+import seaborn as sns
+sns.set_theme(style='white', font_scale=1)
 
 class ForecastModelSelect:
 
@@ -27,8 +29,8 @@ class ForecastModelSelect:
 
         Method 2: Requires all the arguments taken by Forecast plus a dictionary where the keys are names of forecasts and the values are the forecast_models.
 
-    Parameters
-    
+    Parameters:
+    -----------    
         LF_list : list[Forecast], optional
             List of Forecast objects. Default is None.
         models_d : dict, optional
@@ -42,8 +44,8 @@ class ForecastModelSelect:
         kwargs
             Additional keyword arguments to be passed to the Forecast initialization.
 
-    Raises
-    
+    Raises:
+    -------    
         AssertionError
             If the mode, score, or nbest values are not recognized or do not meet the requirements.
             If both LF_list and models_d are None.
@@ -57,37 +59,13 @@ class ForecastModelSelect:
                  nbest: int = 2,
                  **kwargs: Any
                 ) -> None:
-        """
-        Initialize the ForecastModelSelect instance.
 
-        Parameters
-        
-            LF_list : list[Forecast], optional
-                List of Forecast objects. Default is None.
-            models_d : dict, optional
-                A dictionary containing various forecasting models for comparison. Default is None.
-            mode : str, optional
-                The aggregation mode. Default is 'nbest_average_horizon'.
-            score : str, optional
-                The performance score. Default is 'RMSE'.
-            nbest : int, optional
-                Number of best models to aggregate. Default is 2.
-            **kwargs
-                Additional keyword arguments to be passed to the Forecast initialization.
-
-        Raises
-        
-            AssertionError
-                If the mode, score, or nbest values are not recognized or do not meet the requirements.
-                If both LF_list and models_d are None.
-        """
         self.__init_test(mode, score, nbest)
 
         if LF_list is not None:
             self.LF_list = LF_list
 
         else:
-
             assert models_d is not None, 'You must have either the models_d or the LF_list not empty'
             lf_l = []
             for forecaster_name, forecaster in models_d.items():            
@@ -98,6 +76,14 @@ class ForecastModelSelect:
                 )
                 lf_l.append(_lf)
             self.LF_list = lf_l		
+        
+        self.eval_models = None
+        self.summary_horizon = None
+        self.summary_results = None
+        self.best_x_overall = None
+        self.model_rank_perhorizon = None
+        self.avg_oos_horizon = None
+        self.avg_oos_hist = None
         return None
 
     def add_forecast(self, 
@@ -106,12 +92,12 @@ class ForecastModelSelect:
         Add a Forecast Object to the list of models to evaluate.
 
         Parameters:
+        -----------
             lf : Forecast
                 The Forecast object to be added.
         """
         self.LF_list.append(lf)
         return self.LF_list
-
 
     def fit(self, 
             on: str = 'all', 
@@ -121,8 +107,8 @@ class ForecastModelSelect:
         """
         Fit the forecasting models for all the underlying Forecast objects.
 
-        Parameters
-        
+        Parameters:
+        -----------        
             on : str, optional
                 The period for the in-sample fitting. Default is 'all'.
             fh : ForecastingHorizon, optional
@@ -130,8 +116,8 @@ class ForecastModelSelect:
             force : bool, optional
                 If True, force fitting even if the models are already fitted. Default is False.
 
-        Returns
-        
+        Returns:
+        --------        
             None
         """
         for _lf in self.LF_list:
@@ -147,13 +133,13 @@ class ForecastModelSelect:
         """
         Evaluate the underlying Forecast models out of sample.
 
-        Parameters
-        
+        Parameters:
+        -----------
             force : bool, optional
                 If True, force the evaluation even if the models are already evaluated. Default is False.
 
-        Returns
-        
+        Returns:
+        --------
             tuple
                 A tuple containing the summary of out-of-sample performance per horizon and per model.
         """
@@ -162,7 +148,6 @@ class ForecastModelSelect:
         for _lf in self.LF_list:
             if (_lf.is_evaluated) and force ==False:
                 _model_evals.append(_lf.eval)
-                pass
             else:
                 _model_evals.append(_lf.evaluate())
         self.eval_models = _model_evals
@@ -174,34 +159,26 @@ class ForecastModelSelect:
             _sum_T[_lf_eval.forecaster_name] = _lf_eval.summary_results().squeeze()
             _sum_h[_lf_eval.forecaster_name] = _lf_eval.summary_horizon()
 
-        self.summary_horizon = pd.concat(_sum_h.values(),
-                                         axis=1,
-                                         keys = _sum_h.keys())
-        self.summary_results = pd.concat(_sum_T.values(), 
-                                         axis=1,
-                                         keys = _sum_T.keys())
-
+        self.summary_horizon = pd.concat(_sum_h.values(), axis=1, keys = _sum_h.keys())
+        self.summary_results = pd.concat(_sum_T.values(), axis=1, keys = _sum_T.keys())
         return self.summary_horizon, self.summary_results
 
     def select_best(self,
-
                     score: Optional[str] = None,
-
                     nbest: Optional[int] = None
-
                    ) -> pd.DataFrame:
         """
         Select the best model based on horizon and overall performance.
 
-        Parameters
-        
+        Parameters:
+        -----------        
             score : str, optional
                 The performance metric to use for model comparison. Should be either 'RMSE' or 'MAPE'. Default is None and it takes the value entered at initialization.
             nbest : int, optional
                 The number of best models to select based on horizon performance. Default is None and it takes the value entered at initialization.
 
-        Returns
-        
+        Returns:
+        --------        
             pd.DataFrame
                 model_rank_perhorizon. Rank of models per horizon based on performance.
         """
@@ -218,11 +195,10 @@ class ForecastModelSelect:
             print(f'The average performance of best models will be computed on {nevals} models instead')
             nbest = max(nbest, nevals)
 
-        cond1 = 'eval_models' not in self.__dict__.keys()
-        cond2 = 'summary_horizon' not in self.__dict__.keys()
-        if cond1 & cond2:	
-            print('\nTo select best. We have to evaluate the models out of sample')
-            print('Run evaluate ...')
+        cond1 = self.eval_models is None
+        cond2 = self.summary_horizon is None
+        if cond1 or cond2:	
+            print('\nRun evaluate ...')
             self.evaluate()
 
         self.best_x_overall = {}
@@ -256,7 +232,6 @@ class ForecastModelSelect:
 
         return self.model_rank_perhorizon[score]
 
-
     def oos_per_cutoff(self,
                        score: Optional[str] = None,
                        nbest: Optional[int] = None
@@ -264,15 +239,15 @@ class ForecastModelSelect:
         """
         Calculate and return the out-of-sample performance based on cutoffs.
 
-        Parameters
-        
+        Parameters:
+        -----------        
             score : str, optional
                 The performance metric to use for model comparison. Should be either 'RMSE' or 'MAPE'. Default is None and it takes the value entered at initialization.
             nbest : int, optional
                 The number of best models to select based on horizon performance. Default is None and it takes the value entered at initialization.
 
-        Returns
-        
+        Returns:
+        --------        
             pd.DataFrame
                 A DataFrame containing the out-of-sample performance per horizon and per model based on the specified score and nbest values.
         """
@@ -288,9 +263,7 @@ class ForecastModelSelect:
             print(f'The average performance of best models will be computed on {nevals} models instead')
             nbest = max(nbest, nevals)
 
-        cond = 'eval_models' not in self.__dict__.keys()
-        if cond:
-            print('\nTo select best. We have to evaluate the models out of sample')
+        if self.eval_models is None:
             print('Run evaluate ...')
             self.evaluate()
 
@@ -321,8 +294,8 @@ class ForecastModelSelect:
         """
         Make forecasts using the specified aggregation mode.
 
-        Parameters
-        
+        Parameters:
+        -----------        
             X : pd.DataFrame, optional
                 The exogenous variables used for prediction. Default is None and it takes the value entered at initialization..
             fh : ForecastingHorizon, optional
@@ -345,17 +318,16 @@ class ForecastModelSelect:
             ret_underlying : bool, optional
                 If True, return the underlying predictions and prediction intervals for each model. Default is False.
 
-        Returns
-        
+        Returns:
+        --------        
             tuple
                 A tuple containing the aggregated prediction and prediction intervals.
         """
-        preds = {}; pred_ints = {};
-
+        preds = {}; pred_ints = {}
         for _lf in self.LF_list:
             _y_pred, _y_pred_ints = _lf.predict(X=X, fh=fh, coverage=coverage)
-            preds[_lf.forecaster_name] = _y_pred;
-            pred_ints[_lf.forecaster_name] =_y_pred_ints; 
+            preds[_lf.forecaster_name] = _y_pred
+            pred_ints[_lf.forecaster_name] =_y_pred_ints
 
         preds = pd.concat(preds.values(), keys = preds.keys(), axis=1)
         pred_ints = pd.concat(pred_ints.values(), keys = pred_ints.keys(), axis=1)
@@ -376,8 +348,8 @@ class ForecastModelSelect:
         """
         Function to update the prediction for all the models and aggregate them based on the specific mode.
 
-        Parameters
-        
+        Parameters:
+        -----------        
             newdata : pd.DataFrame
                 The new data for updating the predictions.
             refit : bool, optional
@@ -402,16 +374,16 @@ class ForecastModelSelect:
             ret_underlying : bool, optional
                 If True, return the underlying predictions and prediction intervals for each model. Default is False.
 
-        Returns
-        
+        Returns:
+        -------
             tuple
                 A tuple containing the aggregated prediction and prediction intervals.
         """
-        preds = {}; pred_ints = {};
+        preds = {}; pred_ints = {}
         for _lf in self.LF_list:
             _y_pred, _y_pred_ints = _lf.update(newdata = newdata, fh=fh, coverage=coverage, refit=refit)
-            preds[_lf.forecaster_name] = _y_pred;
-            pred_ints[_lf.forecaster_name] =_y_pred_ints; 
+            preds[_lf.forecaster_name] = _y_pred
+            pred_ints[_lf.forecaster_name] =_y_pred_ints
 
         preds = pd.concat(preds.values(), keys = preds.keys(), axis=1)
         pred_ints = pd.concat(pred_ints.values(), keys = pred_ints.keys(), axis=1)
@@ -419,10 +391,9 @@ class ForecastModelSelect:
         if refit == False:
             return self.__aggregate_pred(mode=mode, preds=preds, pred_ints=pred_ints, score=score, nbest=nbest, ret_underlying=ret_underlying)
         else:
-            self.evalutate(force=True)
+            self.evaluate(force=True)
             self.select_best(score = score, nbest = nbest)
             return self.__aggregate_pred(mode=mode, preds=preds, pred_ints=pred_ints, score=score, nbest=nbest, ret_underlying=ret_underlying)
-
 
     def plot_model_compare(self, 
                            score: str = 'RMSE', 
@@ -436,8 +407,8 @@ class ForecastModelSelect:
         """
         Plot a comparison of models based on their out-of-sample performance.
 
-        Parameters
-        
+        Parameters:
+        -----------        
             score : str, optional
                 The performance metric for comparison. Should be either 'RMSE' or 'MAPE'. Default is 'RMSE'.
             view : str, optional
@@ -453,18 +424,18 @@ class ForecastModelSelect:
             figsize : tuple, optional
                 The size of the figure in inches (width, height). Default is (15, 6).
 
-        Returns
-        
+        Returns:
+        --------        
             matplotlib.figure.Figure or matplotlib.axes._subplots.AxesSubplot
                 The figure and axes of the plot.
         """
         if view =='horizon':
-            if 'avg_oos_horizon' not in self.__dict__.keys():
+            if self.avg_oos_horizon is None:
                 self.select_best()
             toplot = self.avg_oos_horizon[score]
 
         elif view=='cutoff':
-            if 'avg_oos_hist' not in self.__dict__.keys():
+            if self.avg_oos_hist is None:
                 self.oos_per_cutoff()
             toplot = self.avg_oos_hist[score]
 
@@ -480,19 +451,17 @@ class ForecastModelSelect:
 
         toplot.plot(ax=ax, style = '-o')
         ax.set(xlabel = xlabel, ylabel=ylabel, title =title)
-        ax.legend(frameon=False)
-
+        ax.legend(frameon=False, bbox_to_anchor=(1, 1))
         if ax is None:
             return f, ax
         else:
             return ax
 
-
     def plot_prediction(self, 
                         y_pred: pd.Series, 
                         models_preds: Optional[pd.DataFrame] = None, 
                         y_pred_interval: Optional[Tuple] = None, 
-                        interval_label: str = 'prediction interval', 
+                        interval_label: str = 'CI', 
                         aggregation_label: str = 'Model Agg', 
                         xlabel: str = '', 
                         ylabel: str = '', 
@@ -504,8 +473,8 @@ class ForecastModelSelect:
         """
         Plot forecast predictions and aggregated prediction.
 
-        Parameters
-        
+        Parameters:
+        -----------        
             y_pred : pd.Series
                 The aggregated prediction.
             models_preds : pd.DataFrame, optional
@@ -527,8 +496,8 @@ class ForecastModelSelect:
             figsize : tuple, optional
                 Size of the figure in inches (width, height). Default is (15, 6).
 
-        Returns
-        
+        Returns:
+        --------        
             matplotlib.figure.Figure or matplotlib.axes._subplots.AxesSubplot
                 The figure and axes of the plot.
         """
@@ -542,7 +511,7 @@ class ForecastModelSelect:
             models_preds = [models_preds[c] for c in model_names]
             labels = ['y'] + list(model_names) + [aggregation_label]
 
-            return plot_series(zoom_y_train, *models_preds, y_pred,
+            plt_res = plot_series(zoom_y_train, *models_preds, y_pred,
                                labels =labels,
                                xlabel =xlabel,
                                ylabel =ylabel,
@@ -550,10 +519,9 @@ class ForecastModelSelect:
                                ax=ax, 
                                figsize =figsize,
                                pred_interval = y_pred_interval,
-                               interval_label ='prediction interval')
+                               interval_label =interval_label)
         else:
-
-            return plot_series(zoom_y_train, y_pred,
+            plt_res = plot_series(zoom_y_train, y_pred,
                                labels =['y', aggregation_label],
                                xlabel =xlabel,
                                ylabel =ylabel,
@@ -561,7 +529,15 @@ class ForecastModelSelect:
                                ax=ax, 
                                figsize =figsize,
                                pred_interval = y_pred_interval,
-                              interval_label ='prediction interval')
+                              interval_label =interval_label)
+        if ax is None:
+            f, ax = plt_res
+            ax.legend(frameon=False, bbox_to_anchor=(1, 1))
+            return f, ax
+        else:
+            ax = plt_res
+            ax.legend(frameon=False, bbox_to_anchor=(1, 1))
+            return ax
 
     def __aggregate_pred(self, mode, preds, pred_ints, score=None, nbest=None, ret_underlying=False):
 
@@ -572,35 +548,28 @@ class ForecastModelSelect:
         if mode is None:
             mode = self.mode
 
-        if  (mode !='average') & ('best_x_overall' not in self.__dict__.keys()):
-            print('\nIdentify best models and their oos performance ...')
+        if  (mode !='average') & (self.best_x_overall is None):
             self.select_best(score = score, nbest = nbest)
 
         if mode =='best':
-
-            "returns the prediction of the best model"
+            # returns the prediction of the best model
             y_pred = preds[self.best_x_overall[score][0]]
             y_pred_int = pred_ints[self.best_x_overall[score][0]]
 
-
         elif mode =='best_horizon':
-
-            "returns the prediction of the best model for each forecast horizon"
+            # returns the prediction of the best model for each forecast horizon
             best_horizon = self.model_rank_perhorizon[score].loc['Best_1'].to_dict()
             y_pred = pd.Series([preds[v].iloc[k-1] for k, v in best_horizon.items()], 
                    index=preds.index)
             y_pred_int = pd.concat([pred_ints[v].iloc[k-1].to_frame().T for k, v in best_horizon.items()])
 
-
         elif mode == 'average':
-
-            "returns the average prediction of all models"
+            # returns the average prediction of all models
             y_pred = preds.mean(axis=1)
             y_pred_int = pred_ints.unstack().unstack(0).mean(axis=1).unstack().T
 
         elif mode == 'inverse_score':
-
-            "returns the Average models proportionals to performance score"
+            # returns the Average models proportionals to performance score
             _score = self.summary_results.loc[f'Avg {score}'].sort_values()
             _score = _score/_score.sum()
 
@@ -613,16 +582,13 @@ class ForecastModelSelect:
             y_pred_int = _weigh_preds_ints.astype('float')
 
         elif mode == 'nbest_average':
-
-            "return the average prediction of nbest models"
+            # return the average prediction of nbest models
             y_pred = preds[self.best_x_overall[score]].mean(axis=1)
             y_pred_int = pred_ints[self.best_x_overall[score]]\
             .unstack().unstack(0).mean(axis=1).unstack().T
 
-
         elif mode == 'nbest_average_horizon':
-
-            "return the average prediction on the nbest models per horizon"
+            # return the average prediction on the nbest models per horizon
             best_horizon = self.model_rank_perhorizon[score].iloc[:nbest].T
             best_horizon = best_horizon.apply(lambda x: x.values, axis=1).to_dict()
 
@@ -643,7 +609,6 @@ class ForecastModelSelect:
         else:
             return y_pred, y_pred_int
 
-
     def __init_test(self, 
                     mode: str, 
                     score: str,
@@ -652,8 +617,8 @@ class ForecastModelSelect:
         """
         Check the validity of mode, score, and nbest values.
 
-        Parameters
-        
+        Parameters:
+        -----------        
             mode : str
                 The aggregation mode.
             score : str
@@ -661,8 +626,8 @@ class ForecastModelSelect:
             nbest : int
                 Number of best models to aggregate.
 
-        Raises
-        
+        Raises:
+        -------        
             AssertionError
                 If the mode, score, or nbest values are not recognized or do not meet the requirements.
         """
