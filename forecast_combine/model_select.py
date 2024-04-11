@@ -19,7 +19,6 @@ import seaborn as sns
 sns.set_theme(style='white', font_scale=1)
 
 class ForecastModelSelect:
-
     """
     Class for model selection and comparison based on out-of-sample performance.
     Evaluate how to best combine the different models based on their oos performance.

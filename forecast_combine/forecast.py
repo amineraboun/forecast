@@ -4,9 +4,11 @@ __author__ = "Amine Raboun - amineraboun@github.io"
 
 # Standard Inports
 from typing import Optional, Tuple, List
-from collections.abc import Iterable
 import pandas as pd
 import numpy as np
+
+# Iteration tools
+from collections.abc import Iterable
 from tqdm import tqdm
 import time
 
@@ -207,7 +209,7 @@ class Forecast(object):
         self.plot = self.__plot()
 
 
-    def split_procedure_summary(self) -> dict:
+    def split_procedure_summary(self, verbose=True) -> dict:
         """
         Generate a summary of the cross-validation procedure.
 
@@ -218,14 +220,17 @@ class Forecast(object):
         """
 
         _n_splits = self.cv.get_n_splits(self.y)
-        cutoffs = [_train[0] for (_train, _) in self.cv.split(self.y.index)]
+        cutoffs = [self.y.index[_train[-1]] for (_train, _) in self.cv.split(self.y.index)]
         _split_proc= {'Number of Folds': _n_splits,
                       'Initial Window Size': self.cv.initial_window,
                       'Step Length': self.cv.step_length,
-                      'Forecast period': len(self.cv.fh),
+                      'Forecast Horizon': len(self.cv.fh),
                       'First Cutoff': cutoffs[0],
                       'Last Curoff': cutoffs[-1]
                      }
+        if verbose:
+            for k, v in _split_proc.items():
+                print(f"{k:<21}: {v}")
         return _split_proc    
 
     def __plot(self): #-> ForecastPlot
@@ -671,6 +676,7 @@ class ForecastPlot:
 ##############################################################################
 # Model Fit and Insample Performance
 ##############################################################################
+
 class ForecastFit:
     """
     Class for fitting the forecast model and computing insample performance metrics.
@@ -693,8 +699,7 @@ class ForecastFit:
         self.insample_result_df = None
         self.insample_perf_summary = None
 
-
-    def insample_predictions(self, nsample: int = 100) -> pd.DataFrame:
+    def insample_predictions(self, random_sample=False, nsample: int = 100) -> pd.DataFrame:
         """
         Compute the insample predictions for the fitted model.
 
@@ -711,22 +716,25 @@ class ForecastFit:
 
         assert self.forecaster.is_fitted, 'Fit the forecast on the training window first before you can evaluate the insample performance'
 
-        _cutoffs = np.random.choice(len(self.y_train)-len(self.fh), size=nsample, replace=False)
-
+        train_size = len(self.y_train) - len(self.fh)
+        if random_sample:            
+            nsample = max(train_size, nsample)
+            # Randomly selecting cutoff points
+            _cutoffs = np.random.choice(train_size, size=nsample, replace=False)
+        else:
+            _cutoffs = np.arange(train_size)
         cv_in = CutoffSplitter(cutoffs=_cutoffs, window_length=1, fh=self.fh)
 
-        insample_result = []                
-        for intrain, intest in tqdm(cv_in.split_series(self.y_train)):
+        def __compute_predictions(forecaster, X, intrain, intest):
             fh = ForecastingHorizon(intest.index, is_relative=False)
-
-            # Apply forecaster to predict the past
-            in_pred = self.forecaster.predict(fh=fh, X=self.X).rename('y_pred').reset_index()
+            in_pred = forecaster.predict(fh=fh, X=X).rename('y_pred').reset_index()
             in_pred['y_true'] = intest.values
-            in_pred['Abs_diff'] = (in_pred['y_true'] - in_pred['y_pred']).abs()
-            in_pred['horizon'] = np.arange(1, len(in_pred)+1)
-            in_pred['cutoff'] = intrain.index[-1]
+            in_pred['error_pct'] = (in_pred['y_true'] - in_pred['y_pred']).abs()/in_pred['y_true']
+            in_pred.insert(0, 'horizon', np.arange(1, len(in_pred) + 1))
+            in_pred.insert(0, 'cutoff', intrain.index[-1])        
+            return in_pred
 
-            insample_result.append(in_pred)
+        insample_result = [__compute_predictions(self.forecaster, self.X, intrain, intest) for intrain, intest in tqdm(cv_in.split_series(self.y_train))]
 
         insample_result_df = pd.concat(insample_result)
         self.insample_result_df = insample_result_df
@@ -895,12 +903,15 @@ class ForecastEval:
                 A DataFrame containing summary performance metrics (RMSE and MAPE) for each horizon.
         """
 
-        self.oos_horizon_perf = summary_perf(self.oos_horizon_df, grouper='horizon', y_true_col = 'y_test', y_pred_col = 'y_pred')        
+        self.oos_horizon_perf = summary_perf(self.oos_horizon_df, 
+                                             grouper='horizon', 
+                                             y_true_col = 'y_test', 
+                                             y_pred_col = 'y_pred')        
         return self.oos_horizon_perf
 
     def __eval_horizon(self, x):
         _fct = pd.concat([x['y_test'], x['y_pred']], keys=['y_test', 'y_pred'], axis=1)
-        _fct['Abs_diff'] = (_fct['y_test'] - _fct['y_pred']).abs()        
+        _fct['error_pct'] = (_fct['y_test'] - _fct['y_pred']).abs()/ _fct['y_test']
         _fct['horizon'] = np.arange(1, len(_fct)+1)    
         _fct['cutoff'] = x.name
         return _fct

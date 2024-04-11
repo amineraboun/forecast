@@ -20,7 +20,7 @@ def evaluate_metrics(y_true, y_pred):
     metrics = {
         'RMSE': np.sqrt(mean_squared_error(y_true, y_pred)),
         'MAE': mean_absolute_error(y_true, y_pred),
-        'MAPE': np.mean(np.abs((y_true - y_pred) / y_true)) * 100,
+        'MAPE': np.mean(np.abs((y_true - y_pred) / y_true)),
         'R2': r2_score(y_true, y_pred),
         'MedianAE': median_absolute_error(y_true, y_pred)
     }
