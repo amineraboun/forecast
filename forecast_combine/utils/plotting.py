@@ -269,11 +269,11 @@ def plot_windows(y: pd.Series,
     ax.invert_yaxis()
     ax.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax.set(
-        title=title,
         ylabel=ylabel,
         xlabel=xlabel,
         xticklabels = xticklabels,
     )
+    ax.set_title(title, size="xx-large")
     # remove duplicate labels/handles
     handles, labels = [(leg[:2]) for leg in ax.get_legend_handles_labels()]
     ax.legend(handles, labels, frameon=False)

@@ -27,27 +27,29 @@ sns.set_theme(style='white', font_scale=1)
 
 # Forcast models
 from sktime.forecasting.naive import NaiveForecaster
+from sktime.forecasting.fbprophet import Prophet
 from sktime.forecasting.statsforecast import (
 StatsForecastAutoARIMA,
 StatsForecastAutoETS, 
-StatsForecastAutoTheta
+StatsForecastAutoTheta,
+StatsForecastAutoTBATS, 
+StatsForecastMSTL
 )
-from sktime.forecasting.tbats import TBATS
-from sktime.forecasting.fbprophet import Prophet
 
-ForecastingModels = {
+CommonForecastingModels = {
 "Naive": NaiveForecaster(),
 "AutoARIMA": StatsForecastAutoARIMA(),
 "AutoETS": StatsForecastAutoETS(),
 "AutoTheta": StatsForecastAutoTheta(),
-"TBATS": TBATS(),
+"TBATS": StatsForecastAutoTBATS(seasonal_periods = 1),
+"LOESS": StatsForecastMSTL(season_length=1),
 "Prophet": Prophet(),
 }
 
 # Cross Validation
 from sktime.forecasting.base import ForecastingHorizon
+from sktime.split import CutoffSplitter
 from sktime.forecasting.model_selection import (
-CutoffSplitter, 
 ExpandingWindowSplitter, 
 temporal_train_test_split
 )
@@ -62,8 +64,9 @@ MedianAbsoluteError
 )
 
 # Filter Warnings
-from warnings import simplefilter
-simplefilter('ignore')
+import warnings
+warnings.simplefilter('ignore')
+warnings.filterwarnings("ignore")
 
 # Pandas frequencies
 pandas_frequency_dict = {
@@ -171,9 +174,9 @@ class Forecast(object):
 
         if forecaster is None:
             # Name of the forecaster should be known only if the forecaster is null
-            _err_msg = f'unsupported forecaster! Known forcasters are {list(ForecastingModels.keys())}'
-            assert forecaster_name in ForecastingModels.keys(), _err_msg
-            self.forecaster = ForecastingModels[forecaster_name]
+            _err_msg = f'unsupported forecaster! Known forcasters are {list(CommonForecastingModels.keys())}'
+            assert forecaster_name in CommonForecastingModels.keys(), _err_msg
+            self.forecaster = CommonForecastingModels[forecaster_name]
         else:
             self.forecaster = forecaster
 
@@ -298,7 +301,8 @@ class Forecast(object):
     def predict(self, 
                 X: Optional[pd.DataFrame] = None, 
                 fh: Optional[ForecastingHorizon] = None, 
-                coverage: float = 0.9
+                coverage: float = 0.9,
+                verbose = False
                ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
         Generate predictions (Average and confidence interval) using the fitted model.
@@ -318,8 +322,9 @@ class Forecast(object):
                 A tuple containing the predictions and the confidence intervals.
         """
         if self.is_fitted==False:
-            print("\nModel not fitted yet, or fitted on training sample alone")
-            print("Fitting the model on the whole sample ...")
+            if verbose:
+                print(f"\n{self.forecaster_name} model not fitted yet, or fitted on a subset only")
+                print("Fitting the model on the entire sample ...")
             self.fit(on='all', fh=fh)
 
         if fh is None:
@@ -328,7 +333,12 @@ class Forecast(object):
             X = self.X
 
         y_pred = self.forecaster.predict(X=X, fh=fh)
-        y_pred_ints = self.forecaster.predict_interval(X=X, fh=fh, coverage=coverage)
+        try:
+            y_pred_ints = self.forecaster.predict_interval(X=X, fh=fh, coverage=coverage)
+        except Exception as e:
+            print(f"{self.forecaster_name} does not support prediction intervals")
+            print(f"Error: {e}")
+            y_pred_ints = None
 
         return y_pred, y_pred_ints
 
@@ -336,7 +346,7 @@ class Forecast(object):
                newdata: pd.DataFrame, 
                fh: Optional[ForecastingHorizon] = None, 
                coverage: float = 0.9, 
-               refit: bool = False
+               refit: bool = False,
               ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
         Update cutoff value to forecast new dates.
@@ -507,7 +517,8 @@ class ForecastPlot:
                           labels: List[str] = None,
                           ylabel: str = "Window number",
                           xlabel: str = "Time",
-                          title: str = "Cross Validation Procedure") -> None:
+                          title: str = "Cross Validation Procedure"
+                          ) -> None:
         """
         Plot the cross-validation procedure.
 
@@ -845,8 +856,7 @@ class ForecastEval:
             'test_MeanAbsolutePercentageError':'MAPE',
             'test_MedianAbsoluteError':'MedianAE',
         }
-        print(f"\nStart forecaster {self.forecaster_name} evalution....")
-        print(" Depending on the forecaster this step may take couple of minutes. Please don't kill the kernel")
+        print(f"\nStart {self.forecaster_name} forecaster evalution....")
         st = time.time()
         self.oos_eval = evaluate(forecaster=self.forecaster, 
                             y=self.y,
@@ -861,15 +871,22 @@ class ForecastEval:
         self.oos_eval = self.oos_eval.rename(columns = _rename_metrics)
         et = time.time()
         elapsed_time = et - st
-        print(f"Evaluation time: {np.around(elapsed_time / 60,3)} minutes")
+        print(f"Evaluation completed in: {np.around(elapsed_time / 60,3)} minutes")
 
         convert_horizon = self.oos_eval.apply(self.__eval_horizon, axis=1)
+        
         self.oos_horizon_df = pd.concat(convert_horizon.values)
-        self.oos_horizon_perf = None
+        self.oos_horizon_perf = summary_perf(self.oos_horizon_df, 
+                                             grouper='horizon', 
+                                             y_true_col = 'y_test', 
+                                             y_pred_col = 'y_pred')
+        self.oos_cutoff_perf = summary_perf(self.oos_horizon_df, 
+                                             grouper='cutoff', 
+                                             y_true_col = 'y_test', 
+                                             y_pred_col = 'y_pred')
 
         self.plot = self.__plot()
         return None
-
 
     def summary_results(self) -> pd.DataFrame:
         """
@@ -881,32 +898,39 @@ class ForecastEval:
                 A DataFrame containing various summary statistics of the out-of-sample forecasts.
         """
 
-        _summary = {'Number of Folds':  self.oos_eval.shape[0], 
+        _summary = {
+         'Number of Folds':  self.oos_eval.shape[0], 
          'Avg Fit time (s)': self.oos_eval.fit_time.mean(),
          'Avg_pred_time (s)': self.oos_eval.pred_time.mean(),
          'Smallest training window': self.oos_eval.len_train_window.min(),
          'Largest training window':self.oos_eval.len_train_window.max(),
          'First cutoff': self.oos_eval.index[0],
          'Last cutoff': self.oos_eval.index[-1],
-         'Avg MAPE': self.oos_eval.MAPE.mean(),
-         'Avg RMSE': self.oos_eval.RMSE.mean()
         }
+        for _s in self.oos_cutoff_perf.columns:
+            _summary['Avg {_s}'] = self.oos_cutoff_perf[_s].mean()
         return pd.Series(_summary).to_frame().T
 
-    def summary_horizon(self) -> pd.DataFrame:
+    def summary_cutoff(self) -> pd.DataFrame:
         """
-        Generate a summary of out-of-sample forecast results per horizon.
+        Generate a summary of out-of-sample performance per cutoff.
 
         Returns:
         --------        
             pd.DataFrame
                 A DataFrame containing summary performance metrics (RMSE and MAPE) for each horizon.
-        """
+        """        
+        return self.oos_cutoff_perf
 
-        self.oos_horizon_perf = summary_perf(self.oos_horizon_df, 
-                                             grouper='horizon', 
-                                             y_true_col = 'y_test', 
-                                             y_pred_col = 'y_pred')        
+    def summary_horizon(self) -> pd.DataFrame:
+        """
+        Generate a summary of out-of-sample performance per horizon.
+
+        Returns:
+        --------        
+            pd.DataFrame
+                A DataFrame containing summary performance metrics (RMSE and MAPE) for each horizon.
+        """        
         return self.oos_horizon_perf
 
     def __eval_horizon(self, x):
@@ -930,15 +954,16 @@ class ForecastEvalPlot:
     """
 
     def __init__(self, LFE: ForecastEval):
-        self.oos_eval = LFE.oos_eval
         self.oos_horizon_perf = LFE.oos_horizon_perf
-        self.LFE = LFE
+        self.oos_cutoff_perf = LFE.oos_cutoff_perf
+        return None
 
     def plot_oos_score(self,
                        score: str = 'RMSE',
+                       view: str = 'horizon', 
                        xlabel: str = None,
                        ylabel: str = None,
-                       title: str = 'Out of Sample Performance - Average on All Horizons',
+                       title: str = 'Out of Sample Performance',
                        ax: Optional[plt.Axes] = None,
                        figsize: Tuple[float, float] = (15, 6)):
         """
@@ -948,12 +973,17 @@ class ForecastEvalPlot:
         -----------        
             score : str, optional
                 The performance metric to plot. Default is 'RMSE'.
+            view: str, optional
+                The view of the plot. It must be either 
+                    - horizon: the function plots the average score per forecast horizon
+                    - cutoff: the function plots the average across all horizons for each cutoff                
+                Default is 'horizon'.
             xlabel : str, optional
                 Label for the x-axis.
             ylabel : str, optional
                 Label for the y-axis.
             title : str, optional
-                The title of the plot. Default is 'Out of Sample Performance - Average on All Horizons'.
+                The title of the plot. Default is 'Out of Sample Performance'.
             ax : plt.Axes, optional
                 The Axes object for the plot.
             figsize : Tuple[float, float], optional
@@ -967,70 +997,24 @@ class ForecastEvalPlot:
                 An array of Axes objects containing the plot.
 
         """
-
-        assert score in self.oos_eval.columns, 'score not computed'
-        if ax is None:
-            f, ax = plt.subplots(1,1,figsize=figsize)
-
-        ylabel = score if ylabel is None else ylabel
-        xlabel = '' if xlabel is None else xlabel
-        self.oos_eval[score].plot(ax = ax, style = '-o')
-        ax.set(xlabel = xlabel, ylabel=ylabel, title =title)
-
-        if ax is None:
-            return f, ax
+        if view == 'horizon':
+            assert score in self.oos_horizon_perf.columns, 'score not computed'
+            to_plot = self.oos_horizon_perf[score]
+        elif view == 'cutoff':
+            assert score in self.oos_cutoff_perf.columns, 'score not computed'
+            to_plot = self.oos_cutoff_perf[score]
         else:
-            return ax
-
-    def plot_oos_horizon(self,
-                         score: str = 'RMSE',
-                         xlabel: str = None,
-                         ylabel: str = None,
-                         title: str = 'Out of Sample Performance - Average per Horizons',
-                         ax: Optional[plt.Axes] = None,
-                         figsize: Tuple[float, float] = (15, 6)):
-        """
-        Plot out-of-sample performance metric per horizon.
-
-        Parameters:
-        -----------        
-            score : str, optional
-                The performance metric to plot. Default is 'RMSE'.
-            xlabel : str, optional
-                Label for the x-axis.
-            ylabel : str, optional
-                Label for the y-axis.
-            title : str, optional
-                The title of the plot. Default is 'Out of Sample Performance - Average per Horizons'.
-            ax : plt.Axes, optional
-                The Axes object for the plot.
-            figsize : Tuple[float, float], optional
-                The figure size. Default is (15, 6).
-        
-        Returns:
-        --------        
-            fig : plt.Figure
-                The Figure object containing the plot.
-            axes : np.array
-                An array of Axes objects containing the plot.
-        """
-        if self.oos_horizon_perf is None:
-            print('Computing summary performance per horizon ...')
-            self.oos_horizon_perf = self.LFE.summary_horizon()
-
-        assert score in self.oos_horizon_perf.columns, 'score not computed'
+            raise ValueError('view should be either horizon or cutoff')
 
         if ax is None:
             f, ax = plt.subplots(1,1,figsize=figsize)
 
         ylabel = score if ylabel is None else ylabel
-        xlabel = '' if xlabel is None else xlabel
-        
-        self.oos_horizon_perf[score].plot(ax = ax, style = '-o')
-        ax.set(xlabel = xlabel, ylabel=ylabel, title =title)
-
+        xlabel = '' if xlabel is None else xlabel        
+        to_plot.plot(ax = ax, style = '-o')                    
+        ax.set(xlabel = xlabel, ylabel=ylabel)
+        ax.set_title(title, size ='xx-large')
         if ax is None:
             return f, ax
         else:
             return ax
-

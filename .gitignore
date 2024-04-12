@@ -1,8 +1,11 @@
 # Git ignore
 .idea
 .venv
+.vscode
+*.vscode
 docs/_build/*
 *.ipynb_checkpoints
+.ipynb_checkpoints
 **/__pycache__
 
 .DS_Store.idea
