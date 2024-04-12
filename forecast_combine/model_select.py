@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from typing import Union, Optional, Tuple, List, Dict, Any
 
 from warnings import simplefilter
@@ -149,7 +150,8 @@ class ForecastModelSelect:
     def fit(self, 
             on: str = 'all', 
             fh: Optional[ForecastingHorizon] = None, 
-            force: bool = False
+            force: bool = False,
+            verbose: bool = False
            ) -> None:
         """
         Fit the forecasting models for all the underlying Forecast objects.
@@ -167,7 +169,9 @@ class ForecastModelSelect:
         --------        
             None
         """
-        for _lf in self.LF_d.values():
+        for _lfname, _lf in self.LF_d.items():
+            if verbose:
+                print(f'Fitting {_lfname} ...')
             if (_lf.is_fitted) and force ==False:
                 pass
             else:
@@ -344,7 +348,7 @@ class ForecastModelSelect:
                 coverage: float = 0.9,
                 mode: Optional[str] = None,
                 score: Optional[str] = None,
-                nbest: Optional[int] = None,
+                model_name = None,
                 ret_underlying: bool = False
                ) -> Tuple[pd.Series, pd.DataFrame]:
         """
@@ -367,10 +371,13 @@ class ForecastModelSelect:
                 * 'inverse_score': The weighted average prediction, where weights are inversely proportional to the model performance score.
                 * 'nbest_average': Average of the n best models. The n is given by the parameter nbest.
                 * 'nbest_average_horizon': Average of the n best models for each horizon. The n is given by the parameter nbest.
+                * 'model': Returns the prediction of a specific model. The model name must be provided in the model_name parameter.
             score : str, optional
                 The performance metric to use for model comparison. Should be either 'RMSE' or 'MAPE'. Default is None and it takes the value entered at initialization..
             nbest : int, optional
                 The number of best models to select based on horizon performance. Default is None and it takes the value entered at initialization..
+            model_name: str, optional
+                The model name to use for prediction if mode='model'. Default is None.
             ret_underlying : bool, optional
                 If True, return the underlying predictions and prediction intervals for each model. Default is False.
 
@@ -379,16 +386,22 @@ class ForecastModelSelect:
             tuple
                 A tuple containing the aggregated prediction and prediction intervals.
         """
-        preds = {}; pred_ints = {}
-        for _fname, _lf in self.LF_d.items():
-            _y_pred, _y_pred_ints = _lf.predict(X=X, fh=fh, coverage=coverage)
-            preds[_fname] = _y_pred
-            pred_ints[_fname] =_y_pred_ints
+        if mode is None:
+            mode = self.mode
+        if mode == 'model':
+            assert model_name in self.LF_d.keys(), 'Model name not in the list of models'
+            return self.LF_d[model_name].predict(X=X, fh=fh, coverage=coverage)
+        else:
+            preds = {}; pred_ints = {}
+            for _fname, _lf in self.LF_d.items():
+                _y_pred, _y_pred_ints = _lf.predict(X=X, fh=fh, coverage=coverage)
+                preds[_fname] = _y_pred
+                pred_ints[_fname] =_y_pred_ints
 
-        preds = pd.concat(preds.values(), keys = preds.keys(), axis=1)
-        pred_ints = pd.concat(pred_ints.values(), keys = pred_ints.keys(), axis=1)
+            preds = pd.concat(preds.values(), keys = preds.keys(), axis=1)
+            pred_ints = pd.concat(pred_ints.values(), keys = pred_ints.keys(), axis=1)
 
-        return self.__aggregate_pred(mode=mode, preds=preds, pred_ints=pred_ints, score=score, nbest=nbest, ret_underlying=ret_underlying)
+            return self.__aggregate_pred(mode=mode, preds=preds, pred_ints=pred_ints, score=score, ret_underlying=ret_underlying)
 
     def update(self,
                newdata: pd.DataFrame,
@@ -398,7 +411,7 @@ class ForecastModelSelect:
                coverage: float = 0.9, 
                mode: Optional[str] = None,
                score: Optional[str] = None,
-               nbest: Optional[int] = None,
+               model_name = None,
                ret_underlying: bool = False
               ) -> Tuple[pd.Series, pd.DataFrame]:
         """
@@ -427,10 +440,13 @@ class ForecastModelSelect:
                 * 'inverse_score': The weighted average prediction, where weights are inversely proportional to the model performance score.
                 * 'nbest_average': Average of the n best models. The n is given by the parameter nbest.
                 * 'nbest_average_horizon': Average of the n best models for each horizon. The n is given by the parameter nbest.
+                * 'model': Returns the prediction of a specific model. The model name must be provided in the model_name parameter.
             score : str, optional
                 The performance metric to use for model comparison. Should be either 'RMSE' or 'MAPE'. Default is None and it takes the value entered at initialization..
             nbest : int, optional
                 The number of best models to select based on horizon performance. Default is None and it takes the value entered at initialization. and it takes the value entered at initialization..
+            model_name: str, optional
+                The model name to use for prediction if mode='model'. Default is None.
             ret_underlying : bool, optional
                 If True, return the underlying predictions and prediction intervals for each model. Default is False.
 
@@ -439,22 +455,100 @@ class ForecastModelSelect:
             tuple
                 A tuple containing the aggregated prediction and prediction intervals.
         """
-        preds = {}; pred_ints = {}
-        for _lf in self.LF_d.values():
-            _y_pred, _y_pred_ints = _lf.update(newdata = newdata, fh=fh, coverage=coverage, refit=refit)
-            preds[_lf.forecaster_name] = _y_pred
-            pred_ints[_lf.forecaster_name] =_y_pred_ints
+        if mode is None:
+            mode = self.mode
 
-        preds = pd.concat(preds.values(), keys = preds.keys(), axis=1)
-        pred_ints = pd.concat(pred_ints.values(), keys = pred_ints.keys(), axis=1)
-
-        if reevaluate == False:
-            return self.__aggregate_pred(mode=mode, preds=preds, pred_ints=pred_ints, score=score, nbest=nbest, ret_underlying=ret_underlying)
+        if mode == 'model':
+            assert model_name in self.LF_d.keys(), 'Model name not in the list of models'
+            return self.LF_d[model_name].update(newdata = newdata, fh=fh, coverage=coverage, refit=refit)
         else:
-            self.evaluate(force=True)
-            self.select_best(score = score, reestimate=True)
-            return self.__aggregate_pred(mode=mode, preds=preds, pred_ints=pred_ints, score=score, nbest=nbest, ret_underlying=ret_underlying)
+            if reevaluate == False:            
+                preds = {}; pred_ints = {}
+                for _lf in self.LF_d.values():
+                    _y_pred, _y_pred_ints = _lf.update(newdata = newdata, fh=fh, coverage=coverage, refit=refit)
+                    preds[_lf.forecaster_name] = _y_pred
+                    pred_ints[_lf.forecaster_name] =_y_pred_ints
 
+                preds = pd.concat(preds.values(), keys = preds.keys(), axis=1)
+                pred_ints = pd.concat(pred_ints.values(), keys = pred_ints.keys(), axis=1)
+                return self.__aggregate_pred(mode=mode, preds=preds, pred_ints=pred_ints, score=score, ret_underlying=ret_underlying)
+            else:
+                self.evaluate(force=True)
+                self.select_best(score = score, reestimate=True)
+                preds = {}; pred_ints = {}
+                for _lf in self.LF_d.values():
+                    _y_pred, _y_pred_ints = _lf.update(newdata = newdata, fh=fh, coverage=coverage, refit=refit)
+                    preds[_lf.forecaster_name] = _y_pred
+                    pred_ints[_lf.forecaster_name] =_y_pred_ints
+
+                preds = pd.concat(preds.values(), keys = preds.keys(), axis=1)
+                pred_ints = pd.concat(pred_ints.values(), keys = pred_ints.keys(), axis=1)
+                return self.__aggregate_pred(mode=mode, preds=preds, pred_ints=pred_ints, score=score, ret_underlying=ret_underlying)
+
+    def save(self, path: str):
+        """
+        Save the model to a file.
+        Parameters:
+        -----------
+            path : str
+                The path to save the model.
+        Returns:
+        --------
+            None
+        """
+        import pickle
+        with open(path, 'wb') as f:
+            pickle.dump(self, f)
+        return None
+    def get_pred_errors(self, 
+                        mode: Optional[str] = None,
+                        score: Optional[str] = None,
+                        model_name = None):
+        """
+        Get the prediction errors.
+        """
+        if mode is None:
+            mode = self.mode
+        if mode == 'model':
+            assert model_name in self.LF_d.keys(), 'Model name not in the list of models'
+            return self.LF_d[model_name].get_pred_errors()
+        else:
+            if score is None:
+                score = self.score
+            errors = {}
+            for _fname, _lf in self.LF_d.items():
+                errors[_fname] =  _lf.get_pred_errors()
+            errors_df = pd.concat(errors.values(), keys = errors.keys(), axis=0).reset_index()
+            errors_df = errors_df.rename(columns = {'level_0': 'forecaster'})
+
+            if mode =='best':
+                return errors[self.best_x_overall[score][0]].reset_index(drop=True)
+            elif mode =='best_horizon':
+                best_horizon = self.model_rank_perhorizon[score].loc['Best_1'].to_dict()
+                error_horizon_l = [errors[best_mod_h].loc[errors[best_mod_h]['horizon']==h] for h, best_mod_h in best_horizon.items()]
+                return pd.concat(error_horizon_l, axis=0).reset_index(drop=True)
+            elif mode =='average':
+                return errors_df.groupby(['cutoff', 'horizon']).error.mean().reset_index()               
+            elif mode =='inverse_score':
+                _score = self.summary_results.loc[f'Avg {score}']
+                _score = _score/_score.sum()
+                errors_df['_score'] = errors_df['forecaster'].map(_score.to_dict())
+                errors_df['weighted_error'] = errors_df['_score']*errors_df['error']
+                return errors_df.groupby(['cutoff', 'horizon']).weighted_error.sum().reset_index()
+            elif mode =='nbest_average':
+                return errors_df.loc[errors_df.forecaster.isin(self.best_x_overall[score])].groupby(['cutoff', 'horizon']).error.mean().reset_index()
+            
+            elif mode =='nbest_average_horizon':
+                best_horizon = self.model_rank_perhorizon[score].iloc[:self.nbest].T
+                best_horizon = best_horizon.apply(lambda x: x.values, axis=1).to_dict()
+                errors_best_horizon = []
+                for h, best_mod_h in best_horizon.items():
+                    errors_best_horizon.append(errors_df.loc[(errors_df.horizon==h) & errors_df.forecaster.isin(best_mod_h)]\
+                        .groupby(['cutoff', 'horizon']).error.mean().reset_index())
+                return pd.concat(errors_best_horizon, axis=0).reset_index(drop=True)            
+            else:
+                raise ValueError('mode can take the foloowing values: best, best_horizon, average, inverse_score, nbest_average, nbest_average_horizon, model')        
+    
     def plot_model_compare(self, 
                            score: str = 'RMSE', 
                            view: str = 'horizon', 
@@ -513,8 +607,28 @@ class ForecastModelSelect:
             ylabel = score
         if xlabel is None:
             xlabel = view
+        
+        nseries = len(toplot.columns)
+        def expand_color_palette(colors, n_colors_needed):
+            base_array = sns.color_palette(colors, n_colors=len(colors))
+            color_array = np.array(base_array)
+            
+            # Interpolating colors
+            new_colors = np.vstack([np.interp(np.linspace(0, len(color_array)-1, num=n_colors_needed),
+                                            np.arange(len(color_array)), color_array[:, i])
+                                    for i in range(color_array.shape[1])]).T
+            return new_colors
 
-        toplot.plot(ax=ax, style = '-o')
+        # Get the initial colorblind palette
+        initial_palette = sns.color_palette("colorblind")
+
+        # Expand the palette if more colors are needed
+        if len(initial_palette) < nseries:
+            expanded_colors = expand_color_palette("colorblind", n_colors_needed=nseries)
+        else:
+            expanded_colors = initial_palette
+
+        toplot.plot(ax=ax, style = '-o', color= expanded_colors)
         ax.set(xlabel = xlabel, ylabel=ylabel)
         ax.set_title(title, size="xx-large")
         ax.legend(frameon=False, bbox_to_anchor=(1, 1))
@@ -645,12 +759,12 @@ class ForecastModelSelect:
         _lf  = list(self.LF_d.values())[0]
         return _lf.plot.plot_cv_procedure(**kwargs)
     
-    def __aggregate_pred(self, mode, preds, pred_ints, score=None, nbest=None, ret_underlying=False):
+    def __aggregate_pred(self, mode, preds, pred_ints, score=None, ret_underlying=False):
 
         if score is None:
             score = self.score
-        if nbest is None:
-            nbest = self.nbest
+ 
+        nbest = self.nbest
         if mode is None:
             mode = self.mode
 
@@ -702,8 +816,7 @@ class ForecastModelSelect:
                                index=preds.index)
 
             y_pred_int = pd.concat([pred_ints[v].iloc[k-1].unstack(0).mean(axis=1).to_frame().T for k, v in best_horizon.items()])
-            y_pred_int.index = y_pred.index
-
+            y_pred_int.index = y_pred.index        
         else:
             recog_modes = ['best', 'best_horizon', 'average', 'inverse_score', 
                            'nbest_average', 'nbest_average_horizon']

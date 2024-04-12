@@ -2,6 +2,9 @@
 __description__ = "Time Series Forecast"
 __author__ = "Amine Raboun - amineraboun@github.io"
 
+##############################################################################
+# Import Libraries & default configuration 
+##############################################################################
 # Standard Inports
 from typing import Optional, Tuple, List
 import pandas as pd
@@ -12,7 +15,7 @@ from collections.abc import Iterable
 from tqdm import tqdm
 import time
 
-# Plotting packages
+# Plotting packages & configuration
 from forecast_combine.utils.plotting import plot_series, plot_windows
 import matplotlib.pyplot as plt
 plt.rc('axes', titlesize='large')    
@@ -24,29 +27,7 @@ plt.rc('figure', titlesize='x-large')
 import seaborn as sns
 sns.set_theme(style='white', font_scale=1)
 
-
-# Forcast models
-from sktime.forecasting.naive import NaiveForecaster
-from sktime.forecasting.fbprophet import Prophet
-from sktime.forecasting.statsforecast import (
-StatsForecastAutoARIMA,
-StatsForecastAutoETS, 
-StatsForecastAutoTheta,
-StatsForecastAutoTBATS, 
-StatsForecastMSTL
-)
-
-CommonForecastingModels = {
-"Naive": NaiveForecaster(),
-"AutoARIMA": StatsForecastAutoARIMA(),
-"AutoETS": StatsForecastAutoETS(),
-"AutoTheta": StatsForecastAutoTheta(),
-"TBATS": StatsForecastAutoTBATS(seasonal_periods = 1),
-"LOESS": StatsForecastMSTL(season_length=1),
-"Prophet": Prophet(),
-}
-
-# Cross Validation
+# Cross Validation tools
 from sktime.forecasting.base import ForecastingHorizon
 from sktime.split import CutoffSplitter
 from sktime.forecasting.model_selection import (
@@ -68,6 +49,28 @@ import warnings
 warnings.simplefilter('ignore')
 warnings.filterwarnings("ignore")
 
+##############################################################################
+# Default values
+##############################################################################
+# Common Forcasting models
+from sktime.forecasting.naive import NaiveForecaster
+from sktime.forecasting.fbprophet import Prophet
+from sktime.forecasting.statsforecast import (
+StatsForecastAutoARIMA,
+StatsForecastAutoETS, 
+StatsForecastAutoTheta,
+StatsForecastAutoTBATS, 
+StatsForecastMSTL
+)
+CommonForecastingModels = {
+"Naive": NaiveForecaster(),
+"AutoARIMA": StatsForecastAutoARIMA(),
+"AutoETS": StatsForecastAutoETS(),
+"AutoTheta": StatsForecastAutoTheta(),
+"TBATS": StatsForecastAutoTBATS(seasonal_periods = 1),
+"LOESS": StatsForecastMSTL(season_length=1),
+"Prophet": Prophet(),
+}
 # Pandas frequencies
 pandas_frequency_dict = {
     "D": "daily",
@@ -85,6 +88,7 @@ pandas_frequency_dict = {
     "BA": "business annual (business year-end)",
     "BH": "business hourly (business hour)"
 }
+
 ##############################################################################
 # Master Class Definition and Plot
 ##############################################################################
@@ -197,7 +201,8 @@ class Forecast(object):
         if self.X is None:
             self.X_train =  None
             self.X_test = None
-            self.y_train, self.y_test = temporal_train_test_split(y=self.y, train_size=self.initial_window)
+            self.y_train, self.y_test = temporal_train_test_split(y=self.y, 
+                                                                  train_size=self.initial_window)
         else:
             self.y_train, self.y_test, self.X_train, self.X_test = temporal_train_test_split(
             y=self.y, 
@@ -205,12 +210,12 @@ class Forecast(object):
             train_size=self.initial_window)
 
         self.is_fitted = False
+        self.fitted = None
         self.is_evaluated = False
         self.eval = None
 
         # Plots
         self.plot = self.__plot()
-
 
     def split_procedure_summary(self, verbose=True) -> dict:
         """
@@ -281,8 +286,8 @@ class Forecast(object):
         else: 
             on_values =['all', 'train']
             raise ValueError(f'argument takes 2 possible values {on_values}')
-
-        return ForecastFit(self)  
+        self.fitted = ForecastFit(self)   
+        return self.fitted
 
     def evaluate(self): #-> ForecastEval
         """
@@ -378,6 +383,15 @@ class Forecast(object):
         y_pred, y_pred_ints = self.predict(X=new_X, fh=fh, coverage=coverage)
         return y_pred, y_pred_ints
 
+    def get_pred_errors(self):
+        """
+        Get the prediction errors.
+        """
+        if self.fitted is None:
+            self.fit(on='all')
+        if self.fitted.insample_result_df is None:
+            self.fitted.insample_predictions()
+        return self.fitted.insample_result_df[['cutoff', 'horizon', 'error']]
 
     def __init_test(self,
                     data: pd.DataFrame, 
@@ -701,7 +715,9 @@ class ForecastFit:
     def __init__(self, LF: Forecast):
         self.forecaster = LF.forecaster
         self.forecaster_name = LF.forecaster_name
+        self.is_fitted = LF.is_fitted
         self.y_train = LF.y_train
+        self.y = LF.y
         self.X = LF.X
         self.fh = LF.fh
         self.cv = LF.cv
@@ -725,27 +741,32 @@ class ForecastFit:
                 A DataFrame containing the insample predictions.
         """
 
-        assert self.forecaster.is_fitted, 'Fit the forecast on the training window first before you can evaluate the insample performance'
-
-        train_size = len(self.y_train) - len(self.fh)
-        if random_sample:            
-            nsample = max(train_size, nsample)
-            # Randomly selecting cutoff points
-            _cutoffs = np.random.choice(train_size, size=nsample, replace=False)
-        else:
-            _cutoffs = np.arange(train_size)
-        cv_in = CutoffSplitter(cutoffs=_cutoffs, window_length=1, fh=self.fh)
-
         def __compute_predictions(forecaster, X, intrain, intest):
             fh = ForecastingHorizon(intest.index, is_relative=False)
             in_pred = forecaster.predict(fh=fh, X=X).rename('y_pred').reset_index()
             in_pred['y_true'] = intest.values
-            in_pred['error_pct'] = (in_pred['y_true'] - in_pred['y_pred']).abs()/in_pred['y_true']
+            in_pred['error'] = in_pred['y_true'] - in_pred['y_pred']
+            in_pred['error_pct'] = in_pred['error'].abs()/in_pred['y_true']
             in_pred.insert(0, 'horizon', np.arange(1, len(in_pred) + 1))
             in_pred.insert(0, 'cutoff', intrain.index[-1])        
             return in_pred
+        
+        if self.is_fitted:
+            _y = self.y
+        else:
+            _y = self.y_train
 
-        insample_result = [__compute_predictions(self.forecaster, self.X, intrain, intest) for intrain, intest in tqdm(cv_in.split_series(self.y_train))]
+        insample_eval_window = len(_y) - len(self.fh)
+        if random_sample:            
+            nsample = max(insample_eval_window, nsample)
+            # Randomly selecting cutoff points
+            _cutoffs = np.random.choice(insample_eval_window, size=nsample, replace=False)
+        else:
+            _cutoffs = np.arange(insample_eval_window)
+
+        print(f"\nComputing {self.forecaster_name} forecaster historic predictions....")
+        cv_in = CutoffSplitter(cutoffs=_cutoffs, window_length=1, fh=self.fh)
+        insample_result = [__compute_predictions(self.forecaster, self.X, intrain, intest) for intrain, intest in tqdm(cv_in.split_series(_y))]
 
         insample_result_df = pd.concat(insample_result)
         self.insample_result_df = insample_result_df
@@ -908,7 +929,7 @@ class ForecastEval:
          'Last cutoff': self.oos_eval.index[-1],
         }
         for _s in self.oos_cutoff_perf.columns:
-            _summary['Avg {_s}'] = self.oos_cutoff_perf[_s].mean()
+            _summary[f'Avg {_s}'] = self.oos_cutoff_perf[_s].mean()
         return pd.Series(_summary).to_frame().T
 
     def summary_cutoff(self) -> pd.DataFrame:

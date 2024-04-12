@@ -61,11 +61,11 @@ def plot_yearly_seasonality(series, title='Yearly Seasonality', show_all = True)
     if show_all:
         for column in yearly_patterns:
             plt.plot(yearly_patterns.index, yearly_patterns[column], 
-                     label=f'Year {column}', ls ='-.')
+                     label=f'Year {column}', marker='o', linestyle='-')
         plt.legend(title="Year", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
     else:
         plt.plot(yearly_patterns.index, yearly_patterns.mean(axis=1),
-                  label='Average', ls ='-.')
+                  label='Average', marker='o', linestyle='-')
         plt.legend(frameon=False)
     plt.show()
 
@@ -88,11 +88,11 @@ def analyze_monthly_pattern(series, title='Monthly Seasonality', show_all = Fals
     if show_all:
         for column in monthly_patterns:
             plt.plot(monthly_patterns.index, monthly_patterns[column], 
-                     label=f'Month {column}', ls='-.')
+                     label=f'Month {column}', marker='o', linestyle='-')
         plt.legend(title="Month", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
     else:
         plt.plot(monthly_patterns.index, monthly_patterns.mean(axis=1),
-                 label='Average', ls='-.')
+                 label='Average', marker='o', linestyle='-')
         plt.legend(frameon=False)
     plt.show()
 

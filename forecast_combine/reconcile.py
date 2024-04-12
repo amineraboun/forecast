@@ -17,7 +17,10 @@ class ForecastReconciler:
         self.forecasters = forecasters
         self.S = S
         self.method = method
-        self.weights = None  # For methods that require pre-computed weights
+
+        self.historical_values_d = {k:lf.y for k,lf in forecasters.items()}
+        self.historical_errors_d = {k:lf.get_historical_errors for k,lf in forecasters.items()}
+        self.weights = None
 
     def fit(self, historical_data):
         """

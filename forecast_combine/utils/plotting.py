@@ -240,7 +240,7 @@ def plot_windows(y: pd.Series,
     train_color, test_color = sns.color_palette("colorblind")[:2]
 
     if ax is None:
-        f, ax = plt.subplots(figsize=plt.figaspect(0.3))
+        f, ax = plt.subplots(figsize=plt.figaspect(0.5))
 
     for i in range(n_splits):
         train = train_windows[i]
