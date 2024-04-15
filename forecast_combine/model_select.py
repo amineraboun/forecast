@@ -1,15 +1,24 @@
+""" Combination of timeseries Forecasts"""
+__description__ = "Time Series Forecast Combination"
+__author__ = "Amine Raboun - amineraboun@github.io"
+
+import logging
+logging.getLogger().setLevel(logging.ERROR)
+import warnings
+warnings.simplefilter('ignore')
+warnings.filterwarnings("ignore")
+
+##############################################################################
+# Import Libraries & default configuration 
+##############################################################################
 import pandas as pd
 import numpy as np
 from typing import Union, Optional, Tuple, List, Dict, Any
 
-from warnings import simplefilter
-simplefilter('ignore')
-
 from .forecast import Forecast
 from .forecast import CommonForecastingModels
-from forecast_combine.utils.plotting import plot_series
+from .utils.plotting import plot_series
 from sktime.forecasting.base import ForecastingHorizon
-
 
 import matplotlib.pyplot as plt
 plt.rc('axes', titlesize='x-large')    
@@ -20,6 +29,13 @@ plt.rc('legend', fontsize='large')
 plt.rc('figure', titlesize='x-large') 
 import seaborn as sns
 sns.set_theme(style='white', font_scale=1)
+
+from concurrent.futures import ProcessPoolExecutor
+from functools import partial
+def fetch_errors(random_sample, nsample, item):
+    _fname, _lf = item
+    return _fname, _lf.get_pred_errors(random_sample=random_sample, nsample=nsample, verbose=False)
+
 
 class ForecastModelSelect:
     """
@@ -33,7 +49,7 @@ class ForecastModelSelect:
 
     Parameters:
     -----------    
-        models_d : dict, optional
+        forecasters_d : dict, optional
             A dictionary containing various forecasting models for comparison. 
             Default is None and assess the most common forecasting models.
                 Naive: NaiveForecaster - Keep the latest value
@@ -43,7 +59,7 @@ class ForecastModelSelect:
                 TBATS: StatsForecastAutoTBATS - TBATS model
                 LOESS: StatsForecastMSTL - LOESS model
                 Prophet: Prophet - Prophet model
-        trained_models_d : dict, optional
+        trained_forecasters_d : dict, optional
             A dictionary containing trained Forecast objects. Default is None.
         mode : str, optional
             The aggregation mode. Default is 'nbest_average_horizon'.
@@ -58,12 +74,12 @@ class ForecastModelSelect:
     -------    
         AssertionError
             If the mode, score, or nbest values are not recognized or do not meet the requirements.
-            If both LF_list and models_d are None.
+            If both LF_list and forecasters_d are None.
     """
 
     def __init__(self, 
-                 models_d: Optional[Dict] = None,
-                 trained_models_d: Optional[Dict] = None,
+                 forecasters_d: Optional[Dict] = None,
+                 trained_forecasters_d: Optional[Dict] = None,
                  mode: str = 'best_horizon',
                  score: str = 'RMSE',
                  nbest: int = None,
@@ -71,20 +87,20 @@ class ForecastModelSelect:
                 ) -> None:
 
         lf_d = {}
-        if (trained_models_d is not None):
+        if (trained_forecasters_d is not None):
             # Trained Models must be istance of Forecast object
-            assert len(set(models_d.keys()).intersection(set(trained_models_d.keys()))) == 0, 'There is an overlap between the two trained and non trainded dictionaries' 
-            if (models_d is not None):
+            assert len(set(forecasters_d.keys()).intersection(set(trained_forecasters_d.keys()))) == 0, 'There is an overlap between the two trained and non trainded dictionaries' 
+            if (forecasters_d is not None):
                 # There must be no overlap between the two dictionaries
-                assert all([isinstance(_lf, Forecast) for _lf in trained_models_d.values()]), 'Trained models must be instances of Forecast object'
-            for forecaster_name, _lf in trained_models_d.items():
+                assert all([isinstance(_lf, Forecast) for _lf in trained_forecasters_d.values()]), 'Trained models must be instances of Forecast object'
+            for forecaster_name, _lf in trained_forecasters_d.items():
                 lf_d[forecaster_name] = _lf        
         else:
-            if (models_d is None):
-                models_d = CommonForecastingModels
+            if (forecasters_d is None):
+                forecasters_d = CommonForecastingModels
 
-        if models_d is not None:
-            for forecaster_name, forecaster in models_d.items():            
+        if forecasters_d is not None:
+            for forecaster_name, forecaster in forecasters_d.items():            
                 _lf =  Forecast(
                     forecaster_name = forecaster_name,
                     forecaster = forecaster,
@@ -503,7 +519,10 @@ class ForecastModelSelect:
     def get_pred_errors(self, 
                         mode: Optional[str] = None,
                         score: Optional[str] = None,
-                        model_name = None):
+                        model_name = None, 
+                        random_sample=False, 
+                        nsample = 100,
+                        verbose = False):
         """
         Get the prediction errors.
         """
@@ -511,34 +530,54 @@ class ForecastModelSelect:
             mode = self.mode
         if mode == 'model':
             assert model_name in self.LF_d.keys(), 'Model name not in the list of models'
-            return self.LF_d[model_name].get_pred_errors()
+            return self.LF_d[model_name].get_pred_errors(random_sample=random_sample, nsample=nsample, verbose=verbose)
         else:
             if score is None:
                 score = self.score
-            errors = {}
+            
+            # Using ProcessPoolExecutor to execute computation-heavy tasks in parallel
+            with ProcessPoolExecutor() as executor:
+                partial_fetch_errors = partial(fetch_errors, random_sample, nsample)
+                results = executor.map(partial_fetch_errors, self.LF_d.items())
+            errors = {fname: err for fname, err in results}
             for _fname, _lf in self.LF_d.items():
-                errors[_fname] =  _lf.get_pred_errors()
+                _lf.fitted.insample_result_df = errors[_fname]
+
+            # Convert results to dictionary            
             errors_df = pd.concat(errors.values(), keys = errors.keys(), axis=0).reset_index()
             errors_df = errors_df.rename(columns = {'level_0': 'forecaster'})
 
+
             if mode =='best':
                 return errors[self.best_x_overall[score][0]].reset_index(drop=True)
+            
             elif mode =='best_horizon':
+                if self.model_rank_perhorizon is None:
+                    self.select_best()
                 best_horizon = self.model_rank_perhorizon[score].loc['Best_1'].to_dict()
                 error_horizon_l = [errors[best_mod_h].loc[errors[best_mod_h]['horizon']==h] for h, best_mod_h in best_horizon.items()]
                 return pd.concat(error_horizon_l, axis=0).reset_index(drop=True)
+            
             elif mode =='average':
                 return errors_df.groupby(['cutoff', 'horizon']).error.mean().reset_index()               
+            
             elif mode =='inverse_score':
+                if self.summary_results is None:
+                    self.evaluate()
                 _score = self.summary_results.loc[f'Avg {score}']
                 _score = _score/_score.sum()
                 errors_df['_score'] = errors_df['forecaster'].map(_score.to_dict())
                 errors_df['weighted_error'] = errors_df['_score']*errors_df['error']
                 return errors_df.groupby(['cutoff', 'horizon']).weighted_error.sum().reset_index()
+            
             elif mode =='nbest_average':
+                if self.best_x_overall is None:
+                    self.select_best()
                 return errors_df.loc[errors_df.forecaster.isin(self.best_x_overall[score])].groupby(['cutoff', 'horizon']).error.mean().reset_index()
             
             elif mode =='nbest_average_horizon':
+                if self.model_rank_perhorizon is None:
+                    self.select_best()
                 best_horizon = self.model_rank_perhorizon[score].iloc[:self.nbest].T
                 best_horizon = best_horizon.apply(lambda x: x.values, axis=1).to_dict()
                 errors_best_horizon = []
@@ -546,6 +585,7 @@ class ForecastModelSelect:
                     errors_best_horizon.append(errors_df.loc[(errors_df.horizon==h) & errors_df.forecaster.isin(best_mod_h)]\
                         .groupby(['cutoff', 'horizon']).error.mean().reset_index())
                 return pd.concat(errors_best_horizon, axis=0).reset_index(drop=True)            
+            
             else:
                 raise ValueError('mode can take the foloowing values: best, best_horizon, average, inverse_score, nbest_average, nbest_average_horizon, model')        
     
@@ -684,7 +724,7 @@ class ForecastModelSelect:
 
         y = list(self.LF_d.values())[0].y
         y_train = y.loc[y.index<y_pred.index[0]]
-        zoom_y_train = y_train.iloc[-5*len(y_pred):]
+        zoom_y_train = y_train.iloc[-3*len(y_pred):]
     
         if models_preds is not None:
             model_names = models_preds.columns

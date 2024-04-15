@@ -2,6 +2,13 @@
 __description__ = "Time Series Forecast"
 __author__ = "Amine Raboun - amineraboun@github.io"
 
+# Filter Warnings
+import logging
+logging.getLogger().setLevel(logging.ERROR)
+import warnings
+warnings.simplefilter('ignore')
+warnings.filterwarnings("ignore")
+
 ##############################################################################
 # Import Libraries & default configuration 
 ##############################################################################
@@ -12,6 +19,7 @@ import numpy as np
 
 # Iteration tools
 from collections.abc import Iterable
+from multiprocessing import Pool
 from tqdm import tqdm
 import time
 
@@ -29,25 +37,21 @@ sns.set_theme(style='white', font_scale=1)
 
 # Cross Validation tools
 from sktime.forecasting.base import ForecastingHorizon
+from sktime.forecasting.model_evaluation import evaluate
 from sktime.split import CutoffSplitter
 from sktime.forecasting.model_selection import (
 ExpandingWindowSplitter, 
 temporal_train_test_split
 )
-from sktime.forecasting.model_evaluation import evaluate
+
 # Performance Metrics
-from forecast_combine.utils.metrics import summary_perf
+from .utils.metrics import summary_perf
 from sktime.performance_metrics.forecasting import (
 MeanSquaredError,
 MeanAbsoluteError, 
 MeanAbsolutePercentageError, 
 MedianAbsoluteError
 )
-
-# Filter Warnings
-import warnings
-warnings.simplefilter('ignore')
-warnings.filterwarnings("ignore")
 
 ##############################################################################
 # Default values
@@ -162,10 +166,10 @@ class Forecast(object):
                  fh: int,
                  pct_initial_window: float,
                  step_length: int,
-                 forecaster_name: str = 'Naive',
+                 forecaster_name: Optional[str] = 'Naive',
                  forecaster: Optional[object] = None,
                  exog_l: Optional[list] = None,
-                 freq: str = 'D',
+                 freq: Optional[str] = 'D',
                  ) -> None:
         
         self.__init_test(data, depvar_str, exog_l, freq)
@@ -383,14 +387,14 @@ class Forecast(object):
         y_pred, y_pred_ints = self.predict(X=new_X, fh=fh, coverage=coverage)
         return y_pred, y_pred_ints
 
-    def get_pred_errors(self):
+    def get_pred_errors(self, random_sample=False, nsample = 100, verbose=False):
         """
         Get the prediction errors.
         """
         if self.fitted is None:
             self.fit(on='all')
         if self.fitted.insample_result_df is None:
-            self.fitted.insample_predictions()
+            self.fitted.insample_predictions(random_sample=random_sample, nsample=nsample, verbose=verbose)
         return self.fitted.insample_result_df[['cutoff', 'horizon', 'error']]
 
     def __init_test(self,
@@ -608,7 +612,7 @@ class ForecastPlot:
 
         y = self.y
         y_train = y.loc[y.index<y_pred.index[0]]
-        zoom_y_train = y_train.iloc[-5*len(y_pred):]	
+        zoom_y_train = y_train.iloc[-3*len(y_pred):]	
         if labels is None:
             labels = ["y_train", "y_pred"]
         return plot_series(zoom_y_train, y_pred,
@@ -701,7 +705,21 @@ class ForecastPlot:
 ##############################################################################
 # Model Fit and Insample Performance
 ##############################################################################
-
+def compute_predictions(params):
+    forecaster, X, intrain, intest, verbose = params
+    fh = ForecastingHorizon(intest.index, is_relative=False)
+    try:
+        in_pred = forecaster.predict(fh=fh, X=X).rename('y_pred').reset_index()
+        in_pred['y_true'] = intest.values
+        in_pred['error'] = in_pred['y_true'] - in_pred['y_pred']
+        in_pred['error_pct'] = in_pred['error'].abs()/in_pred['y_true']
+        in_pred.insert(0, 'horizon', np.arange(1, len(in_pred) + 1))
+        in_pred.insert(0, 'cutoff', intrain.index[-1])        
+    except Exception as e:
+        if verbose:
+            print(f"Error occured in {intrain.index[-1]}: {e}")
+        in_pred = pd.DataFrame()
+    return in_pred
 class ForecastFit:
     """
     Class for fitting the forecast model and computing insample performance metrics.
@@ -726,7 +744,7 @@ class ForecastFit:
         self.insample_result_df = None
         self.insample_perf_summary = None
 
-    def insample_predictions(self, random_sample=False, nsample: int = 100) -> pd.DataFrame:
+    def insample_predictions(self, random_sample=False, nsample: int = 100, verbose=False) -> pd.DataFrame:
         """
         Compute the insample predictions for the fitted model.
 
@@ -741,16 +759,6 @@ class ForecastFit:
                 A DataFrame containing the insample predictions.
         """
 
-        def __compute_predictions(forecaster, X, intrain, intest):
-            fh = ForecastingHorizon(intest.index, is_relative=False)
-            in_pred = forecaster.predict(fh=fh, X=X).rename('y_pred').reset_index()
-            in_pred['y_true'] = intest.values
-            in_pred['error'] = in_pred['y_true'] - in_pred['y_pred']
-            in_pred['error_pct'] = in_pred['error'].abs()/in_pred['y_true']
-            in_pred.insert(0, 'horizon', np.arange(1, len(in_pred) + 1))
-            in_pred.insert(0, 'cutoff', intrain.index[-1])        
-            return in_pred
-        
         if self.is_fitted:
             _y = self.y
         else:
@@ -761,12 +769,16 @@ class ForecastFit:
             nsample = max(insample_eval_window, nsample)
             # Randomly selecting cutoff points
             _cutoffs = np.random.choice(insample_eval_window, size=nsample, replace=False)
+            cv_in = CutoffSplitter(cutoffs=_cutoffs, window_length=1, fh=self.fh)
         else:
             _cutoffs = np.arange(insample_eval_window)
+            cv_in = ExpandingWindowSplitter(initial_window=1, step_length=1, fh=self.fh)
+        if verbose:
+            print(f"\nComputing {self.forecaster_name} forecaster historic predictions....")        
 
-        print(f"\nComputing {self.forecaster_name} forecaster historic predictions....")
-        cv_in = CutoffSplitter(cutoffs=_cutoffs, window_length=1, fh=self.fh)
-        insample_result = [__compute_predictions(self.forecaster, self.X, intrain, intest) for intrain, intest in tqdm(cv_in.split_series(_y))]
+        params = [(self.forecaster, self.X, intrain, intest, verbose) for intrain, intest in cv_in.split_series(_y)]                
+        with Pool() as pool:
+            insample_result = list(tqdm(pool.imap(compute_predictions, params), total=len(params)))
 
         insample_result_df = pd.concat(insample_result)
         self.insample_result_df = insample_result_df

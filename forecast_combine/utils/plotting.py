@@ -3,6 +3,14 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+plt.rc('axes', titlesize='large')    
+plt.rc('axes', labelsize='large')   
+plt.rc('xtick', labelsize='large')   
+plt.rc('ytick', labelsize='large')   
+plt.rc('legend', fontsize='large')   
+plt.rc('figure', titlesize='x-large') 
+sns.set_theme(style='white', font_scale=1)
+
 from matplotlib.cbook import flatten
 from matplotlib.ticker import FuncFormatter, MaxNLocator
 
