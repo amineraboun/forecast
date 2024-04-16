@@ -80,6 +80,7 @@ class ForecastModelSelect:
     def __init__(self, 
                  forecasters_d: Optional[Dict] = None,
                  trained_forecasters_d: Optional[Dict] = None,
+                 model_exog_d: Optional[Dict] = None,
                  mode: str = 'best_horizon',
                  score: str = 'RMSE',
                  nbest: int = None,
@@ -98,12 +99,22 @@ class ForecastModelSelect:
         else:
             if (forecasters_d is None):
                 forecasters_d = CommonForecastingModels
-
+        
+        # Define the Forecasters exogenous variables
+        exog_l = kwargs.pop('exog_l', None)
+        if model_exog_d is None:
+            model_exog_d = {forecaster_name: exog_l for forecaster_name in forecasters_d.keys()}
+        else:
+            exog_l = [] if exog_l is None else exog_l
+            for forecaster_name in forecasters_d.keys():
+                model_exog_d[forecaster_name] = exog_l + model_exog_d.get(forecaster_name, [])
+        
         if forecasters_d is not None:
             for forecaster_name, forecaster in forecasters_d.items():            
                 _lf =  Forecast(
                     forecaster_name = forecaster_name,
                     forecaster = forecaster,
+                    exog_l = model_exog_d[forecaster_name],
                     **kwargs
                 )
                 lf_d[forecaster_name] = _lf
@@ -212,11 +223,22 @@ class ForecastModelSelect:
         """
         #Step 1: Loop on all models and evaluate them
         _model_evals = []
-        for _lf in self.LF_d.values():
+        _todrop_evals = []
+        for _fname, _lf in self.LF_d.items():
             if (_lf.is_evaluated) and force ==False:
                 _model_evals.append(_lf.eval)
             else:
-                _model_evals.append(_lf.evaluate())
+                try:
+                    _eval = _lf.evaluate()
+                    _model_evals.append(_eval)
+                except Exception as e:
+                    print(f'Error evaluating {_fname}: {e}')
+                    print(f'\nmodel {_fname} cannot be evaluated. It will be removed from the list of models')
+                    _todrop_evals.append(_fname)
+                    continue                
+        if len(_todrop_evals)>0:
+            for _fname in _todrop_evals:
+                self.LF_d.pop(_fname)
         self.eval_models = _model_evals
 
         # Step 2: Get the OOS Summary of Performance 
@@ -358,6 +380,18 @@ class ForecastModelSelect:
         
         return avg_oos_hist[score]
 
+    def __stage_X(self,
+                  LF:Forecast,
+                  X: pd.DataFrame
+                  ) -> None:
+        if LF.X is not None:
+            _lf_exogs = LF.X.columns
+            assert all([_ex in X.columns for _ex in _lf_exogs]), f'Some exogenous variables are missing for model {LF.forecaster_name}'
+            _lf_X = X[_lf_exogs]
+        else:
+            _lf_X = None
+        return _lf_X
+        
     def predict(self,
                 X: Optional[pd.DataFrame] = None, 
                 fh: Optional[ForecastingHorizon] = None,
@@ -406,11 +440,13 @@ class ForecastModelSelect:
             mode = self.mode
         if mode == 'model':
             assert model_name in self.LF_d.keys(), 'Model name not in the list of models'
-            return self.LF_d[model_name].predict(X=X, fh=fh, coverage=coverage)
+            _lf_X = self.__stage_X(self.LF_d[model_name], X)
+            return self.LF_d[model_name].predict(X=_lf_X, fh=fh, coverage=coverage)
         else:
             preds = {}; pred_ints = {}
             for _fname, _lf in self.LF_d.items():
-                _y_pred, _y_pred_ints = _lf.predict(X=X, fh=fh, coverage=coverage)
+                _lf_X = self.__stage_X(self.LF_d[_fname], X)                
+                _y_pred, _y_pred_ints = _lf.predict(X=_lf_X, fh=fh, coverage=coverage)
                 preds[_fname] = _y_pred
                 pred_ints[_fname] =_y_pred_ints
 
@@ -420,7 +456,8 @@ class ForecastModelSelect:
             return self.__aggregate_pred(mode=mode, preds=preds, pred_ints=pred_ints, score=score, ret_underlying=ret_underlying)
 
     def update(self,
-               newdata: pd.DataFrame,
+               new_y: pd.Series,
+               new_X: Optional[pd.DataFrame] = None,
                refit: bool = False, 
                reevaluate:bool = False, 
                fh: Optional[ForecastingHorizon] = None, 
@@ -476,14 +513,22 @@ class ForecastModelSelect:
 
         if mode == 'model':
             assert model_name in self.LF_d.keys(), 'Model name not in the list of models'
-            return self.LF_d[model_name].update(newdata = newdata, fh=fh, coverage=coverage, refit=refit)
+            _lf_X = self.__stage_X(self.LF_d[model_name], new_X)
+            return self.LF_d[model_name].update(new_y=new_y, new_X=_lf_X, fh=fh, coverage=coverage, refit=refit)
         else:
             if reevaluate == False:            
                 preds = {}; pred_ints = {}
                 for _lf in self.LF_d.values():
-                    _y_pred, _y_pred_ints = _lf.update(newdata = newdata, fh=fh, coverage=coverage, refit=refit)
-                    preds[_lf.forecaster_name] = _y_pred
-                    pred_ints[_lf.forecaster_name] =_y_pred_ints
+                    _lf_X = self.__stage_X(_lf, new_X)
+                    try:
+                        _y_pred, _y_pred_ints = _lf.update(new_y=new_y, new_X=_lf_X, 
+                                                           fh=fh, coverage=coverage, refit=refit)
+                        preds[_lf.forecaster_name] = _y_pred
+                        pred_ints[_lf.forecaster_name] =_y_pred_ints
+                    except Exception as e:
+                        print(f'Error updating {_lf.forecaster_name}: {e}')
+                        print(f'model {_lf.forecaster_name} cannot be updated. It will be considered for forecasts')
+                        continue                   
 
                 preds = pd.concat(preds.values(), keys = preds.keys(), axis=1)
                 pred_ints = pd.concat(pred_ints.values(), keys = pred_ints.keys(), axis=1)
@@ -493,10 +538,15 @@ class ForecastModelSelect:
                 self.select_best(score = score, reestimate=True)
                 preds = {}; pred_ints = {}
                 for _lf in self.LF_d.values():
-                    _y_pred, _y_pred_ints = _lf.update(newdata = newdata, fh=fh, coverage=coverage, refit=refit)
-                    preds[_lf.forecaster_name] = _y_pred
-                    pred_ints[_lf.forecaster_name] =_y_pred_ints
-
+                    _lf_X = self.__stage_X(_lf, new_X)
+                    try:
+                        _y_pred, _y_pred_ints = _lf.update(new_y=new_y, new_X=_lf_X, fh=fh, coverage=coverage, refit=refit)
+                        preds[_lf.forecaster_name] = _y_pred
+                        pred_ints[_lf.forecaster_name] =_y_pred_ints
+                    except Exception as e:
+                        print(f'Error updating {_lf.forecaster_name}: {e}')
+                        print(f'model {_lf.forecaster_name} cannot be updated. It will be considered for forecasts')
+                        continue                   
                 preds = pd.concat(preds.values(), keys = preds.keys(), axis=1)
                 pred_ints = pd.concat(pred_ints.values(), keys = pred_ints.keys(), axis=1)
                 return self.__aggregate_pred(mode=mode, preds=preds, pred_ints=pred_ints, score=score, ret_underlying=ret_underlying)
@@ -516,6 +566,7 @@ class ForecastModelSelect:
         with open(path, 'wb') as f:
             pickle.dump(self, f)
         return None
+    
     def get_pred_errors(self, 
                         mode: Optional[str] = None,
                         score: Optional[str] = None,
@@ -813,15 +864,24 @@ class ForecastModelSelect:
 
         if mode =='best':
             # returns the prediction of the best model
-            y_pred = preds[self.best_x_overall[score][0]]
-            y_pred_int = pred_ints[self.best_x_overall[score][0]]
+            _best_model = self.best_x_overall[score][0]
+            y_pred = preds[_best_model]            
+            if _best_model in pred_ints.columns:
+                y_pred_int = pred_ints[_best_model]
+            else:
+                print(f'Prediction intervals for {_best_model} are not available')
+                y_pred_int = pd.DataFrame()
 
         elif mode =='best_horizon':
             # returns the prediction of the best model for each forecast horizon
             best_horizon = self.model_rank_perhorizon[score].loc['Best_1'].to_dict()
             y_pred = pd.Series([preds[v].iloc[k-1] for k, v in best_horizon.items()], 
                    index=preds.index)
-            y_pred_int = pd.concat([pred_ints[v].iloc[k-1].to_frame().T for k, v in best_horizon.items()])
+            if all([v in pred_ints.columns for v in best_horizon.values()]):
+                y_pred_int = pd.concat([pred_ints[v].iloc[k-1].to_frame().T for k, v in best_horizon.items()])
+            else:
+                print('One or several model that are best in their respective horizon are not available')
+                y_pred_int = pd.DataFrame() 
 
         elif mode == 'average':
             # returns the average prediction of all models
@@ -838,14 +898,23 @@ class ForecastModelSelect:
 
             _weigh_preds_ints = 0
             for m, w in _score.to_dict().items():
-                _weigh_preds_ints = _weigh_preds_ints+ pred_ints[m]*w
+                if m not in pred_ints.columns:
+                    print(f'Prediction intervals for model {m} are not available.') 
+                    print('It will be droped in the aggregation of prediction intervals')
+                    continue
+                else:
+                    _weigh_preds_ints = _weigh_preds_ints+ pred_ints[m]*w
             y_pred_int = _weigh_preds_ints.astype('float')
 
         elif mode == 'nbest_average':
             # return the average prediction of nbest models
             y_pred = preds[self.best_x_overall[score]].mean(axis=1)
-            y_pred_int = pred_ints[self.best_x_overall[score]]\
+            if all([v in pred_ints.columns for v in self.best_x_overall[score]]):
+                y_pred_int = pred_ints[self.best_x_overall[score]]\
             .unstack().unstack(0).mean(axis=1).unstack().T
+            else:
+                print('Prediction intervals for best models are not available')
+                y_pred_int = pd.DataFrame()            
 
         elif mode == 'nbest_average_horizon':
             # return the average prediction on the nbest models per horizon
@@ -854,14 +923,21 @@ class ForecastModelSelect:
 
             y_pred = pd.Series([preds[v].iloc[k-1].mean() for k, v in best_horizon.items()], 
                                index=preds.index)
-
-            y_pred_int = pd.concat([pred_ints[v].iloc[k-1].unstack(0).mean(axis=1).to_frame().T for k, v in best_horizon.items()])
-            y_pred_int.index = y_pred.index        
+            if all([v in pred_ints.columns for v in best_horizon.values()]):
+                y_pred_int = pd.concat([pred_ints[v].iloc[k-1].unstack(0).mean(axis=1).to_frame().T for k, v in best_horizon.items()])
+                y_pred_int.index = y_pred.index        
+            else:
+                print('Prediction intervals for best models are not available')
+                y_pred_int = pd.DataFrame()
+                
         else:
             recog_modes = ['best', 'best_horizon', 'average', 'inverse_score', 
                            'nbest_average', 'nbest_average_horizon']
             _error_msg = f'Aggregation mode not recognized. Recognized prediction aggregation are {recog_modes}'
             raise ValueError(_error_msg)
+
+        if y_pred_int.empty:
+            y_pred_int = None
 
         if ret_underlying:
             return y_pred, y_pred_int, preds, pred_ints

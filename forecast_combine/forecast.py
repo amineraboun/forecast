@@ -62,17 +62,18 @@ from sktime.forecasting.fbprophet import Prophet
 from sktime.forecasting.statsforecast import (
 StatsForecastAutoARIMA,
 StatsForecastAutoETS, 
+StatsForecastAutoCES,
 StatsForecastAutoTheta,
 StatsForecastAutoTBATS, 
-StatsForecastMSTL
 )
 CommonForecastingModels = {
 "Naive": NaiveForecaster(),
+"Seasonal_Naive": NaiveForecaster(sp = 5),
 "AutoARIMA": StatsForecastAutoARIMA(),
 "AutoETS": StatsForecastAutoETS(),
+"AutoCES": StatsForecastAutoCES(),
 "AutoTheta": StatsForecastAutoTheta(),
-"TBATS": StatsForecastAutoTBATS(seasonal_periods = 1),
-"LOESS": StatsForecastMSTL(season_length=1),
+"AutoTBATS": StatsForecastAutoTBATS(seasonal_periods = 1),
 "Prophet": Prophet(),
 }
 # Pandas frequencies
@@ -100,63 +101,36 @@ class Forecast(object):
     """
     Forecast class for managing and evaluating forecast models.
 
-    Parameters
-    
-        data : pd.DataFrame
-            A DataFrame containing the input data for forecasting.
-        depvar_str : str
-            The column name representing the dependent variable for forecasting.
-        fh : int
-            The forecast horizon, i.e., the number of periods ahead to forecast.
-        pct_initial_window : float
-            The percentage of data used as the initial training window.
-        step_length : int
-            The step size for expanding window cross-validation.
-        forecaster_name : str, optional
-            The name of the forecasting model. Default is 'Naive'.
-        forecaster : object, optional
-            The forecasting model object. Default is None, which will use the model corresponding to forecaster_name.
-        exog_l : list, optional
-            List of exogenous variables for forecasting. Default is None.
-        freq : str, optional
-            The frequency of the time series data. Default is 'B' (business days).
-        random_state : int, optional
-            Random state for reproducibility. Default is 0.
+    Parameters:
+    -----------
+    - data (pd.DataFrame): A DataFrame containing the input data for forecasting.
+    - depvar_str (str): The column name representing the dependent variable for forecasting.
+    - fh (int): The forecast horizon, i.e., the number of periods ahead to forecast.
+    - pct_initial_window (float): The percentage of data used as the initial training window.
+    - step_length (int): The step size for expanding window cross-validation.
+    - forecaster_name (str, optional): The name of the forecasting model. Default is 'Naive'.
+    - forecaster (object, optional): The forecasting model object. Default is None, which will use the model corresponding to forecaster_name.
+    - exog_l (list, optional): List of exogenous variables for forecasting. Default is None.
+    - freq (str, optional): The frequency of the time series data. Default is 'B' (business days).
 
-    Attributes
-    
-        y : pd.Series
-            The time series data representing the dependent variable.
-        X : pd.DataFrame or None
-            The DataFrame containing exogenous variables or None if there are no exogenous variables.
-        forecaster_name : str
-            The name of the forecasting model used.
-        forecaster : object
-            The forecasting model object used for forecasting.
-        fh : ForecastingHorizon
-            The forecast horizon, i.e., the number of periods ahead to forecast.
-        initial_window : int
-            The size of the initial training window.
-        step_length : int
-            The step size for expanding window cross-validation.
-        cv : ExpandingWindowSplitter
-            The cross-validation window used for expanding window validation.
-        X_train : pd.DataFrame or None
-            The DataFrame containing exogenous variables for the training set or None if there are no exogenous variables.
-        X_test : pd.DataFrame or None
-            The DataFrame containing exogenous variables for the test set or None if there are no exogenous variables.
-        y_train : pd.Series
-            The dependent variable values for the training set.
-        y_test : pd.Series
-            The dependent variable values for the test set.
-        is_fitted : bool
-            True if the forecaster is fitted, False otherwise.
-        is_evaluated : bool
-            True if the forecaster is evaluated on the test set, False otherwise.
-        rs : numpy.random.RandomState
-            Random state for reproducibility.
-        plot : ForecastPlot
-            An instance of the ForecastPlot class for plotting utility.
+    Attributes:
+    -----------
+    - y (pd.Series): The time series data representing the dependent variable.
+    - X (pd.DataFrame or None): The DataFrame containing exogenous variables or None if there are no exogenous variables.
+    - forecaster_name (str): The name of the forecasting model used.
+    - forecaster (object): The forecasting model object used for forecasting.
+    - fh (ForecastingHorizon): The forecast horizon, i.e., the number of periods ahead to forecast.
+    - initial_window (int): The size of the initial training window.
+    - step_length (int): The step size for expanding window cross-validation.
+    - cv (ExpandingWindowSplitter): The cross-validation window used for expanding window validation.
+    - X_train (pd.DataFrame or None): The DataFrame containing exogenous variables for the training set or None if there are no exogenous variables.
+    - X_test (pd.DataFrame or None): The DataFrame containing exogenous variables for the test set or None if there are no exogenous variables.
+    - y_train (pd.Series): The dependent variable values for the training set.
+    - y_test (pd.Series): The dependent variable values for the test set.
+    - is_fitted (bool): True if the forecaster is fitted, False otherwise.
+    - is_evaluated (bool): True if the forecaster is evaluated on the test set, False otherwise.
+    - rs (numpy.random.RandomState): Random state for reproducibility.
+    - plot (ForecastPlot): An instance of the ForecastPlot class for plotting utility.
     """
 
     # Initializer
@@ -171,12 +145,12 @@ class Forecast(object):
                  exog_l: Optional[list] = None,
                  freq: Optional[str] = 'D',
                  ) -> None:
-        
+        """Initializes the Forecast class with the provided parameters."""
         self.__init_test(data, depvar_str, exog_l, freq)
         self.y, self.X = self.__clean_data(data=data, 
-                                       depvar_str=depvar_str,
-                                       exog_l=exog_l,
-                                       freq=freq)
+                                           depvar_str=depvar_str,
+                                           exog_l=exog_l,
+                                           freq=freq)
         # Forecasting Model Parameters
         self.forecaster_name = forecaster_name
 
@@ -221,14 +195,19 @@ class Forecast(object):
         # Plots
         self.plot = self.__plot()
 
-    def split_procedure_summary(self, verbose=True) -> dict:
+    def split_procedure_summary(self, verbose: bool=True) -> dict:
         """
         Generate a summary of the cross-validation procedure.
 
+        Parameters:
+        -----------        
+            verbose : bool, optional
+                If True, print the summary. Default is True.
+
         Returns:
-        --------
-            dict:
-                A dictionary containing details of the cross-validation procedure, including the number of folds, initial window size, step length, and forecast period.
+        --------        
+            dict
+                A dictionary containing the summary of the cross-validation procedure.
         """
 
         _n_splits = self.cv.get_n_splits(self.y)
@@ -319,7 +298,7 @@ class Forecast(object):
         Parameters:
         -----------        
             X : pd.DataFrame, optional
-                Exogenous variables for forecasting. Default is None and takes the exogenous variables defined at instantiation.
+                Exogenous variables for forecasting. Default is None
             fh : ForecastingHorizon, optional
                 Forecast horizon. Default is None and takes the horizon defined at instantiation.
             coverage : float, optional
@@ -352,7 +331,8 @@ class Forecast(object):
         return y_pred, y_pred_ints
 
     def update(self, 
-               newdata: pd.DataFrame, 
+               new_y: pd.Series,
+               new_X: Optional[pd.DataFrame] = None,
                fh: Optional[ForecastingHorizon] = None, 
                coverage: float = 0.9, 
                refit: bool = False,
@@ -363,39 +343,61 @@ class Forecast(object):
 
         Parameters:
         -----------        
-            newdata : pd.DataFrame
-                The new data containing the same columns as the original data.
+            new_y : pd.Series
+                The new dependent variable values.
+            new_X : pd.DataFrame, optional
+                The new exogenous variables. Default is None.
             fh : ForecastingHorizon, optional
                 Forecast horizon. Default is None and takes the horizon defined at instantiation.
             coverage : float, optional
                 The coverage of the confidence interval. Default is 0.9.
             refit : bool, optional
-                If True, the model will be refitted on the new training data. Default is False.
+                If True, refit the model. Default is False.
 
         Returns:
         --------        
             Tuple[pd.DataFrame, pd.DataFrame]:
                 A tuple containing the updated predictions and the updated confidence intervals.
         """
-
-        new_y, new_X = self.__clean_data(data=newdata, 
-                                           depvar_str=self.depvar,
-                                           exog_l = self.exog_l,
-                                           freq = self.freq)
-
+        new_y = new_y.resample(self.freq).last().ffill()
+        if new_X is not None:
+            new_X = new_X.resample(self.freq).last().ffill()
         self.forecaster.update(y=new_y, X=new_X, update_params=refit)
         y_pred, y_pred_ints = self.predict(X=new_X, fh=fh, coverage=coverage)
         return y_pred, y_pred_ints
 
-    def get_pred_errors(self, random_sample=False, nsample = 100, verbose=False):
+    def get_pred_errors(self, 
+                        random_sample:bool=False,
+                        nsample:int = 100,
+                        verbose:bool=False):
         """
-        Get the prediction errors.
+        Get the prediction errors. The function recomputes the predictions historically with the most up-todate fit
+
+        Parameters:
+        -----------        
+            random_sample : bool, optional
+                If True, the predictions will be calculated on a randomly select cutoff points.
+                Default is False, and the predictions will be calculated on all cutoff points.
+            nsample : int, optional
+                The number of samples to generate when the ramdom_sample is True. Default is 100.
+            verbose : bool, optional
+                If True, print the progress. Default is False.
+
+        Returns:
+        --------        
+            pd.DataFrame:
+                A DataFrame containing the prediction errors.
         """
         if self.fitted is None:
             self.fit(on='all')
         if self.fitted.insample_result_df is None:
             self.fitted.insample_predictions(random_sample=random_sample, nsample=nsample, verbose=verbose)
-        return self.fitted.insample_result_df[['cutoff', 'horizon', 'error']]
+        insample_result_df =  self.fitted.insample_result_df
+        if insample_result_df.empty or insample_result_df is None:
+            return None
+        else:
+            return insample_result_df[['cutoff', 'horizon', 'error']]
+        
 
     def __init_test(self,
                     data: pd.DataFrame, 
@@ -441,7 +443,7 @@ class Forecast(object):
         cond2 = isinstance(exog_l, Iterable)
         assert cond1 or cond2, 'exog_l is either None, meaning no X or an iterable object'
         if cond2:
-            assert all([c in data.columns for c in exog_l]), 'not all columns are not in the data'
+            assert all([c in data.columns for c in exog_l]), 'not all exog variables are in the data'
             self.exog_l = exog_l
         else:
             self.exog_l = exog_l
@@ -461,17 +463,16 @@ class Forecast(object):
         Reformat the data taking into account the requested frequency.
         """
 
+        _df = data.dropna().resample(freq).last().copy()
         # Declare and stage the variable to forecast
-        y = data[depvar_str].dropna().resample(freq).last().ffill()
+        y = _df[depvar_str]
 
         # List of Exogenous variables if any
         if exog_l is None:
             X = None
         else:
-            assert all([c in data.columns for c in exog_l]), 'not all columns are not in the data'
-            X = data[exog_l].resample(freq).last().ffill()
-            X = X.loc[y.index]
-
+            assert all([c in _df.columns for c in exog_l]), 'not all columns are not in the data'
+            X = _df[exog_l]
         return y, X
 
 class ForecastPlot:
@@ -781,6 +782,10 @@ class ForecastFit:
             insample_result = list(tqdm(pool.imap(compute_predictions, params), total=len(params)))
 
         insample_result_df = pd.concat(insample_result)
+        if insample_result_df.empty:
+            print(f"No insample predictions computed {self.forecaster_name}")
+        if verbose:
+            print(f"\n{self.forecaster_name} forecaster historic predictions completed")        
         self.insample_result_df = insample_result_df
         return insample_result_df
 
@@ -818,8 +823,6 @@ class ForecastFitPlot:
     """
 
     def __init__(self, LFF: ForecastFit):
-
-        self.__dict__.update(LFF.__dict__)
         self.LFF = LFF
 
     def plot_insample_performance(self,

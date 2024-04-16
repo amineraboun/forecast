@@ -95,7 +95,7 @@ class ForecastReconciler:
             pass  # No weights needed for 'bu' or 'ols'
    
     def predict(self, 
-                X: Optional[pd.DataFrame] = None,
+                X: Dict[str, pd.DataFrame] = None,
                 coverage: float = 0.9,
                 reconciliation_method: Optional[str] = None,
                 verbose: bool = False
@@ -119,14 +119,20 @@ class ForecastReconciler:
         forecast_data = {}
         forecast_intervals ={}
         for name, forecaster in self.forecasters_d.items():
-            forecast_data[name], forecast_intervals[name] = forecaster.predict(X=X, coverage=coverage)
+            if X is None:
+                forecster_X = None
+            else:
+                forecster_X = X[name] if name in X.keys() else None
+            print(f"Updating forecast for {name} ...")
+            forecast_data[name], forecast_intervals[name] = forecaster.predict(X=forecster_X, coverage=coverage)
 
         if verbose:
             print("\nReconciling forecasts ...")
         return self.reconcile_preds(forecast_data, forecast_intervals, reconciliation_method)
     
     def update(self,
-               newdata: pd.DataFrame,
+               new_y:Dict[str, pd.Series],
+               new_X: Dict[str, pd.DataFrame] = None,
                reconciliation_method: Optional[str] = None,
                coverage: float = 0.9, 
                refit: bool = False, 
@@ -151,8 +157,16 @@ class ForecastReconciler:
         forecast_data = {}
         forecast_intervals = {}
         for name, forecaster in self.forecasters_d.items():
-            forecast_data[name], forecast_intervals[name] = forecaster.update(newdata = newdata, coverage=coverage,
-                                                                              refit = refit, reevaluate = reevaluate)
+            forecaster_y = new_y[name] 
+            if new_X is None:
+                forecster_X = None
+            else:
+                forecster_X = new_X[name] if name in new_X.keys() else None
+            forecast_data[name], forecast_intervals[name] = forecaster.update(new_y=forecaster_y, 
+                                                                              new_X=forecster_X,
+                                                                              coverage=coverage,
+                                                                              refit = refit,
+                                                                              reevaluate = reevaluate)
         if verbose:
             print("\nReconciling forecasts ...")
         return self.reconcile_preds(forecast_data, forecast_intervals, reconciliation_method)
