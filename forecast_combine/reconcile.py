@@ -25,7 +25,7 @@ class ForecastReconciler:
                  forecasters_d: Dict[str, any], 
                  S: pd.DataFrame, 
                  method: str = 'mint',
-                 random_sample: bool = False, nsample: int = 100):
+                 ):
         """
         Initializes the ForecastReconciler class.
         
@@ -34,21 +34,17 @@ class ForecastReconciler:
         - forecasters_d (Dict[str, any]): Dictionary of forecaster objects for each series.
         - S (pd.DataFrame): Aggregation matrix indicating how lower levels aggregate into the total.
         - method (str): Method of reconciliation ('ols', 'wls', 'td', 'mint', 'bu').
-        - random_sample (bool): If True, samples are drawn randomly for error calculation.
-        - nsample (int): Number of samples to draw if random_sample is True.
         """
         assert S.shape[0] == len(forecasters_d), "Number of forecasters must match number of rows in S."
         assert S.shape[1] == S.shape[0]-1, "Number of columns in S must match number of the child forecasters."
         assert all([s in forecasters_d.keys() for s in S.index]), "Index values of S must match keys in forecasters_d."
-        assert method in ['ols', 'wls', 'td', 'mint', 'bu'], "Invalid reconciliation method."
-
+        self.methods_l = ['ols', 'wls', 'td', 'mint', 'bu']
+        assert method in self.methods_l, "Invalid reconciliation method."
         self.forecasters_d = forecasters_d
         self.Total = S.index[0]
         self.forecasters_order = S.index
         self.S = S.values
         self.method = method
-        self.random_sample = random_sample
-        self.nsample = nsample
         self.historical_values_d = None
         self.historical_errors_d = None
         self.weights = None
@@ -113,9 +109,9 @@ class ForecastReconciler:
         --------
         - pd.DataFrame: Reconciled forecasts.
         """
-        
+        assert reconciliation_method in self.methods_l, "Invalid reconciliation method."
         if verbose:
-            print("Compute the predictions of the Hiearchical models ...")
+            print("Computing the Hiearchical models forecasts ...")
         forecast_data = {}
         forecast_intervals ={}
         for name, forecaster in self.forecasters_d.items():
@@ -123,7 +119,8 @@ class ForecastReconciler:
                 forecster_X = None
             else:
                 forecster_X = X[name] if name in X.keys() else None
-            print(f"Updating forecast for {name} ...")
+            if verbose:
+                print(f"\tComputing forecasts for {name} ...")
             forecast_data[name], forecast_intervals[name] = forecaster.predict(X=forecster_X, coverage=coverage)
 
         if verbose:
@@ -151,9 +148,10 @@ class ForecastReconciler:
         Returns:
         --------
         - pd.DataFrame: Reconciled forecasts.
-        """           
+        """        
+        assert reconciliation_method in self.methods_l, "Invalid reconciliation method."   
         if verbose:
-            print("Compute the predictions of the Hiearchical models ...")
+            print("Computing the Hiearchical models forecasts ...")
         forecast_data = {}
         forecast_intervals = {}
         for name, forecaster in self.forecasters_d.items():
@@ -162,11 +160,14 @@ class ForecastReconciler:
                 forecster_X = None
             else:
                 forecster_X = new_X[name] if name in new_X.keys() else None
+            if verbose:
+                print(f"\tComputing forecasts for {name} ...")
             forecast_data[name], forecast_intervals[name] = forecaster.update(new_y=forecaster_y, 
                                                                               new_X=forecster_X,
                                                                               coverage=coverage,
                                                                               refit = refit,
                                                                               reevaluate = reevaluate)
+            
         if verbose:
             print("\nReconciling forecasts ...")
         return self.reconcile_preds(forecast_data, forecast_intervals, reconciliation_method)
@@ -244,18 +245,21 @@ class ForecastReconciler:
         fig.subplots_adjust(top=0.9)        
         return fig, axes
     
-    def __compute_hist_errors(self):
+    def __compute_hist_errors(self, verbose=False):
         if self.historical_errors_d is None:                
-            print("Computing the prediction errors for all forecasters ...")
+            if verbose:
+                print("\nComputing the prediction errors for all forecasters ...")
             _d = {}
             for k, forecaster in self.forecasters_d.items():
-                print(f"Computing prediction errors for {k} ...")
-                _d[k] = forecaster.get_pred_errors(random_sample=self.random_sample, nsample=self.nsample)
+                if verbose:
+                    print(f"\tComputing prediction errors for {k} ...")
+                _d[k] = forecaster.get_pred_errors()
             self.historical_errors_d = _d
         return self.historical_errors_d
-    def __compute_hist_values(self):    
+    def __compute_hist_values(self, verbose=False):    
         if self.historical_values_d is None:
-            print("Computing the historical values for all forecasters ...")
+            if verbose:
+                print("Computing the historical values for all forecasters ...")
             _d = {}
             for k, forecaster in self.forecasters_d.items():
                 if isinstance(forecaster, Forecast):

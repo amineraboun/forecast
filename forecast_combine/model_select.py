@@ -5,8 +5,9 @@ __author__ = "Amine Raboun - amineraboun@github.io"
 import logging
 logging.getLogger().setLevel(logging.ERROR)
 import warnings
-warnings.simplefilter('ignore')
 warnings.filterwarnings("ignore")
+warnings.simplefilter("ignore", category=FutureWarning)
+warnings.simplefilter("ignore", category=DeprecationWarning)
 
 ##############################################################################
 # Import Libraries & default configuration 
@@ -31,10 +32,9 @@ import seaborn as sns
 sns.set_theme(style='white', font_scale=1)
 
 from concurrent.futures import ProcessPoolExecutor
-from functools import partial
-def fetch_errors(random_sample, nsample, item):
+def fetch_errors(item):
     _fname, _lf = item
-    return _fname, _lf.get_pred_errors(random_sample=random_sample, nsample=nsample, verbose=False)
+    return _fname, _lf.get_pred_errors()
 
 
 class ForecastModelSelect:
@@ -527,7 +527,7 @@ class ForecastModelSelect:
                         pred_ints[_lf.forecaster_name] =_y_pred_ints
                     except Exception as e:
                         print(f'Error updating {_lf.forecaster_name}: {e}')
-                        print(f'model {_lf.forecaster_name} cannot be updated. It will be considered for forecasts')
+                        print(f"model {_lf.forecaster_name} cannot be updated. It won't be considered for forecasts")
                         continue                   
 
                 preds = pd.concat(preds.values(), keys = preds.keys(), axis=1)
@@ -571,9 +571,7 @@ class ForecastModelSelect:
                         mode: Optional[str] = None,
                         score: Optional[str] = None,
                         model_name = None, 
-                        random_sample=False, 
-                        nsample = 100,
-                        verbose = False):
+                        ):
         """
         Get the prediction errors.
         """
@@ -581,15 +579,14 @@ class ForecastModelSelect:
             mode = self.mode
         if mode == 'model':
             assert model_name in self.LF_d.keys(), 'Model name not in the list of models'
-            return self.LF_d[model_name].get_pred_errors(random_sample=random_sample, nsample=nsample, verbose=verbose)
+            return self.LF_d[model_name].get_pred_errors()
         else:
             if score is None:
                 score = self.score
             
             # Using ProcessPoolExecutor to execute computation-heavy tasks in parallel
             with ProcessPoolExecutor() as executor:
-                partial_fetch_errors = partial(fetch_errors, random_sample, nsample)
-                results = executor.map(partial_fetch_errors, self.LF_d.items())
+                results = executor.map(fetch_errors, self.LF_d.items())
             errors = {fname: err for fname, err in results}
             for _fname, _lf in self.LF_d.items():
                 _lf.fitted.insample_result_df = errors[_fname]
@@ -913,8 +910,8 @@ class ForecastModelSelect:
                 y_pred_int = pred_ints[self.best_x_overall[score]]\
             .unstack().unstack(0).mean(axis=1).unstack().T
             else:
-                print('Prediction intervals for best models are not available')
-                y_pred_int = pd.DataFrame()            
+                print(f'Prediction intervals for {nbest} best models are not available')
+                y_pred_int = None
 
         elif mode == 'nbest_average_horizon':
             # return the average prediction on the nbest models per horizon
@@ -927,17 +924,14 @@ class ForecastModelSelect:
                 y_pred_int = pd.concat([pred_ints[v].iloc[k-1].unstack(0).mean(axis=1).to_frame().T for k, v in best_horizon.items()])
                 y_pred_int.index = y_pred.index        
             else:
-                print('Prediction intervals for best models are not available')
-                y_pred_int = pd.DataFrame()
+                print(f'Prediction intervals for {nbest} best models are not available')
+                y_pred_int = None
                 
         else:
             recog_modes = ['best', 'best_horizon', 'average', 'inverse_score', 
                            'nbest_average', 'nbest_average_horizon']
             _error_msg = f'Aggregation mode not recognized. Recognized prediction aggregation are {recog_modes}'
             raise ValueError(_error_msg)
-
-        if y_pred_int.empty:
-            y_pred_int = None
 
         if ret_underlying:
             return y_pred, y_pred_int, preds, pred_ints

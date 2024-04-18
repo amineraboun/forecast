@@ -45,7 +45,7 @@ temporal_train_test_split
 )
 
 # Performance Metrics
-from .utils.metrics import summary_perf
+from .utils.metrics import summary_perf, calculate_prediction_interval
 from sktime.performance_metrics.forecasting import (
 MeanSquaredError,
 MeanAbsoluteError, 
@@ -324,9 +324,13 @@ class Forecast(object):
         try:
             y_pred_ints = self.forecaster.predict_interval(X=X, fh=fh, coverage=coverage)
         except Exception as e:
-            print(f"{self.forecaster_name} does not support prediction intervals")
-            print(f"Error: {e}")
-            y_pred_ints = None
+            if verbose:
+                print(f"{self.forecaster_name} does not support prediction intervals")
+                print(f"Error: {e}")
+                print("Computing the prediction intervals based on historical errors distribution")
+            
+            historical_errors = self.get_pred_errors()
+            y_pred_ints = calculate_prediction_interval(historical_errors, y_pred, coverage=coverage)
 
         return y_pred, y_pred_ints
 
@@ -366,37 +370,21 @@ class Forecast(object):
         y_pred, y_pred_ints = self.predict(X=new_X, fh=fh, coverage=coverage)
         return y_pred, y_pred_ints
 
-    def get_pred_errors(self, 
-                        random_sample:bool=False,
-                        nsample:int = 100,
-                        verbose:bool=False):
+    def get_pred_errors(self):
         """
-        Get the prediction errors. The function recomputes the predictions historically with the most up-todate fit
-
-        Parameters:
-        -----------        
-            random_sample : bool, optional
-                If True, the predictions will be calculated on a randomly select cutoff points.
-                Default is False, and the predictions will be calculated on all cutoff points.
-            nsample : int, optional
-                The number of samples to generate when the ramdom_sample is True. Default is 100.
-            verbose : bool, optional
-                If True, print the progress. Default is False.
-
+        Get the prediction errors.
         Returns:
         --------        
             pd.DataFrame:
                 A DataFrame containing the prediction errors.
         """
-        if self.fitted is None:
-            self.fit(on='all')
-        if self.fitted.insample_result_df is None:
-            self.fitted.insample_predictions(random_sample=random_sample, nsample=nsample, verbose=verbose)
-        insample_result_df =  self.fitted.insample_result_df
-        if insample_result_df.empty or insample_result_df is None:
+        if (self.is_evaluated is False) or (self.eval is None):
+            self.eval = self.evaluate()        
+        try:
+            pred_errors = self.eval.oos_horizon_df[['cutoff', 'horizon', 'error']]
+        except Exception as e:
             return None
-        else:
-            return insample_result_df[['cutoff', 'horizon', 'error']]
+        return pred_errors
         
 
     def __init_test(self,
@@ -804,7 +792,7 @@ class ForecastFit:
 
         insample_perf_summary = {
             'cutoff': summary_perf(self.insample_result_df, grouper = 'cutoff', y_true_col = 'y_true', y_pred_col = 'y_pred'),
-            'horizon': summary_perf(self.insample_result_df, grouper = 'horizon', y_true_col = 'y_true', y_pred_col = 'y_pred')
+            'horizon':summary_perf(self.insample_result_df, grouper = 'horizon', y_true_col = 'y_true', y_pred_col = 'y_pred')
         }
         self.insample_perf_summary = insample_perf_summary
         return insample_perf_summary
@@ -971,7 +959,8 @@ class ForecastEval:
 
     def __eval_horizon(self, x):
         _fct = pd.concat([x['y_test'], x['y_pred']], keys=['y_test', 'y_pred'], axis=1)
-        _fct['error_pct'] = (_fct['y_test'] - _fct['y_pred']).abs()/ _fct['y_test']
+        _fct['error'] = _fct['y_test'] - _fct['y_pred']
+        _fct['error_pct'] = _fct['error'].abs()/ _fct['y_test']
         _fct['horizon'] = np.arange(1, len(_fct)+1)    
         _fct['cutoff'] = x.name
         return _fct

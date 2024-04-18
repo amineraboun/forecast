@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from scipy.stats import norm
 from sklearn.metrics import (
     mean_squared_error,
     mean_absolute_error,
@@ -57,3 +58,37 @@ def summary_perf(insample_result_df,
 
     horizon_metrics = insample_result_df.groupby(grouper).apply(lambda x: evaluate_metrics(x[y_true_col], x[y_pred_col]))
     return horizon_metrics
+
+def calculate_prediction_interval(historical_errors, y_pred, coverage=0.90):
+    """
+    Calculate the prediction interval for given predictions based on historical errors.
+
+    Parameters:
+    -----------
+    historical_errors : array-like
+        Array of historical prediction errors (actual - predicted values).
+    y_pred : float or array-like
+        Predicted value(s) for which the prediction interval is required.
+    coverage : float, optional
+        Desired coverage of the prediction interval. Default is 0.90.
+
+    Returns:
+    --------
+    interval : tuple
+        A tuple containing the lower and upper bounds of the prediction interval.
+    """
+    # Calculate the mean and standard deviation of the errors
+    sigma_e = historical_errors.groupby('horizon').error.std().sort_index()
+    sigma_e.index = y_pred.index
+
+    # Determine the z-score for the desired coverage
+    z = norm.ppf((1 + coverage) / 2)
+
+    # Calculate the prediction interval
+    lower_bound = y_pred - z * sigma_e
+    upper_bound = y_pred + z * sigma_e
+
+    ypred_int = pd.concat([lower_bound, upper_bound], axis=1)
+    ypred_int.columns = pd.MultiIndex.from_tuples([(y_pred.name, coverage, 'lower'),
+                                                  (y_pred.name, coverage, 'upper')])
+    return ypred_int
