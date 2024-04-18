@@ -25,6 +25,8 @@ pip install forecast_combine
 
 ```python
 # Read the data
+import pandas as pd
+import numpy as np
 data = pd.Series(np.cumsum(np.random.normal(0, 1, size=1000)), 
                  index=pd.date_range(end='31/12/2022', periods=1000)
                 ).rename('y').to_frame()
@@ -37,18 +39,17 @@ from sktime.forecasting.naive import NaiveForecaster
 from sktime.forecasting.statsforecast import (
     StatsForecastAutoARIMA,
     StatsForecastAutoETS, 
-    StatsForecastAutoTheta
+    StatsForecastAutoTheta,
+    StatsForecastAutoTBATS
 )
-from sktime.forecasting.tbats import TBATS
-from sktime.forecasting.fbprophet import Prophet
 
+# Define the forecasting models 
 ForecastingModels = {
     "Naive": NaiveForecaster(),
     "AutoARIMA": StatsForecastAutoARIMA(),
     "AutoETS": StatsForecastAutoETS(),
     "AutoTheta": StatsForecastAutoTheta(),
-    "TBATS": TBATS(),
-    "Prophet": Prophet()
+    "AutoTBATS": StatsForecastAutoTBATS(seasonal_periods=1),
 }
 
 model = ForecastModelSelect(
@@ -57,18 +58,21 @@ model = ForecastModelSelect(
             exog_l=None,
             fh = 10,
             pct_initial_window=0.75,
-            step_length = 25,
-            models_d = ForecastingModels,
+            step_length = 5,
+            forecasters_d = ForecastingModels,
             freq = 'B',
-            mode = 'nbest_average_horizon',
-            score = 'RMSE', 
-            nbest = 2)
+            mode = 'best_horizon',
+            score = 'RMSE', )
+
+# evaluate all the models out-of-sample
+summary_horizon, summary_results = model.evaluate()
 
 # compare models
-model.select_best(score = 'MAPE')
+rank, score = model.select_best(score = 'MAPE')
+
 # Visualize model comparison
-model.plot_model_compare(score='MAPE', view='horizon')
-model.plot_model_compare(score='MAPE', view='cutoff')
+model.plot_model_compare(score ='MAPE', view = 'cutoff')
+model.plot_model_compare(score ='MAPE', view = 'horizon')
 
 # Generate prediction
 y_pred, y_pred_ints, preds, pred_ints =  model.predict(score='RMSE', ret_underlying=True)
