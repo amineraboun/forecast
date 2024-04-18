@@ -1631,6 +1631,25 @@ six = "*"
 test = ["pytest", "pytest-cov", "scipy"]
 
 [[package]]
+name = "pdoc"
+version = "14.4.0"
+description = "API Documentation for Python Projects"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pdoc-14.4.0-py3-none-any.whl", hash = "sha256:6ea4fe07620b1f7601e2708a307a257636ec206e20b5611640b30f2e3cab47d6"},
+    {file = "pdoc-14.4.0.tar.gz", hash = "sha256:c92edc425429ccbe287ace2a027953c24f13de53eab484c1a6d31ca72dd2fda9"},
+]
+
+[package.dependencies]
+Jinja2 = ">=2.11.0"
+MarkupSafe = "*"
+pygments = ">=2.12.0"
+
+[package.extras]
+dev = ["hypothesis", "mypy", "pdoc-pyo3-sample-library (==1.0.11)", "pygments (>=2.14.0)", "pytest", "pytest-cov", "pytest-timeout", "ruff", "tox", "types-pygments"]
+
+[[package]]
 name = "pillow"
 version = "10.3.0"
 description = "Python Imaging Library (Fork)"
@@ -2982,4 +3001,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "66419610b7c555f932dcf814b1231f251d3054626af4a3ba34fa3a3d5dd38667"
+content-hash = "46389c14d5ff2c54bc06bbf976b5372ca64d0ea7cbc071e21a3fed259d356114"

@@ -24,18 +24,15 @@ jobs:
         poetry --version
         poetry install -vv
         poetry run pip install --upgrade pip
-        poetry run pip install sphinx sphinx-rtd-theme
-        poetry run pip install sphinx-mdinclude
-        poetry run pip install nbsphinx
+        poetry run pip install pdoc
            
     - name: Generate documenation
       run: |
-        cd docs
-        poetry run make html
+        pdoc -d google ./forecast_combine -o public/        
     
     # Push the HTML generated documentation to github-pages
     - name: GitHub Pages action
       uses: peaceiris/actions-gh-pages@v3.6.1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: docs/_build/html
+        publish_dir: public/index.html
