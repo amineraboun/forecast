@@ -3,11 +3,8 @@ __description__ = "Time Series Forecast"
 __author__ = "Amine Raboun - amineraboun@github.io"
 
 # Filter Warnings
-import logging
-logging.getLogger().setLevel(logging.ERROR)
 import warnings
 warnings.simplefilter('ignore')
-warnings.filterwarnings("ignore")
 
 ##############################################################################
 # Import Libraries & default configuration 
@@ -76,23 +73,6 @@ CommonForecastingModels = {
 "AutoTBATS": StatsForecastAutoTBATS(seasonal_periods = 1),
 "Prophet": Prophet(),
 }
-# Pandas frequencies
-pandas_frequency_dict = {
-    "D": "daily",
-    "B": "business days",
-    "W": "weekly (end of week, default on Sunday)",
-    "M": "monthly (end of month)",
-    "Q": "quarterly (end of quarter)",
-    "A": "annual (end of year)",
-    "H": "hourly",
-    "T": "minutely",
-    "S": "secondly",
-    "L": "millisecondly",
-    "U": "microsecondly",
-    "BQ": "business quarterly (business quarter-end)",
-    "BA": "business annual (business year-end)",
-    "BH": "business hourly (business hour)"
-}
 
 ##############################################################################
 # Master Class Definition and Plot
@@ -115,22 +95,41 @@ class Forecast(object):
 
     Attributes:
     -----------
-    - y (pd.Series): The time series data representing the dependent variable.
-    - X (pd.DataFrame or None): The DataFrame containing exogenous variables or None if there are no exogenous variables.
-    - forecaster_name (str): The name of the forecasting model used.
-    - forecaster (object): The forecasting model object used for forecasting.
-    - fh (ForecastingHorizon): The forecast horizon, i.e., the number of periods ahead to forecast.
-    - initial_window (int): The size of the initial training window.
-    - step_length (int): The step size for expanding window cross-validation.
-    - cv (ExpandingWindowSplitter): The cross-validation window used for expanding window validation.
-    - X_train (pd.DataFrame or None): The DataFrame containing exogenous variables for the training set or None if there are no exogenous variables.
-    - X_test (pd.DataFrame or None): The DataFrame containing exogenous variables for the test set or None if there are no exogenous variables.
-    - y_train (pd.Series): The dependent variable values for the training set.
-    - y_test (pd.Series): The dependent variable values for the test set.
-    - is_fitted (bool): True if the forecaster is fitted, False otherwise.
-    - is_evaluated (bool): True if the forecaster is evaluated on the test set, False otherwise.
-    - rs (numpy.random.RandomState): Random state for reproducibility.
+    - depvar (str): The column name representing the dependent variable for forecasting.
+    - exog_l (list): List of exogenous variables for forecasting.
+    - freq (str): The frequency of the time series data.
+    - forecaster_name (str): The name of the forecasting model.
+    - forecaster (object): The forecasting model object.
+    - _y (pd.Series): The dependent variable for forecasting.
+    - _X (pd.DataFrame): The exogenous variables for forecasting.
+    - _fh (ForecastingHorizon): The forecast horizon.
+    - _initial_window (int): The initial training window size.
+    - _step_length (int): The step size for expanding window cross-validation.
+    - _cv (ExpandingWindowSplitter): The cross-validation window.
+    - _X_train (pd.DataFrame): The training set of exogenous variables.
+    - _X_test (pd.DataFrame): The test set of exogenous variables.
+    - _y_train (pd.Series): The training set of the dependent variable.
+    - _y_test (pd.Series): The test set of the dependent variable.
+    - is_fitted (bool): A flag indicating if the model is fitted.
+    - _fitted (ForecastFit): An instance of the ForecastFit class containing the fitted model and insample performance metrics.
+    - is_evaluated (bool): A flag indicating if the model is evaluated.
+    - _eval (ForecastEval): An instance of the ForecastEval class containing the out-of-sample evaluation results.
     - plot (ForecastPlot): An instance of the ForecastPlot class for plotting utility.
+
+    Methods:
+    --------
+    - split_procedure_summary(verbose: bool=True) -> dict: Generate a summary of the cross-validation procedure.
+    - fit(on: str='all', fh: Optional[ForecastingHorizon]=None) -> ForecastFit: Fit the forecaster and compute insample results.
+    - evaluate() -> ForecastEval: Evaluate the forecaster out-of-sample.
+    - predict(X: Optional[pd.DataFrame]=None, fh: Optional[ForecastingHorizon]=None, coverage: float=0.9, verbose=False) -> Tuple[pd.DataFrame, pd.DataFrame]: Generate predictions using the fitted model.
+    - update(new_y: pd.Series, new_X: Optional[pd.DataFrame]=None, fh: Optional[ForecastingHorizon]=None, coverage: float=0.9, refit: bool=False) -> Tuple[pd.DataFrame, pd.DataFrame]: Update cutoff value to forecast new dates.
+    - get_pred_errors() -> pd.DataFrame: Get the prediction errors.
+
+    Raises:
+    -------
+    - AssertionError: If the provided data is not a DataFrame, or if depvar_str is not a valid column in the data, or if exog_l is not None or an iterable.
+    - AssertionError: If any column in exog_l is not present in the data.
+    - AssertionError: If freq is not a recognized pandas frequency.
     """
 
     # Initializer
@@ -147,7 +146,7 @@ class Forecast(object):
                  ) -> None:
         """Initializes the Forecast class with the provided parameters."""
         self.__init_test(data, depvar_str, exog_l, freq)
-        self.y, self.X = self.__clean_data(data=data, 
+        self._y, self._X = self.__clean_data(data=data, 
                                            depvar_str=depvar_str,
                                            exog_l=exog_l,
                                            freq=freq)
@@ -164,33 +163,33 @@ class Forecast(object):
 
         # Forecasting parameters
         #1. horizon
-        self.fh = ForecastingHorizon(np.arange(1, fh+1))
+        self._fh = ForecastingHorizon(np.arange(1, fh+1))
         #2. Initial training window
-        self.initial_window = int(len(self.y)*pct_initial_window)
+        self._initial_window = int(len(self._y)*pct_initial_window)
         #3. Step size
-        self.step_length = step_length
+        self._step_length = step_length
 
         #4. Declare the cross validation window
-        self.cv = ExpandingWindowSplitter(initial_window=self.initial_window,
-                                          step_length=self.step_length,
-                                          fh=self.fh)
+        self._cv = ExpandingWindowSplitter(initial_window=self._initial_window,
+                                          step_length=self._step_length,
+                                          fh=self._fh)
 
         # Create the train test sets
-        if self.X is None:
-            self.X_train =  None
-            self.X_test = None
-            self.y_train, self.y_test = temporal_train_test_split(y=self.y, 
-                                                                  train_size=self.initial_window)
+        if self._X is None:
+            self._X_train =  None
+            self._X_test = None
+            self._y_train, self._y_test = temporal_train_test_split(y=self._y, 
+                                                                  train_size=self._initial_window)
         else:
-            self.y_train, self.y_test, self.X_train, self.X_test = temporal_train_test_split(
-            y=self.y, 
-            X=self.X,
-            train_size=self.initial_window)
+            self._y_train, self._y_test, self._X_train, self._X_test = temporal_train_test_split(
+            y=self._y, 
+            X=self._X,
+            train_size=self._initial_window)
 
         self.is_fitted = False
-        self.fitted = None
+        self._fitted = None
         self.is_evaluated = False
-        self.eval = None
+        self._eval = None
 
         # Plots
         self.plot = self.__plot()
@@ -210,12 +209,12 @@ class Forecast(object):
                 A dictionary containing the summary of the cross-validation procedure.
         """
 
-        _n_splits = self.cv.get_n_splits(self.y)
-        cutoffs = [self.y.index[_train[-1]] for (_train, _) in self.cv.split(self.y.index)]
+        _n_splits = self._cv.get_n_splits(self._y)
+        cutoffs = [self._y.index[_train[-1]] for (_train, _) in self._cv.split(self._y.index)]
         _split_proc= {'Number of Folds': _n_splits,
-                      'Initial Window Size': self.cv.initial_window,
-                      'Step Length': self.cv.step_length,
-                      'Forecast Horizon': len(self.cv.fh),
+                      'Initial Window Size': self._cv.initial_window,
+                      'Step Length': self._cv.step_length,
+                      'Forecast Horizon': len(self._cv.fh),
                       'First Cutoff': cutoffs[0],
                       'Last Curoff': cutoffs[-1]
                      }
@@ -223,17 +222,6 @@ class Forecast(object):
             for k, v in _split_proc.items():
                 print(f"{k:<21}: {v}")
         return _split_proc    
-
-    def __plot(self): #-> ForecastPlot
-        """
-        Create an instance of the ForecastPlot class for plotting utility.
-
-        Returns:
-        --------
-            ForecastPlot:
-                An instance of the ForecastPlot class.
-        """
-        return ForecastPlot(self)  
 
     def fit(self, 
             on: str = 'all', 
@@ -256,21 +244,21 @@ class Forecast(object):
         """
 
         if fh is None:
-            fh =  self.fh
+            fh =  self._fh
 
         if on == 'all':
-            self.forecaster.fit(y=self.y, X=self.X, fh=fh)
+            self.forecaster.fit(y=self._y, X=self._X, fh=fh)
             self.is_fitted = True
 
         elif on=='train':
-            self.forecaster.fit(y=self.y_train, X=self.X_train, fh=fh)
+            self.forecaster.fit(y=self._y_train, X=self._X_train, fh=fh)
             self.is_fitted = False
 
         else: 
             on_values =['all', 'train']
             raise ValueError(f'argument takes 2 possible values {on_values}')
-        self.fitted = ForecastFit(self)   
-        return self.fitted
+        self._fitted = ForecastFit(self)   
+        return self._fitted
 
     def evaluate(self): #-> ForecastEval
         """
@@ -282,9 +270,9 @@ class Forecast(object):
                 An instance of the ForecastEval class containing the out-of-sample evaluation results.
         """
 
-        self.eval = ForecastEval(self)  
+        self._eval = ForecastEval(self)  
         self.is_evaluated = True
-        return self.eval
+        return self._eval
 
     def predict(self, 
                 X: Optional[pd.DataFrame] = None, 
@@ -316,9 +304,9 @@ class Forecast(object):
             self.fit(on='all', fh=fh)
 
         if fh is None:
-            fh =  self.fh
+            fh =  self._fh
         if X is None:
-            X = self.X
+            X = self._X
 
         y_pred = self.forecaster.predict(X=X, fh=fh)
         try:
@@ -367,6 +355,8 @@ class Forecast(object):
         if new_X is not None:
             new_X = new_X.resample(self.freq).last().ffill()
         self.forecaster.update(y=new_y, X=new_X, update_params=refit)
+        self._y = new_y
+        self._X = new_X
         y_pred, y_pred_ints = self.predict(X=new_X, fh=fh, coverage=coverage)
         return y_pred, y_pred_ints
 
@@ -378,15 +368,24 @@ class Forecast(object):
             pd.DataFrame:
                 A DataFrame containing the prediction errors.
         """
-        if (self.is_evaluated is False) or (self.eval is None):
-            self.eval = self.evaluate()        
+        if (self.is_evaluated is False) or (self._eval is None):
+            self._eval = self.evaluate()        
         try:
-            pred_errors = self.eval.oos_horizon_df[['cutoff', 'horizon', 'error']]
-        except Exception as e:
+            pred_errors = self._eval._oos_horizon_df[['cutoff', 'horizon', 'error']]
+        except Exception:
             return None
         return pred_errors
         
+    def __plot(self): #-> ForecastPlot
+        """
+        Create an instance of the ForecastPlot class for plotting utility.
 
+        Returns:
+        --------
+            ForecastPlot:
+                An instance of the ForecastPlot class.
+        """
+        return ForecastPlot(self)  
     def __init_test(self,
                     data: pd.DataFrame, 
                     depvar_str: str, 
@@ -436,6 +435,23 @@ class Forecast(object):
         else:
             self.exog_l = exog_l
 
+        # Pandas frequencies
+        pandas_frequency_dict = {
+            "D": "daily",
+            "B": "business days",
+            "W": "weekly (end of week, default on Sunday)",
+            "M": "monthly (end of month)",
+            "Q": "quarterly (end of quarter)",
+            "A": "annual (end of year)",
+            "H": "hourly",
+            "T": "minutely",
+            "S": "secondly",
+            "L": "millisecondly",
+            "U": "microsecondly",
+            "BQ": "business quarterly (business quarter-end)",
+            "BA": "business annual (business year-end)",
+            "BH": "business hourly (business hour)"
+        }
         assert freq in pandas_frequency_dict.keys(), f'Not a pandas recognized frequency. List of pandas frequencies:\n{pandas_frequency_dict}'
         self.freq = freq
 
@@ -452,8 +468,10 @@ class Forecast(object):
         """
 
         _df = data.dropna().resample(freq).last().copy()
+        _df.index.freq = freq
         # Declare and stage the variable to forecast
         y = _df[depvar_str]
+        
 
         # List of Exogenous variables if any
         if exog_l is None:
@@ -469,15 +487,21 @@ class ForecastPlot:
 
     Parameters:
     -----------    
-        LF : Forecast
-            An instance of the Forecast class
+    - LF (Forecast): An instance of the Forecast class
+
+    Methods:
+    --------
+    - plot_train_test(labels: List[str] = None, xlabel: Optional[str] = None, ylabel: Optional[str] = None, title: str = 'Train-Test sets', ax: Optional[plt.Axes] = None, figsize: Tuple[float, float] = (15, 6)) -> Tuple[plt.Figure, np.array]: Plot the dependent variable separating the train from the test windows.
+    - plot_cv_procedure(ax: Optional[plt.Axes] = None, labels: List[str] = None, ylabel: str = "Window number", xlabel: str = "Time", title: str = "Cross Validation Procedure") -> Tuple[plt.Figure, np.array]: Plot the cross-validation procedure.
+    - plot_prediction(y_pred: pd.Series, y_pred_ints: Optional[pd.DataFrame] = None, interval_label: str = 'CI', labels: List[str] = None, xlabel: Optional[str] = None, ylabel: Optional[str] = None, title: str = 'Prediction', ax: Optional[plt.Axes] = None, figsize: Tuple[float, float] = (15, 6)) -> Tuple[plt.Figure, np.array]: Plot the forecast predictions and the confidence intervals.
+    - plot_prediction_true(y_pred: pd.Series, y_pred_ints: Optional[pd.DataFrame] = None, interval_label: str = 'CI', labels: List[str] = None, xlabel: Optional[str] = None, ylabel: Optional[str] = None, title: str = 'Prediction', ax: Optional[plt.Axes] = None, figsize: Tuple[float, float] = (15, 6)) -> Tuple[plt.Figure, np.array]: Plot the forecast predictions, true values, and the confidence intervals.
     """
 
     def __init__(self, LF: Forecast):
-        self.y_train = LF.y_train
-        self.y_test = LF.y_test
-        self.y = LF.y
-        self.cv = LF.cv
+        self._y_train = LF._y_train
+        self._y_test = LF._y_test
+        self._y = LF._y
+        self._cv = LF._cv
         return None
 
     def plot_train_test(self,
@@ -486,7 +510,8 @@ class ForecastPlot:
                         ylabel: Optional[str] = None,
                         title: str = 'Train-Test sets',
                         ax: Optional[plt.Axes] = None,
-                        figsize: Tuple[float, float] = (15, 6)) -> None:
+                        figsize: Tuple[float, float] = (15, 6)
+                        ):
         """
         Plot the dependent variable separating the train from the test windows.
 
@@ -507,11 +532,14 @@ class ForecastPlot:
 
         Returns:
         --------        
-            None
+            fig : plt.Figure
+                The Figure object containing the plot.
+            axes : np.array
+                An array of Axes objects containing the plot.
         """
         if labels is None:
             labels = ["y_train", "y_test"]
-        return plot_series(self.y_train, self.y_test, 
+        return plot_series(self._y_train, self._y_test, 
                            labels =labels, 
                            ax = ax, 
                            xlabel = xlabel,
@@ -525,7 +553,7 @@ class ForecastPlot:
                           ylabel: str = "Window number",
                           xlabel: str = "Time",
                           title: str = "Cross Validation Procedure"
-                          ) -> None:
+                          ):
         """
         Plot the cross-validation procedure.
 
@@ -544,14 +572,17 @@ class ForecastPlot:
 
         Returns:
         --------        
-            None
+            fig : plt.Figure
+                The Figure object containing the plot.
+            axes : np.array
+                An array of Axes objects containing the plot.
         """
 
         _train_windows, _test_windows = self._get_windows()
         if labels is None:
             labels = ["Window", "Forecasting horizon"]
             
-        return plot_windows(self.y, 
+        return plot_windows(self._y, 
                             _train_windows,
                             _test_windows,
                             ax = ax,
@@ -596,10 +627,13 @@ class ForecastPlot:
 
         Returns:
         -------        
-            None
+            fig : plt.Figure
+                The Figure object containing the plot.
+            axes : np.array
+                An array of Axes objects containing the plot.
         """
 
-        y = self.y
+        y = self._y
         y_train = y.loc[y.index<y_pred.index[0]]
         zoom_y_train = y_train.iloc[-3*len(y_pred):]	
         if labels is None:
@@ -651,16 +685,19 @@ class ForecastPlot:
 
         Returns:
         --------        
-            None
+            fig : plt.Figure
+                The Figure object containing the plot.
+            axes : np.array
+                An array of Axes objects containing the plot.
         """
 
-        y = self.y
+        y = self._y
         y_train = y.loc[y.index<y_pred.index[0]]
         zoom_y_train = y_train.iloc[-5*len(y_pred):]
         true_pred_idx = np.intersect1d(y.index, y_pred.index)
         err_msg = 'No overlap between true values and predicted values.\nIf you want to plot prediction alone use the function plot_prediction'
         assert len(true_pred_idx)>0, err_msg
-        y_true = self.y[true_pred_idx]
+        y_true = self._y[true_pred_idx]
         if labels is None:
             labels = ["y_train", "y_true", "y_pred"]
 
@@ -685,8 +722,8 @@ class ForecastPlot:
         """
         _train_windows = []
         _test_windows = []
-        _y_index = self.y.index 
-        for _train, _test in self.cv.split(_y_index):
+        _y_index = self._y.index 
+        for _train, _test in self._cv.split(_y_index):
             _train_windows.append(_train)
             _test_windows.append(_test)
         return _train_windows, _test_windows 
@@ -711,23 +748,41 @@ def compute_predictions(params):
     return in_pred
 class ForecastFit:
     """
-    Class for fitting the forecast model and computing insample performance metrics.
+    Class for fitting the forecaster and computing insample predictions.
 
     Parameters:
     -----------    
-        Forecast : Forecast
-            An instance of the Forecast class.
+    - Forecast (Forecast): An instance of the Forecast class.
+
+    Attributes:
+    -----------
+    - forecaster (object): The forecasting model object.
+    - forecaster_name (str): The name of the forecasting model.
+    - is_fitted (bool): A flag indicating if the model is fitted.
+    - _y_train (pd.Series): The training set of the dependent variable.
+    - _y (pd.Series): The dependent variable for forecasting.
+    - _X (pd.DataFrame): The exogenous variables for forecasting.
+    - _fh (ForecastingHorizon): The forecast horizon.
+    - _cv (ExpandingWindowSplitter): The cross-validation window.
+    - plot (ForecastFitPlot): An instance of the ForecastFitPlot class for plotting utility.
+    - insample_result_df (pd.DataFrame): A DataFrame containing the insample predictions.
+    - insample_perf_summary (dict): A dictionary containing the computed insample performance metrics.
+
+    Methods:
+    --------
+    - insample_predictions(random_sample: bool=False, nsample: int=100, verbose: bool=False) -> pd.DataFrame: Compute the insample predictions for the fitted model.
+    - insample_perf() -> dict: Compute insample performance metrics (RMSE and MAPE) for the fitted model.
     """
 
     def __init__(self, LF: Forecast):
         self.forecaster = LF.forecaster
         self.forecaster_name = LF.forecaster_name
         self.is_fitted = LF.is_fitted
-        self.y_train = LF.y_train
-        self.y = LF.y
-        self.X = LF.X
-        self.fh = LF.fh
-        self.cv = LF.cv
+        self._y_train = LF._y_train
+        self._y = LF._y
+        self._X = LF._X
+        self._fh = LF._fh
+        self._cv = LF._cv
         self.plot = self.__plot()
 
         self.insample_result_df = None
@@ -749,23 +804,23 @@ class ForecastFit:
         """
 
         if self.is_fitted:
-            _y = self.y
+            _y = self._y
         else:
-            _y = self.y_train
+            _y = self._y_train
 
-        insample_eval_window = len(_y) - len(self.fh)
+        insample_eval_window = len(_y) - len(self._fh)
         if random_sample:            
             nsample = max(insample_eval_window, nsample)
             # Randomly selecting cutoff points
             _cutoffs = np.random.choice(insample_eval_window, size=nsample, replace=False)
-            cv_in = CutoffSplitter(cutoffs=_cutoffs, window_length=1, fh=self.fh)
+            cv_in = CutoffSplitter(cutoffs=_cutoffs, window_length=1, fh=self._fh)
         else:
             _cutoffs = np.arange(insample_eval_window)
-            cv_in = ExpandingWindowSplitter(initial_window=1, step_length=1, fh=self.fh)
+            cv_in = ExpandingWindowSplitter(initial_window=1, step_length=1, fh=self._fh)
         if verbose:
             print(f"\nComputing {self.forecaster_name} forecaster historic predictions....")        
 
-        params = [(self.forecaster, self.X, intrain, intest, verbose) for intrain, intest in cv_in.split_series(_y)]                
+        params = [(self.forecaster, self._X, intrain, intest, verbose) for intrain, intest in cv_in.split_series(_y)]                
         with Pool() as pool:
             insample_result = list(tqdm(pool.imap(compute_predictions, params), total=len(params)))
 
@@ -806,12 +861,15 @@ class ForecastFitPlot:
 
     Parameters:
     -----------    
-        LFF : ForecastFit
-            An instance of the ForecastFit class.
+    - LFF (ForecastFit): An instance of the ForecastFit class.
+
+    Methods:
+    --------
+    - plot_insample_performance(metric: str = 'RMSE', title: str = 'Insample Performance') -> Tuple[plt.Figure, np.array]: Plot the insample performance metrics.
     """
 
     def __init__(self, LFF: ForecastFit):
-        self.LFF = LFF
+        self._LFF = LFF
 
     def plot_insample_performance(self,
                                   metric: str = 'RMSE',
@@ -836,7 +894,7 @@ class ForecastFitPlot:
 
         assert metric in ['RMSE', 'MAPE'], f'{metric} not in summary performance'
         if 'insample_perf_summary' not in self.__dict__.keys():
-            insample_perf_summary = self.LFF.insample_perf()
+            insample_perf_summary = self._LFF.insample_perf()
 
         f, axes = plt.subplots(1,2,figsize=(15,5))
         for i, (_grouper, _df) in enumerate(insample_perf_summary.items()):
@@ -856,19 +914,39 @@ class ForecastEval:
 
     Parameters:
     -----------    
-        Forecast : Forecast
-            An instance of the Forecast class.
+    - Forecast (Forecast): An instance of the Forecast class.
+
+    Attributes:
+    -----------
+    - forecaster (object): The forecasting model object.
+    - forecaster_name (str): The name of the forecasting model.
+    - oos_eval (pd.DataFrame): A DataFrame containing the out-of-sample evaluation results.
+    - plot (ForecastEvalPlot): An instance of the ForecastEvalPlot class for plotting utility.
+    - _y (pd.Series): The dependent variable for forecasting.
+    - _X (pd.DataFrame): The exogenous variables for forecasting.
+    - _cv (ExpandingWindowSplitter): The cross-validation window.
+    - _scoring_metrics (list): A list of scoring metrics.    
+    - _oos_horizon_df (pd.DataFrame): A DataFrame containing the out-of-sample predictions and errors per horizon.
+    - _oos_horizon_perf (pd.DataFrame): A DataFrame containing the summary performance metrics per horizon.
+    - _oos_cutoff_perf (pd.DataFrame): A DataFrame containing the summary performance metrics per cutoff.
+    
+
+    Methods:
+    --------
+    - summary_results() -> pd.DataFrame: Generate a summary of out-of-sample forecast results.
+    - summary_cutoff() -> pd.DataFrame: Generate a summary of out-of-sample performance per cutoff.
+    - summary_horizon() -> pd.DataFrame: Generate a summary of out-of-sample performance per horizon.
     """
 
     def __init__(self, LF: Forecast):
         
         self.forecaster = LF.forecaster
         self.forecaster_name = LF.forecaster_name
-        self.y = LF.y
-        self.X = LF.X
-        self.cv = LF.cv
+        self._y = LF._y
+        self._X = LF._X
+        self._cv = LF._cv
 
-        self.scoring_metrics = [MeanSquaredError(square_root=True),
+        self._scoring_metrics = [MeanSquaredError(square_root=True),
                                 MeanAbsoluteError(),
                                 MeanAbsolutePercentageError(), 
                                 MedianAbsoluteError(),
@@ -882,15 +960,17 @@ class ForecastEval:
         }
         print(f"\nStart {self.forecaster_name} forecaster evalution....")
         st = time.time()
-        self.oos_eval = evaluate(forecaster=self.forecaster, 
-                            y=self.y,
-                            X = self.X,
-                            cv=self.cv,
-                            strategy="refit",
-                            return_data=True,
-                            scoring = self.scoring_metrics,
-                            backend ='loky',
-                           )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            self.oos_eval = evaluate(forecaster=self.forecaster, 
+                                y=self._y,
+                                X = self._X,
+                                cv=self._cv,
+                                strategy="refit",
+                                return_data=True,
+                                scoring = self._scoring_metrics,
+                                backend ='loky',
+                            )
         self.oos_eval = self.oos_eval.set_index('cutoff').sort_index()
         self.oos_eval = self.oos_eval.rename(columns = _rename_metrics)
         et = time.time()
@@ -899,12 +979,12 @@ class ForecastEval:
 
         convert_horizon = self.oos_eval.apply(self.__eval_horizon, axis=1)
         
-        self.oos_horizon_df = pd.concat(convert_horizon.values)
-        self.oos_horizon_perf = summary_perf(self.oos_horizon_df, 
+        self._oos_horizon_df = pd.concat(convert_horizon.values)
+        self._oos_horizon_perf = summary_perf(self._oos_horizon_df, 
                                              grouper='horizon', 
                                              y_true_col = 'y_test', 
                                              y_pred_col = 'y_pred')
-        self.oos_cutoff_perf = summary_perf(self.oos_horizon_df, 
+        self._oos_cutoff_perf = summary_perf(self._oos_horizon_df, 
                                              grouper='cutoff', 
                                              y_true_col = 'y_test', 
                                              y_pred_col = 'y_pred')
@@ -931,8 +1011,8 @@ class ForecastEval:
          'First cutoff': self.oos_eval.index[0],
          'Last cutoff': self.oos_eval.index[-1],
         }
-        for _s in self.oos_cutoff_perf.columns:
-            _summary[f'Avg {_s}'] = self.oos_cutoff_perf[_s].mean()
+        for _s in self._oos_cutoff_perf.columns:
+            _summary[f'Avg {_s}'] = self._oos_cutoff_perf[_s].mean()
         return pd.Series(_summary).to_frame().T
 
     def summary_cutoff(self) -> pd.DataFrame:
@@ -944,7 +1024,7 @@ class ForecastEval:
             pd.DataFrame
                 A DataFrame containing summary performance metrics (RMSE and MAPE) for each horizon.
         """        
-        return self.oos_cutoff_perf
+        return self._oos_cutoff_perf
 
     def summary_horizon(self) -> pd.DataFrame:
         """
@@ -955,7 +1035,7 @@ class ForecastEval:
             pd.DataFrame
                 A DataFrame containing summary performance metrics (RMSE and MAPE) for each horizon.
         """        
-        return self.oos_horizon_perf
+        return self._oos_horizon_perf
 
     def __eval_horizon(self, x):
         _fct = pd.concat([x['y_test'], x['y_pred']], keys=['y_test', 'y_pred'], axis=1)
@@ -974,13 +1054,21 @@ class ForecastEvalPlot:
 
     Parameters:
     -----------    
-        LFE : ForecastEval
-            An instance of the ForecastEval class.
+    LFE (ForecastEval): An instance of the ForecastEval class.
+
+    Attributes:
+    -----------
+    _oos_horizon_perf (pd.DataFrame): A DataFrame containing the summary performance metrics per horizon.
+    _oos_cutoff_perf (pd.DataFrame): A DataFrame containing the summary performance metrics per cutoff.
+
+    Methods:
+    --------
+    plot_oos_score(score: str = 'RMSE', view: str = 'horizon', xlabel: str = None, ylabel: str = None, title: str = 'Out of Sample Performance', ax: Optional[plt.Axes] = None, figsize: Tuple[float, float] = (15, 6)) -> Tuple[plt.Figure, np.array]: Plot out-of-sample performance metric historically.
     """
 
     def __init__(self, LFE: ForecastEval):
-        self.oos_horizon_perf = LFE.oos_horizon_perf
-        self.oos_cutoff_perf = LFE.oos_cutoff_perf
+        self._oos_horizon_perf = LFE._oos_horizon_perf
+        self._oos_cutoff_perf = LFE._oos_cutoff_perf
         return None
 
     def plot_oos_score(self,
@@ -1023,11 +1111,11 @@ class ForecastEvalPlot:
 
         """
         if view == 'horizon':
-            assert score in self.oos_horizon_perf.columns, 'score not computed'
-            to_plot = self.oos_horizon_perf[score]
+            assert score in self._oos_horizon_perf.columns, 'score not computed'
+            to_plot = self._oos_horizon_perf[score]
         elif view == 'cutoff':
-            assert score in self.oos_cutoff_perf.columns, 'score not computed'
-            to_plot = self.oos_cutoff_perf[score]
+            assert score in self._oos_cutoff_perf.columns, 'score not computed'
+            to_plot = self._oos_cutoff_perf[score]
         else:
             raise ValueError('view should be either horizon or cutoff')
 

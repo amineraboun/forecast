@@ -2,12 +2,8 @@
 __description__ = "Time Series Forecast Combination"
 __author__ = "Amine Raboun - amineraboun@github.io"
 
-import logging
-logging.getLogger().setLevel(logging.ERROR)
 import warnings
 warnings.filterwarnings("ignore")
-warnings.simplefilter("ignore", category=FutureWarning)
-warnings.simplefilter("ignore", category=DeprecationWarning)
 
 ##############################################################################
 # Import Libraries & default configuration 
@@ -43,38 +39,89 @@ class ForecastModelSelect:
     Evaluate how to best combine the different models based on their oos performance.
 
     The class can be initialized in 2 ways. 
-        Method 1: Requires a list of Forecast objects. It is the preferable instantiation if the models have already been evaluated out of sample.
+    - **Method 1**: Requires a dictionary of forecasting models. A dictionary where the keys are names of forecasts and the values are sktime recognized forecast_models.
+    All the arguments taken by Forecast object must be passed to the initialization of the ForecastModelSelect object.
+    - **Method 2**: Requires a dictionary of trained models. The training and evalutiaon of the models are assumed to be done.
 
-        Method 2: Requires all the arguments taken by Forecast plus a dictionary where the keys are names of forecasts and the values are the forecast_models.
+    There is the possibility to combine the two methods by providing both dictionaries. 
+    In this case, the trained models will be used for evaluation and the non-trained models will be trained and evaluated.
 
     Parameters:
     -----------    
-        forecasters_d : dict, optional
-            A dictionary containing various forecasting models for comparison. 
-            Default is None and assess the most common forecasting models.
-                Naive: NaiveForecaster - Keep the latest value
-                AutoARIMA: StatsForecastAutoARIMA - Auto ARIMA model
-                AutoETS: StatsForecastAutoETS - Auto ETS model
-                AutoTheta: StatsForecastAutoTheta - Auto Theta model
-                TBATS: StatsForecastAutoTBATS - TBATS model
-                LOESS: StatsForecastMSTL - LOESS model
-                Prophet: Prophet - Prophet model
-        trained_forecasters_d : dict, optional
-            A dictionary containing trained Forecast objects. Default is None.
-        mode : str, optional
-            The aggregation mode. Default is 'nbest_average_horizon'.
-        score : str, optional
-            The performance score. Default is 'RMSE'.
-        nbest : int, optional
-            Number of best models to aggregate. Default is 2.
-        kwargs
-            Additional keyword arguments to be passed to the Forecast initialization.
+    - forecasters_d (dict): A dictionary containing various forecasting models for comparison. 
+    Default is None and assess the most common forecasting models.
+        - **Naive:** NaiveForecaster - Keep the latest value
+        - **SeasonalNaive:** NaiveForecaster - Keep the value of the same season
+        - **AutoARIMA:** StatsForecastAutoARIMA - Auto ARIMA model
+        - **AutoETS:** StatsForecastAutoETS - Auto ETS model
+        - **AutoCES:** StatsForecastAutoCES - Auto CES model
+        - **AutoTheta:** StatsForecastAutoTheta - Auto Theta model
+        - **AutoTBATS:** StatsForecastAutoTBATS - Auto TBATS model
+        - **Prophet:** Prophet - Prophet model
+    - trained_forecasters_d (dict): A dictionary containing trained Forecast objects. Default is None.
+    - model_exog_d (dict): A dictionary containing exogenous variables for each model. Default is None.
+    - mode (str): The aggregation mode. Default is 'nbest_average_horizon'. Available values are:
+        - best: The prediction is based on the best model.
+        - best_horizon: The prediction is based on the best model for each horizon.
+        - average: The average of the prediction of all models.
+        - inverse_score: The weighted average prediction, where weights are inversely proportional to the model performance score.
+        - nbest_average: Average of the n best models. The n is given by the parameter nbest.
+        - nbest_average_horizon: Average of the n best models for each horizon. The n is given by the parameter nbest.
+        - model: Returns the prediction of a specific model. The model name must be provided in the model_name parameter.
+    - score (str): The performance score. Default is 'RMSE'. Available values are:
+        - RMSE: Root Mean Squared Error.
+        - MAE: Mean Absolute Error.
+        - MAPE: Mean Absolute Percentage Error.
+        - MedianAE: Median Absolute Error.
+        - R2: R-squared.       
+    - nbest (int): Number of best models to aggregate. Default is 2.    
+    - data (pd.DataFrame): A DataFrame containing the input data for forecasting.
+    - depvar_str (str): The column name representing the dependent variable for forecasting.
+    - fh (int): The forecast horizon, i.e., the number of periods ahead to forecast.
+    - pct_initial_window (float): The percentage of data used as the initial training window.
+    - step_length (int): The step size for expanding window cross-validation.    
+    - exog_l (list, optional): List of exogenous variables for forecasting. Default is None.
+    - freq (str, optional): The frequency of the time series data. Default is 'B' (business days).
 
+    Attributes:
+    -----------
+    - LF_d (dict): A dictionary containing the Forecast objects.
+    - summary_horizon (pd.DataFrame): Summary of out-of-sample performance per horizon and per model.
+    - summary_results (pd.DataFrame): Summary of out-of-sample performance per model.
+    - summary_cutoff (pd.DataFrame): Out-of-sample performance based on cutoffs.
+    - model_rank_perhorizon (pd.DataFrame): Rank of models per horizon based on performance.
+    - _mode (str): The aggregation mode.
+    - _score (str): The performance score.
+    - _nbest (int): Number of best models to aggregate.
+    - _eval_models (list): A list of evaluated models.    
+    - _best_x_overall (dict): The best models based on overall performance.
+    - _avg_oos_horizon (dict): The average out-of-sample performance per horizon.
+
+    Methods:
+    --------
+    - split_procedure_summary(): Print the summary of the split procedure for each model.
+    - add_forecaster(forecaster_name, lf): Add a Forecast Object to the list of models to evaluate.
+    - fit(on, fh, force, verbose): Fit the forecasting models for all the underlying Forecast objects.
+    - evaluate(force): Evaluate the underlying Forecast models out of sample.
+    - select_best(score, reestimate): Select the best model based on horizon and overall performance.
+    - summary_per_cutoff(score): Calculate and return the out-of-sample performance based on cutoffs.
+    - predict(X, fh, coverage, mode, score, model_name, ret_underlying): Make forecasts using the specified aggregation mode.
+    - update(new_y, new_X, refit, reevaluate, fh, coverage, mode, score, model_name, ret_underlying): Update the prediction for all the models and aggregate them based on the specific mode.
+    - save(path): Save the model to a file.
+    - get_pred_errors(mode, score, model_name): Get the prediction errors.
+    - plot_model_compare(score, view, model_subset, xlabel, ylabel, title, ax, figsize): Plot a comparison of models based on their out-of-sample performance.
+    - plot_prediction(y_pred, models_preds, y_pred_interval, interval_label, aggregation_label, xlabel, ylabel, title, ax): Plot the prediction.
+    
     Raises:
     -------    
-        AssertionError
-            If the mode, score, or nbest values are not recognized or do not meet the requirements.
-            If both LF_list and forecasters_d are None.
+    - AssertionError: If the trained models are not instances of Forecast.
+    - AssertionError: If there is an overlap between the trained and non-trained dictionaries.
+    - AssertionError: If the mode function is not implemented.
+    - AssertionError: If the performance score is not implemented.
+    - AssertionError: If the number of best models is not an integer.
+    - AssertionError: If the exogenous variables are missing for a model.
+    - ValueError: If the view mode is not 'horizon' or 'cutoff'.
+    - ValueError: If the mode is not 'best', 'best_horizon', 'average', 'inverse_score', 'nbest_average', 'nbest_average_horizon', or 'model'.
     """
 
     def __init__(self, 
@@ -86,7 +133,7 @@ class ForecastModelSelect:
                  nbest: int = None,
                  **kwargs: Any
                 ) -> None:
-
+        """Initialize the ForecastModelSelect object."""
         lf_d = {}
         if (trained_forecasters_d is not None):
             # Trained Models must be istance of Forecast object
@@ -125,25 +172,25 @@ class ForecastModelSelect:
         recog_modes = ['best', 'best_horizon', 'average', 'inverse_score', 
                            'nbest_average', 'nbest_average_horizon']
         assert mode in recog_modes, f'mode function not implemented!. Recognized modes are {recog_modes}'
-        self.mode = mode
+        self._mode = mode
 
         recog_scores = ['RMSE', 'MAE', 'MAPE', 'R2', 'MedianAE']
         assert score in recog_scores, f'performance score not implemented!. Recognized scores are {recog_scores}'		
-        self.score = score
+        self._score = score
 
         if nbest is None:
             nbest = 2
         else:
             assert isinstance(nbest, int), 'n best must be an integer'		
-        self.nbest = min(nbest, len(self.LF_d))	
+        self._nbest = min(nbest, len(self.LF_d))	
 
-        self.eval_models = None
+        self._eval_models = None
         self.summary_horizon = None
         self.summary_results = None
-        self.best_x_overall = None
         self.model_rank_perhorizon = None
-        self.avg_oos_horizon = None
-        self.avg_oos_hist = None
+        self._best_x_overall = None
+        self._avg_oos_horizon = None
+        self.summary_cutoff = None
         return None
 
     def split_procedure_summary(self):
@@ -239,17 +286,17 @@ class ForecastModelSelect:
         if len(_todrop_evals)>0:
             for _fname in _todrop_evals:
                 self.LF_d.pop(_fname)
-        self.eval_models = _model_evals
+        self._eval_models = _model_evals
 
         # Step 2: Get the OOS Summary of Performance 
         #per horizon and per model
         _sum_h = {}; _sum_T = {}
-        for _lf_eval in self.eval_models:            
+        for _lf_eval in self._eval_models:            
             _sum_T[_lf_eval.forecaster_name] = _lf_eval.summary_results().squeeze()
             _sum_h[_lf_eval.forecaster_name] = _lf_eval.summary_horizon()
 
-        self.summary_horizon = pd.concat(_sum_h.values(), axis=1, keys = _sum_h.keys())
         self.summary_results = pd.concat(_sum_T.values(), axis=1, keys = _sum_T.keys())
+        self.summary_horizon = pd.concat(_sum_h.values(), axis=1, keys = _sum_h.keys())        
         return self.summary_horizon, self.summary_results
 
     def select_best(self,
@@ -272,19 +319,19 @@ class ForecastModelSelect:
                 model_rank_perhorizon. Rank of models per horizon based on performance.
         """
         if score is None:
-            score = self.score
+            score = self._score
 
-        if (self.model_rank_perhorizon is None) or (self.avg_oos_horizon is None) or reestimate:
+        if (self.model_rank_perhorizon is None) or (self._avg_oos_horizon is None) or reestimate:
 
             # if models are not evaluated yet, run evaluate
-            cond1 = self.eval_models is None
+            cond1 = self._eval_models is None
             cond2 = self.summary_horizon is None
             if cond1 or cond2:	
                 print('\nRun evaluate ...')
                 self.evaluate()
 
             nevals = len(self.LF_d)
-            nbest = self.nbest
+            nbest = self._nbest
             if nbest > nevals:
                 print(f'\nnbest ={nbest} is higher than the number of models evaluated {nevals}')
                 print('All models will be considered. The average best models will be equal to the simple average')
@@ -326,13 +373,13 @@ class ForecastModelSelect:
                 model_rank_perhorizon[_s] = _rank_perhorizon
                 best_x_overall[_s] = _s_best_x_overall
             
-            self.best_x_overall = best_x_overall
+            self._best_x_overall = best_x_overall
             self.model_rank_perhorizon = model_rank_perhorizon
-            self.avg_oos_horizon = avg_oos_horizon
+            self._avg_oos_horizon = avg_oos_horizon
 
-        return self.model_rank_perhorizon[score], self.avg_oos_horizon[score]
+        return self.model_rank_perhorizon[score], self._avg_oos_horizon[score]
 
-    def oos_per_cutoff(self,
+    def summary_per_cutoff(self,
                        score: Optional[str] = None
                       ) -> pd.DataFrame:
         """
@@ -351,24 +398,24 @@ class ForecastModelSelect:
                 A DataFrame containing the out-of-sample performance per horizon and per model based on the specified score and nbest values.
         """    
         if score is None:
-            score = self.score
+            score = self._score
         
-        if self.avg_oos_hist is None:
-            nbest = self.nbest
+        if self.summary_cutoff is None:
+            nbest = self._nbest
             nevals = len(self.LF_d)
             if nbest > nevals:
                 print(f'\nnbest ={nbest} is higher than the number of models evaluated {nevals}')
                 print(f'The average performance of best models will be computed on {nevals} models instead')
                 nbest = max(nbest, nevals)
 
-            if self.eval_models is None:
+            if self._eval_models is None:
                 print('Run evaluate ...')
                 self.evaluate()
 
             avg_oos_hist = {}
             _perf_metrics = list(self.summary_horizon.columns.levels[1])
             for _s in _perf_metrics:
-                _oos = {_lf_eval.forecaster_name: _lf_eval.oos_cutoff_perf[_s] for _lf_eval in self.eval_models}
+                _oos = {_lf_eval.forecaster_name: _lf_eval._oos_cutoff_perf[_s] for _lf_eval in self._eval_models}
                 _oos = pd.concat(_oos.values(),  axis=1, keys= _oos.keys())
 
                 best_mod = _oos.mean().idxmin()
@@ -376,7 +423,7 @@ class ForecastModelSelect:
                 _aggs = pd.concat([_oos[best_mod], _oos[nbest_mods].mean(axis=1), _oos.mean(axis=1)], axis = 1,
                                   keys = ['Best Model (over all)', f'Best {nbest} Models (over all)','Model Avg (all models)'])
                 avg_oos_hist[_s] = pd.concat([_oos, _aggs], axis=1)
-            self.avg_oos_hist = avg_oos_hist
+            self.summary_cutoff = avg_oos_hist
         
         return avg_oos_hist[score]
 
@@ -384,8 +431,8 @@ class ForecastModelSelect:
                   LF:Forecast,
                   X: pd.DataFrame
                   ) -> None:
-        if LF.X is not None:
-            _lf_exogs = LF.X.columns
+        if LF._X is not None:
+            _lf_exogs = LF._X.columns
             assert all([_ex in X.columns for _ex in _lf_exogs]), f'Some exogenous variables are missing for model {LF.forecaster_name}'
             _lf_X = X[_lf_exogs]
         else:
@@ -437,7 +484,7 @@ class ForecastModelSelect:
                 A tuple containing the aggregated prediction and prediction intervals.
         """
         if mode is None:
-            mode = self.mode
+            mode = self._mode
         if mode == 'model':
             assert model_name in self.LF_d.keys(), 'Model name not in the list of models'
             _lf_X = self.__stage_X(self.LF_d[model_name], X)
@@ -509,7 +556,7 @@ class ForecastModelSelect:
                 A tuple containing the aggregated prediction and prediction intervals.
         """
         if mode is None:
-            mode = self.mode
+            mode = self._mode
 
         if mode == 'model':
             assert model_name in self.LF_d.keys(), 'Model name not in the list of models'
@@ -576,20 +623,20 @@ class ForecastModelSelect:
         Get the prediction errors.
         """
         if mode is None:
-            mode = self.mode
+            mode = self._mode
         if mode == 'model':
             assert model_name in self.LF_d.keys(), 'Model name not in the list of models'
             return self.LF_d[model_name].get_pred_errors()
         else:
             if score is None:
-                score = self.score
+                score = self._score
             
             # Using ProcessPoolExecutor to execute computation-heavy tasks in parallel
             with ProcessPoolExecutor() as executor:
                 results = executor.map(fetch_errors, self.LF_d.items())
             errors = {fname: err for fname, err in results}
             for _fname, _lf in self.LF_d.items():
-                _lf.fitted.insample_result_df = errors[_fname]
+                _lf._fitted.insample_result_df = errors[_fname]
 
             # Convert results to dictionary            
             errors_df = pd.concat(errors.values(), keys = errors.keys(), axis=0).reset_index()
@@ -597,7 +644,7 @@ class ForecastModelSelect:
 
 
             if mode =='best':
-                return errors[self.best_x_overall[score][0]].reset_index(drop=True)
+                return errors[self._best_x_overall[score][0]].reset_index(drop=True)
             
             elif mode =='best_horizon':
                 if self.model_rank_perhorizon is None:
@@ -619,14 +666,14 @@ class ForecastModelSelect:
                 return errors_df.groupby(['cutoff', 'horizon']).weighted_error.sum().reset_index()
             
             elif mode =='nbest_average':
-                if self.best_x_overall is None:
+                if self._best_x_overall is None:
                     self.select_best()
-                return errors_df.loc[errors_df.forecaster.isin(self.best_x_overall[score])].groupby(['cutoff', 'horizon']).error.mean().reset_index()
+                return errors_df.loc[errors_df.forecaster.isin(self._best_x_overall[score])].groupby(['cutoff', 'horizon']).error.mean().reset_index()
             
             elif mode =='nbest_average_horizon':
                 if self.model_rank_perhorizon is None:
                     self.select_best()
-                best_horizon = self.model_rank_perhorizon[score].iloc[:self.nbest].T
+                best_horizon = self.model_rank_perhorizon[score].iloc[:self._nbest].T
                 best_horizon = best_horizon.apply(lambda x: x.values, axis=1).to_dict()
                 errors_best_horizon = []
                 for h, best_mod_h in best_horizon.items():
@@ -674,14 +721,14 @@ class ForecastModelSelect:
         """
         
         if view =='horizon':
-            if self.avg_oos_horizon is None:
+            if self._avg_oos_horizon is None:
                 self.select_best()
-            toplot = self.avg_oos_horizon[score]
+            toplot = self._avg_oos_horizon[score]
 
         elif view=='cutoff':
-            if self.avg_oos_hist is None:
-                self.oos_per_cutoff()
-            toplot = self.avg_oos_hist[score]
+            if self.summary_cutoff is None:
+                self.summary_per_cutoff()
+            toplot = self.summary_cutoff[score]
 
         else:
             raise ValueError('view can take only 2 values: horizon or cutoff')
@@ -770,7 +817,7 @@ class ForecastModelSelect:
                 The figure and axes of the plot.
         """
 
-        y = list(self.LF_d.values())[0].y
+        y = list(self.LF_d.values())[0]._y
         y_train = y.loc[y.index<y_pred.index[0]]
         zoom_y_train = y_train.iloc[-3*len(y_pred):]
     
@@ -850,18 +897,18 @@ class ForecastModelSelect:
     def __aggregate_pred(self, mode, preds, pred_ints, score=None, ret_underlying=False):
 
         if score is None:
-            score = self.score
+            score = self._score
  
-        nbest = self.nbest
+        nbest = self._nbest
         if mode is None:
-            mode = self.mode
+            mode = self._mode
 
-        if  (mode !='average') & (self.best_x_overall is None):
+        if  (mode !='average') & (self._best_x_overall is None):
             self.select_best(score = score)
 
         if mode =='best':
             # returns the prediction of the best model
-            _best_model = self.best_x_overall[score][0]
+            _best_model = self._best_x_overall[score][0]
             y_pred = preds[_best_model]            
             if _best_model in pred_ints.columns:
                 y_pred_int = pred_ints[_best_model]
@@ -905,9 +952,9 @@ class ForecastModelSelect:
 
         elif mode == 'nbest_average':
             # return the average prediction of nbest models
-            y_pred = preds[self.best_x_overall[score]].mean(axis=1)
-            if all([v in pred_ints.columns for v in self.best_x_overall[score]]):
-                y_pred_int = pred_ints[self.best_x_overall[score]]\
+            y_pred = preds[self._best_x_overall[score]].mean(axis=1)
+            if all([v in pred_ints.columns for v in self._best_x_overall[score]]):
+                y_pred_int = pred_ints[self._best_x_overall[score]]\
             .unstack().unstack(0).mean(axis=1).unstack().T
             else:
                 print(f'Prediction intervals for {nbest} best models are not available')

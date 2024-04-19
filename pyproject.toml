@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "forecast_combine"
-version = "0.0.2"
+version = "0.0.3"
 description = "Automation of forecast models testing, combining and predicting"
 authors = ["amineraboun <amineraboun@gmail.com>"]
 repository ="https://github.com/amineraboun/forecast"
@@ -33,6 +33,7 @@ sphinx-mdinclude = "^0.5.3"
 pandoc = "^2.3"
 openpyxl = "^3.1.2"
 pdoc = "^14.4.0"
+typing-extensions = "^4.11.0"
 
 
 [tool.poetry.dev-dependencies]
