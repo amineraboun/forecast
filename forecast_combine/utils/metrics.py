@@ -10,13 +10,23 @@ from sklearn.metrics import (
 
 def evaluate_metrics(y_true, y_pred):
     """
-    Computes performance metrics for the fitted curve.
-    The performance metrics include 
-        RMSE: Root Mean Squared Error
-        MAE: Mean Absolute Error
-        MAPE: Mean Absolute Percentage Error
-        R2: R-squared
-        MedianAE: Median Absolute Error
+    Computes performance metrics for the fitted curve. The currently covered performance metrics include 
+    - RMSE: Root Mean Squared Error
+    - MAE: Mean Absolute Error
+    - MAPE: Mean Absolute Percentage Error
+    - R2: R-squared
+    - MedianAE: Median Absolute Error
+
+    Parameters:
+    -----------
+        y_true (array-like): 
+            The true values.
+        y_pred (array-like): 
+            The predicted values.
+
+    Returns:
+    --------
+        Series: A series containing the performance metrics.
     """
     metrics = {
         'RMSE': np.sqrt(mean_squared_error(y_true, y_pred)),
@@ -34,11 +44,12 @@ def summary_perf(insample_result_df,
 			):
     """
 	Compute summary performance metrics for a given forecast.
-        RMSE: Root Mean Squared Error
-        MAE: Mean Absolute Error
-        MAPE: Mean Absolute Percentage Error
-        R2: R-squared
-        MedianAE: Median Absolute Error
+    - RMSE: Root Mean Squared Error
+    - MAE: Mean Absolute Error
+    - MAPE: Mean Absolute Percentage Error
+    - R2: R-squared
+    - MedianAE: Median Absolute Error
+
 
 	Parameters:
     -----------

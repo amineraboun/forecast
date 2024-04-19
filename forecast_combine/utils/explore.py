@@ -1,7 +1,7 @@
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.tsa.stattools import adfuller
-
+import pandas as pd
 import matplotlib.pyplot as plt
 plt.rc('axes', titlesize='large')    
 plt.rc('axes', labelsize='large')   
@@ -13,7 +13,28 @@ import seaborn as sns
 sns.set_theme(style='white', font_scale=1)
 
 
-def plot_time_series(series, title = 'Time Series Plot', xlabel = 'Date', ylabel = 'Value'):
+def plot_time_series(series:pd.Series,
+                     title:str = 'Time Series Plot',
+                     xlabel:str = 'Date',
+                     ylabel:str = 'Value'):
+    """
+    Plot time series data with date on x-axis and value on y-axis.
+
+    Parameters:
+    -----------
+        series: pd.Series
+            Time series data
+        title: str
+            Title of the plot
+        xlabel: str
+            Label for x-axis
+        ylabel: str
+            Label for y-axis
+
+    Returns:
+    --------
+        None    
+    """
     plt.figure(figsize=(10, 6))
     plt.plot(series)
     plt.title(title)
@@ -21,14 +42,44 @@ def plot_time_series(series, title = 'Time Series Plot', xlabel = 'Date', ylabel
     plt.ylabel(ylabel)
     plt.show()
 
-def plot_acf_pacf(series, lags=40, title='ACF and PACF Plots'):
+def plot_acf_pacf(series:pd.Series,
+                 lags:int=40,
+                 title:str='ACF and PACF Plots'):
+    """
+    Plot ACF and PACF plots for the given time series data.
+
+    Parameters:
+    -----------
+        series: pd.Series
+            Time series data
+        lags: int
+            Number of lags to consider
+        title: str
+            Title of the plot
+
+    Returns:
+    --------
+        None    
+    """
     fig, ax = plt.subplots(1, 2, figsize=(16, 6))
     plot_acf(series, ax=ax[0], lags=lags)
     plot_pacf(series, ax=ax[1], lags=lags)
     fig.suptitle(title)
     plt.show()
 
-def test_stationarity(series):
+def test_stationarity(series: pd.Series):
+    """
+    Perform Dickey-Fuller test for stationarity of the given time series data.
+
+    Parameters:
+    -----------
+        series: pd.Series
+            Time series data
+
+    Returns:
+    --------
+        None    
+    """
     result = adfuller(series.dropna())
     print('ADF Statistic: %f' % result[0])
     print('p-value: %f' % result[1])
@@ -38,7 +89,26 @@ def test_stationarity(series):
     # print whether the series is stationary or not at 5%
     print("Is the series stationary? {0}".format('Yes' if result[1] < 0.05 else 'No'))
 
-def decompose_series(series, period=12, title='Time Series Decomposition'):
+def decompose_series(series:pd.DataFrame,
+                     period:int=12,
+                     title:str='Time Series Decomposition'):
+    """
+    Decompose the time series data into trend, seasonal and residual components.
+
+    Parameters:
+    -----------
+        series: pd.Series
+            Time series data
+        period: int
+            Period of the seasonal component
+        title: str
+            Title of the plot
+
+    Returns:
+    --------
+        decomposition: statsmodels.tsa.seasonal.DecomposeResult
+            Decomposed time series data    
+    """
     decomposition = seasonal_decompose(series, model='additive', period=period)
     fig = decomposition.plot()
     fig.set_size_inches(10, 8)
@@ -47,7 +117,26 @@ def decompose_series(series, period=12, title='Time Series Decomposition'):
     return decomposition
 
 # Plot yearly seasonality
-def plot_yearly_seasonality(series, title='Yearly Seasonality', show_all = True):
+def plot_yearly_seasonality(series: pd.DataFrame,
+                            title:str='Yearly Seasonality',
+                            show_all:bool = True):
+    """
+    Plot yearly seasonality of the given time series data.
+
+    Parameters:
+    -----------
+        series: pd.Series
+            Time series data
+        title: str
+            Title of the plot
+        show_all: bool
+            Whether to show all yearly patterns or just the average
+
+    Returns:
+    --------
+        None
+    """
+
     df = series.to_frame("value")
     df['year'] = df.index.year
     df['day_of_year'] = df.index.dayofyear
@@ -70,7 +159,25 @@ def plot_yearly_seasonality(series, title='Yearly Seasonality', show_all = True)
     plt.show()
 
 # Remove yearly seasonality and show monthly patterns
-def analyze_monthly_pattern(series, title='Monthly Seasonality', show_all = False):
+def analyze_monthly_pattern(series:pd.Series,
+                            title:str='Monthly Seasonality',
+                            show_all:bool = False):
+    """
+    Analyze monthly seasonality of the given time series data after removing yearly seasonality.
+
+    Parameters:
+    -----------
+        series: pd.Series
+            Time series data
+        title: str
+            Title of the plot
+        show_all: bool
+            Whether to show all monthly patterns or just the average
+
+    Returns:
+    --------
+        None
+    """
     df = series.to_frame("value")
     df['month'] = df.index.month
     df['day_of_month'] = df.index.day
@@ -97,7 +204,22 @@ def analyze_monthly_pattern(series, title='Monthly Seasonality', show_all = Fals
     plt.show()
 
 # Further adjust for monthly seasonality and analyze weekly patterns
-def analyze_weekly_pattern(series, title='Weekly Seasonality'):
+def analyze_weekly_pattern(series:pd.Series,
+                           title:str='Weekly Seasonality'):
+    """
+    Analyze weekly seasonality of the given time series data after removing yearly and monthly seasonality.
+
+    Parameters:
+    -----------
+        series: pd.Series
+            Time series data
+        title: str
+            Title of the plot
+
+    Returns:
+    --------
+        None
+    """
     df = series.to_frame("value")
     df['day_of_week'] = df.index.dayofweek
 
@@ -121,8 +243,28 @@ def analyze_weekly_pattern(series, title='Weekly Seasonality'):
     plt.grid(True)
     plt.show()
 
-def analyse_series(series, series_name ='', period=12, acf_lags=40):
-    
+def analyse_series(series:pd.Series,
+                   series_name:str ='',
+                   period:int=12,
+                   acf_lags: int=40):
+    """
+    Wrapper function to all the above functions to analyze the given time series data.
+
+    Parameters:
+    -----------
+        series: pd.Series
+            Time series data
+        series_name: str
+            Name of the time series
+        period: int
+            Period of the seasonal component
+        acf_lags: int
+            Number of lags to consider for ACF and PACF plots
+
+    Returns:
+    --------
+        None
+    """
     plot_time_series(series, title=f'{series_name}')
 
     # Stationarity test

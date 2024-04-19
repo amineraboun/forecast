@@ -184,6 +184,24 @@ def plot_series(
         return ax
 
 def plot_interval(ax, interval_df, legend_label ='prediction interval'):
+    """
+    Plot the confidence interval within a plot.
+
+    Parameters:
+    -----------
+        ax : plt.Axes
+            The Axes object for the plot.
+        interval_df : pd.DataFrame
+            Output of `forecaster.predict_interval()`. Contains columns for lower
+            and upper boundaries of confidence interval.
+        legend_label : str, default = 'prediction interval'
+            The label for the legend.
+
+    Returns:
+    --------
+        ax : plt.Axes
+            Axes containing the plot
+    """
     cov = interval_df.columns.levels[1][0]
     var_name = interval_df.columns.levels[0][0]
     ax.fill_between(
