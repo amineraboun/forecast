@@ -561,7 +561,11 @@ class ForecastModelSelect:
         if mode == 'model':
             assert model_name in self.LF_d.keys(), 'Model name not in the list of models'
             _lf_X = self.__stage_X(self.LF_d[model_name], new_X)
-            return self.LF_d[model_name].update(new_y=new_y, new_X=_lf_X, fh=fh, coverage=coverage, refit=refit)
+            pred, pred_int =  self.LF_d[model_name].update(new_y=new_y, new_X=_lf_X, fh=fh, coverage=coverage, refit=refit)
+            if ret_underlying:
+                return pred, pred_int
+            else: 
+                return pred, pred_int, None, None
         else:
             if reevaluate == False:            
                 preds = {}; pred_ints = {}
@@ -916,17 +920,6 @@ class ForecastModelSelect:
                 print(f'Prediction intervals for {_best_model} are not available')
                 y_pred_int = pd.DataFrame()
 
-        elif mode =='best_horizon':
-            # returns the prediction of the best model for each forecast horizon
-            best_horizon = self.model_rank_perhorizon[score].loc['Best_1'].to_dict()
-            y_pred = pd.Series([preds[v].iloc[k-1] for k, v in best_horizon.items()], 
-                   index=preds.index)
-            if all([v in pred_ints.columns for v in best_horizon.values()]):
-                y_pred_int = pd.concat([pred_ints[v].iloc[k-1].to_frame().T for k, v in best_horizon.items()])
-            else:
-                print('One or several model that are best in their respective horizon are not available')
-                y_pred_int = pd.DataFrame() 
-
         elif mode == 'average':
             # returns the average prediction of all models
             y_pred = preds.mean(axis=1)
@@ -959,15 +952,27 @@ class ForecastModelSelect:
             else:
                 print(f'Prediction intervals for {nbest} best models are not available')
                 y_pred_int = None
+        
+        elif mode =='best_horizon':
+            # returns the prediction of the best model for each forecast horizon
+            best_horizon = self.model_rank_perhorizon[score].loc['Best_1'].to_dict()
+            y_pred = pd.Series([preds[v].iloc[k-1] for k, v in best_horizon.items()], 
+                   index=preds.index)
+            if all([v in pred_ints.columns for v in best_horizon.values()]):
+                y_pred_int = pd.concat([pred_ints[v].iloc[k-1].to_frame().T for k, v in best_horizon.items()])
+            else:
+                print('One or several model that are best in their respective horizon are not available')
+                y_pred_int = pd.DataFrame() 
 
         elif mode == 'nbest_average_horizon':
             # return the average prediction on the nbest models per horizon
-            best_horizon = self.model_rank_perhorizon[score].iloc[:nbest].T
+            best_horizon = self.model_rank_perhorizon['RMSE'].iloc[:2].T
+            _uniq_best_model = self.model_rank_perhorizon['RMSE'].iloc[:2].T.unstack().unique()
             best_horizon = best_horizon.apply(lambda x: x.values, axis=1).to_dict()
 
             y_pred = pd.Series([preds[v].iloc[k-1].mean() for k, v in best_horizon.items()], 
                                index=preds.index)
-            if all([v in pred_ints.columns for v in best_horizon.values()]):
+            if all([v in pred_ints.columns for v in _uniq_best_model]):
                 y_pred_int = pd.concat([pred_ints[v].iloc[k-1].unstack(0).mean(axis=1).to_frame().T for k, v in best_horizon.items()])
                 y_pred_int.index = y_pred.index        
             else:
