@@ -488,7 +488,11 @@ class ForecastModelSelect:
         if mode == 'model':
             assert model_name in self.LF_d.keys(), 'Model name not in the list of models'
             _lf_X = self.__stage_X(self.LF_d[model_name], X)
-            return self.LF_d[model_name].predict(X=_lf_X, fh=fh, coverage=coverage)
+            pred, pred_int = self.LF_d[model_name].predict(X=_lf_X, fh=fh, coverage=coverage)
+            if ret_underlying:
+                return pred, pred_int, None, None
+            else: 
+                return pred, pred_int
         else:
             preds = {}; pred_ints = {}
             for _fname, _lf in self.LF_d.items():
@@ -563,9 +567,9 @@ class ForecastModelSelect:
             _lf_X = self.__stage_X(self.LF_d[model_name], new_X)
             pred, pred_int =  self.LF_d[model_name].update(new_y=new_y, new_X=_lf_X, fh=fh, coverage=coverage, refit=refit)
             if ret_underlying:
-                return pred, pred_int
-            else: 
                 return pred, pred_int, None, None
+            else: 
+                return pred, pred_int
         else:
             if reevaluate == False:            
                 preds = {}; pred_ints = {}
