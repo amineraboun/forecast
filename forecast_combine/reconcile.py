@@ -107,13 +107,13 @@ class ForecastReconciler:
             if reconciliation_method == 'wls':
                 _wght = {}
                 for horizon, group in historical_errors.groupby('horizon'):
-                    _var = group.pivot(index='cutoff', columns='nodes', values='error').var()
+                    _var = group.pivot(index='prediction_date', columns='nodes', values='error').var()
                     _wght[horizon] = np.diag(1 / _var.loc[self._forecasters_order])
                 self._weights = _wght
             elif reconciliation_method == 'mint':
                 _wght = {}
                 for horizon, group in historical_errors.groupby('horizon'):
-                    ordered_group = group.pivot(index='cutoff', columns='nodes', values='error')[self._forecasters_order]
+                    ordered_group = group.pivot(index='prediction_date', columns='nodes', values='error')[self._forecasters_order]
                     _wght[horizon] = pinv(ordered_group.cov().values)
                 self._weights = _wght
         elif reconciliation_method == 'td':

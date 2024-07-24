@@ -8,6 +8,25 @@ from sklearn.metrics import (
     median_absolute_error
 )
 
+def mape(y_true, y_pred):
+    """
+    Compute the Mean Absolute Percentage Error (MAPE) for a forecast.
+
+    Parameters:
+    -----------
+        y_true (array-like): 
+            The true values.
+        y_pred (array-like): 
+            The predicted values.
+
+    Returns:
+    --------
+        float: The MAPE value.
+    """
+    denominator = np.where(y_true==0, (np.abs(y_true) + np.abs(y_pred))/2, np.abs(y_true)) 
+    ape = np.abs(y_true - y_pred) / denominator
+    return np.mean(ape)
+
 def evaluate_metrics(y_true, y_pred):
     """
     Computes performance metrics for the fitted curve. The currently covered performance metrics include 
@@ -31,7 +50,7 @@ def evaluate_metrics(y_true, y_pred):
     metrics = {
         'RMSE': np.sqrt(mean_squared_error(y_true, y_pred)),
         'MAE': mean_absolute_error(y_true, y_pred),
-        'MAPE': np.mean(np.abs((y_true - y_pred) / y_true)),
+        'MAPE': mape(y_true, y_pred),
         'R2': r2_score(y_true, y_pred),
         'MedianAE': median_absolute_error(y_true, y_pred)
     }

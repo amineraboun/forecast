@@ -16,7 +16,7 @@ import numpy as np
 
 # Iteration tools
 from collections.abc import Iterable
-from multiprocessing import Pool
+import concurrent.futures
 from tqdm import tqdm
 import time
 
@@ -34,7 +34,6 @@ sns.set_theme(style='white', font_scale=1)
 
 # Cross Validation tools
 from sktime.forecasting.base import ForecastingHorizon
-from sktime.forecasting.model_evaluation import evaluate
 from sktime.split import CutoffSplitter
 from sktime.forecasting.model_selection import (
 ExpandingWindowSplitter, 
@@ -42,20 +41,18 @@ temporal_train_test_split
 )
 
 # Performance Metrics
-from .utils.metrics import summary_perf, calculate_prediction_interval
-from sktime.performance_metrics.forecasting import (
-MeanSquaredError,
-MeanAbsoluteError, 
-MeanAbsolutePercentageError, 
-MedianAbsoluteError
+from .utils.metrics import (
+    summary_perf,
+    calculate_prediction_interval,
+    evaluate_metrics
 )
+
 
 ##############################################################################
 # Default values
 ##############################################################################
 # Common Forcasting models
 from sktime.forecasting.naive import NaiveForecaster
-from sktime.forecasting.fbprophet import Prophet
 from sktime.forecasting.statsforecast import (
 StatsForecastAutoARIMA,
 StatsForecastAutoETS, 
@@ -70,8 +67,7 @@ CommonForecastingModels = {
 "AutoETS": StatsForecastAutoETS(),
 "AutoCES": StatsForecastAutoCES(),
 "AutoTheta": StatsForecastAutoTheta(),
-"AutoTBATS": StatsForecastAutoTBATS(seasonal_periods = 1),
-"Prophet": Prophet(),
+"AutoTBATS": StatsForecastAutoTBATS(seasonal_periods = 1)
 }
 
 ##############################################################################
@@ -245,18 +241,21 @@ class Forecast(object):
 
         if fh is None:
             fh =  self._fh
-
+        st = time.time()
         if on == 'all':
+            print(f"Fitting the model {self.forecaster_name} on the entire sample ...")
             self.forecaster.fit(y=self._y, X=self._X, fh=fh)
             self.is_fitted = True
-
         elif on=='train':
+            print(f"Fitting the model {self.forecaster_name} on the training sample ...")
             self.forecaster.fit(y=self._y_train, X=self._X_train, fh=fh)
             self.is_fitted = False
-
         else: 
             on_values =['all', 'train']
             raise ValueError(f'argument takes 2 possible values {on_values}')
+        elapsed_time = time.time() - st
+        print(f"Model fitted in {format_elapsed_time(elapsed_time)}")
+        
         self._fitted = ForecastFit(self)   
         return self._fitted
 
@@ -272,6 +271,8 @@ class Forecast(object):
 
         self._eval = ForecastEval(self)  
         self.is_evaluated = True
+        if self.is_fitted==False:
+            self.fit(on='all')
         return self._eval
 
     def predict(self, 
@@ -298,9 +299,6 @@ class Forecast(object):
                 A tuple containing the predictions and the confidence intervals.
         """
         if self.is_fitted==False:
-            if verbose:
-                print(f"\n{self.forecaster_name} model not fitted yet, or fitted on a subset only")
-                print("Fitting the model on the entire sample ...")
             self.fit(on='all', fh=fh)
 
         if fh is None:
@@ -315,8 +313,7 @@ class Forecast(object):
             if verbose:
                 print(f"{self.forecaster_name} does not support prediction intervals")
                 print(f"Error: {e}")
-                print("Computing the prediction intervals based on historical errors distribution")
-            
+                print("Computing the prediction intervals based on historical errors distribution")            
             historical_errors = self.get_pred_errors()
             y_pred_ints = calculate_prediction_interval(historical_errors, y_pred, coverage=coverage)
 
@@ -371,7 +368,7 @@ class Forecast(object):
         if (self.is_evaluated is False) or (self._eval is None):
             self._eval = self.evaluate()        
         try:
-            pred_errors = self._eval._oos_horizon_df[['cutoff', 'horizon', 'error']]
+            pred_errors = self._eval._oos_horizon_df.groupby(['horizon', 'prediction_date'])['error'].mean().reset_index()
         except Exception:
             return None
         return pred_errors
@@ -456,7 +453,6 @@ class Forecast(object):
         self.freq = freq
 
         return None
-
     def __clean_data(self, 
                      data: pd.DataFrame, 
                      depvar_str: str, 
@@ -731,21 +727,6 @@ class ForecastPlot:
 ##############################################################################
 # Model Fit and Insample Performance
 ##############################################################################
-def compute_predictions(params):
-    forecaster, X, intrain, intest, verbose = params
-    fh = ForecastingHorizon(intest.index, is_relative=False)
-    try:
-        in_pred = forecaster.predict(fh=fh, X=X).rename('y_pred').reset_index()
-        in_pred['y_true'] = intest.values
-        in_pred['error'] = in_pred['y_true'] - in_pred['y_pred']
-        in_pred['error_pct'] = in_pred['error'].abs()/in_pred['y_true']
-        in_pred.insert(0, 'horizon', np.arange(1, len(in_pred) + 1))
-        in_pred.insert(0, 'cutoff', intrain.index[-1])        
-    except Exception as e:
-        if verbose:
-            print(f"Error occured in {intrain.index[-1]}: {e}")
-        in_pred = pd.DataFrame()
-    return in_pred
 class ForecastFit:
     """
     Class for fitting the forecaster and computing insample predictions.
@@ -820,18 +801,33 @@ class ForecastFit:
         if verbose:
             print(f"\nComputing {self.forecaster_name} forecaster historic predictions....")        
 
-        params = [(self.forecaster, self._X, intrain, intest, verbose) for intrain, intest in cv_in.split_series(_y)]                
-        with Pool() as pool:
-            insample_result = list(tqdm(pool.imap(compute_predictions, params), total=len(params)))
+        params = [(self.forecaster, self._X, intrain, intest, verbose) for intrain, intest in cv_in.split_series(_y)]        
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            results = list(tqdm(executor.map(self._compute_predictions, params), total=len(params)))
 
-        insample_result_df = pd.concat(insample_result)
+        insample_result_df = pd.concat(results)
         if insample_result_df.empty:
             print(f"No insample predictions computed {self.forecaster_name}")
         if verbose:
             print(f"\n{self.forecaster_name} forecaster historic predictions completed")        
         self.insample_result_df = insample_result_df
         return insample_result_df
-
+    
+    def _compute_predictions(self, params):
+        forecaster, X, intrain, intest, verbose = params
+        fh = ForecastingHorizon(intest.index, is_relative=False)
+        try:
+            in_pred = forecaster.predict(fh=fh, X=X).rename('y_pred').reset_index()
+            in_pred['y_true'] = intest.values
+            in_pred['error'] = in_pred['y_true'] - in_pred['y_pred']
+            in_pred['error_pct'] = np.where(in_pred['y_true']==0, np.nan, in_pred['error'].abs()/in_pred['y_true']) 
+            in_pred.insert(0, 'horizon', np.arange(1, len(in_pred) + 1))
+            in_pred.insert(0, 'cutoff', intrain.index[-1])        
+        except Exception as e:
+            if verbose:
+                print(f"Error occured in {intrain.index[-1]}: {e}")
+            in_pred = pd.DataFrame()
+        return in_pred
     def insample_perf(self) -> dict:
         """
         Compute insample performance metrics (RMSE and MAPE) for the fitted model.
@@ -939,59 +935,111 @@ class ForecastEval:
     """
 
     def __init__(self, LF: Forecast):
+        """
+        Initializes the ForecastEval with a given forecast object.
         
+        Parameters:
+        - LF: An instance of the Forecast class.
+        """
         self.forecaster = LF.forecaster
         self.forecaster_name = LF.forecaster_name
         self._y = LF._y
         self._X = LF._X
         self._cv = LF._cv
-
-        self._scoring_metrics = [MeanSquaredError(square_root=True),
-                                MeanAbsoluteError(),
-                                MeanAbsolutePercentageError(), 
-                                MedianAbsoluteError(),
-                                ]
-
-        _rename_metrics = {
-            'test_MeanSquaredError':'RMSE', 
-            'test_MeanAbsoluteError':'MAE',
-            'test_MeanAbsolutePercentageError':'MAPE',
-            'test_MedianAbsoluteError':'MedianAE',
-        }
-        print(f"\nStart {self.forecaster_name} forecaster evalution....")
-        st = time.time()
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            self.oos_eval = evaluate(forecaster=self.forecaster, 
-                                y=self._y,
-                                X = self._X,
-                                cv=self._cv,
-                                strategy="refit",
-                                return_data=True,
-                                scoring = self._scoring_metrics,
-                                backend ='loky',
-                            )
-        self.oos_eval = self.oos_eval.set_index('cutoff').sort_index()
-        self.oos_eval = self.oos_eval.rename(columns = _rename_metrics)
+        self._fh = LF._fh
+        
+        self._evaluate_forecasts()
+        self.plot = self.__plot()
+        return None    
+    
+    def _evaluate_forecasts(self):
+        """
+        Executes the forecasting evaluation in parallel.
+        """
+        lenfh = self._fh.max()
+        cutoffs = self._cv.get_cutoffs(self._y.iloc[:-lenfh])
+        
+        # Evaluate the forecaster in parallel
+        print(f"\nStart {self.forecaster_name} forecaster evaluation....")
+        st = time.time() 
+        executor = concurrent.futures.ProcessPoolExecutor()
+        futures = [executor.submit(self._run_forecasting, train_end, cutoffs) for train_end in cutoffs]
+        results = [future.result() for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures))]
+        results_df = pd.DataFrame([item for sublist in results for item in sublist])
+        self.oos_eval = results_df.set_index('prediction_date').sort_index()                
         et = time.time()
         elapsed_time = et - st
-        print(f"Evaluation completed in: {np.around(elapsed_time / 60,3)} minutes")
+        print(f"Evaluation completed in: {format_elapsed_time(elapsed_time)}")
 
-        convert_horizon = self.oos_eval.apply(self.__eval_horizon, axis=1)
+        self._compute_performance_summaries()
+
+    def _run_forecasting(self, train_end, cutoffs):
+        """
+        Fit the forecaster and collect predictions for each training end cutoff.
+        """
+        lenfh = self._fh.max()
+        results = []
+        train_end_idx = np.where(cutoffs == train_end)[0][0]
+        next_train_end = cutoffs[train_end_idx + 1] if train_end_idx + 1 < len(cutoffs) else len(self._y) - lenfh
         
+        y_train = self._y.iloc[:train_end]
+        X_train = self._X.iloc[:train_end] if self._X is not None else None
+        
+        st = time.time()
+        self.forecaster.fit(y_train, X_train)
+        et = time.time()
+        fit_time = et - st
+        
+        current_index = train_end
+        while current_index <= next_train_end:
+            pred_days = self._y.index[current_index: current_index + lenfh]
+            daily_fh = ForecastingHorizon(pred_days, is_relative=False)
+            st = time.time()
+            y_pred = self.forecaster.predict(fh=daily_fh, X=self._X)
+            et = time.time()
+            pred_time = et - st
+            y_true = self._y.loc[pred_days]
+            
+            pred_metrics = evaluate_metrics(y_true, y_pred)
+            results.append({
+                'cutoff': self._y.index[train_end],
+                'cutoff_idx': train_end,
+                'prediction_date': self._y.index[current_index],                
+                'RMSE': pred_metrics['RMSE'],
+                'MAE': pred_metrics['MAE'],
+                'MAPE': pred_metrics['MAPE'],
+                'MedianAE': pred_metrics['MedianAE'],
+                'R2': pred_metrics['R2'],
+                'fit_time': fit_time,
+                'pred_time': pred_time,
+                'len_train_window': len(y_train),
+                'y_train': y_train,
+                'y_test': y_true,
+                'y_pred': y_pred,
+            })
+            self.forecaster.update(self._y.iloc[:current_index], X=self._X, update_params=False)
+            current_index += 1
+
+        return results
+
+    def _compute_performance_summaries(self):
+        """
+        Compute performance summaries for different horizons and cutoffs after forecasting.
+        """
+        def __eval_horizon(x):
+            _fct = pd.concat([x['y_test'], x['y_pred']], keys=['y_test', 'y_pred'], axis=1)
+            _fct['error'] = _fct['y_test'] - _fct['y_pred']
+            _fct['error_pct'] = np.where(_fct['y_test']==0, np.nan, _fct['error'].abs()/ _fct['y_test'])
+            _fct['horizon'] = np.arange(1, len(_fct)+1)    
+            _fct['cutoff'] = x['cutoff']
+            _fct['prediction_date'] = x.name
+            return _fct
+        convert_horizon = self.oos_eval.apply(__eval_horizon, axis=1)        
         self._oos_horizon_df = pd.concat(convert_horizon.values)
-        self._oos_horizon_perf = summary_perf(self._oos_horizon_df, 
-                                             grouper='horizon', 
-                                             y_true_col = 'y_test', 
-                                             y_pred_col = 'y_pred')
-        self._oos_cutoff_perf = summary_perf(self._oos_horizon_df, 
-                                             grouper='cutoff', 
-                                             y_true_col = 'y_test', 
-                                             y_pred_col = 'y_pred')
-
-        self.plot = self.__plot()
+        self._oos_horizon_perf = summary_perf(self._oos_horizon_df, 'horizon', 'y_test', 'y_pred')
+        self._oos_cutoff_perf = summary_perf(self._oos_horizon_df, 'prediction_date', 'y_test', 'y_pred')
         return None
-
+    
     def summary_results(self) -> pd.DataFrame:
         """
         Generate a summary of out-of-sample forecast results.
@@ -1003,7 +1051,8 @@ class ForecastEval:
         """
 
         _summary = {
-         'Number of Folds':  self.oos_eval.shape[0], 
+         'Number of Folds':  self.oos_eval.cutoff_idx.nunique(), 
+         'Number of Predictions':  self.oos_eval.shape[0], 
          'Avg Fit time (s)': self.oos_eval.fit_time.mean(),
          'Avg_pred_time (s)': self.oos_eval.pred_time.mean(),
          'Smallest training window': self.oos_eval.len_train_window.min(),
@@ -1037,18 +1086,11 @@ class ForecastEval:
         """        
         return self._oos_horizon_perf
 
-    def __eval_horizon(self, x):
-        _fct = pd.concat([x['y_test'], x['y_pred']], keys=['y_test', 'y_pred'], axis=1)
-        _fct['error'] = _fct['y_test'] - _fct['y_pred']
-        _fct['error_pct'] = _fct['error'].abs()/ _fct['y_test']
-        _fct['horizon'] = np.arange(1, len(_fct)+1)    
-        _fct['cutoff'] = x.name
-        return _fct
-
     def __plot(self):
         return ForecastEvalPlot(self)
 
 class ForecastEvalPlot:
+
     """
     Plotting utility class for ForecastEval.
 
@@ -1131,3 +1173,19 @@ class ForecastEvalPlot:
             return f, ax
         else:
             return ax
+        
+def format_elapsed_time(elapsed_time):
+    """
+    Format the elapsed time to display in a more intuitive format:
+    - If less than a minute: show only seconds.
+    - If less than an hour: show minutes and seconds.
+    - If one hour or more: show hours, minutes, and seconds.
+    """
+    hours, remainder = divmod(elapsed_time, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    if hours > 0:
+        return f"{int(hours)} hours, {int(minutes)} minutes, {int(seconds)} seconds"
+    elif minutes > 0:
+        return f"{int(minutes)} minutes, {int(seconds)} seconds"
+    else:
+        return f"{int(seconds)} seconds"

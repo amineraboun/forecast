@@ -57,7 +57,6 @@ class ForecastModelSelect:
         - **AutoCES:** StatsForecastAutoCES - Auto CES model
         - **AutoTheta:** StatsForecastAutoTheta - Auto Theta model
         - **AutoTBATS:** StatsForecastAutoTBATS - Auto TBATS model
-        - **Prophet:** Prophet - Prophet model
     - trained_forecasters_d (dict): A dictionary containing trained Forecast objects. Default is None.
     - model_exog_d (dict): A dictionary containing exogenous variables for each model. Default is None.
     - mode (str): The aggregation mode. Default is 'nbest_average_horizon'. Available values are:

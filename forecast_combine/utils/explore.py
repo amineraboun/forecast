@@ -88,6 +88,7 @@ def test_stationarity(series: pd.Series):
         print('\t%s: %.3f' % (key, value))
     # print whether the series is stationary or not at 5%
     print("Is the series stationary? {0}".format('Yes' if result[1] < 0.05 else 'No'))
+    return result
 
 def decompose_series(series:pd.DataFrame,
                      period:int=12,
@@ -152,11 +153,15 @@ def plot_yearly_seasonality(series: pd.DataFrame,
             plt.plot(yearly_patterns.index, yearly_patterns[column], 
                      label=f'Year {column}', marker='o', linestyle='-')
         plt.legend(title="Year", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
+        plt.show()
+        return yearly_patterns
     else:
         plt.plot(yearly_patterns.index, yearly_patterns.mean(axis=1),
                   label='Average', marker='o', linestyle='-')
         plt.legend(frameon=False)
-    plt.show()
+        plt.show()
+        return yearly_patterns.mean(axis=1)
+       
 
 # Remove yearly seasonality and show monthly patterns
 def analyze_monthly_pattern(series:pd.Series,
@@ -197,11 +202,14 @@ def analyze_monthly_pattern(series:pd.Series,
             plt.plot(monthly_patterns.index, monthly_patterns[column], 
                      label=f'Month {column}', marker='o', linestyle='-')
         plt.legend(title="Month", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
+        plt.show()
+        return monthly_patterns
     else:
         plt.plot(monthly_patterns.index, monthly_patterns.mean(axis=1),
                  label='Average', marker='o', linestyle='-')
         plt.legend(frameon=False)
-    plt.show()
+        plt.show()
+        return monthly_patterns.mean(axis=1)
 
 # Further adjust for monthly seasonality and analyze weekly patterns
 def analyze_weekly_pattern(series:pd.Series,
@@ -242,6 +250,7 @@ def analyze_weekly_pattern(series:pd.Series,
     plt.xticks(weekly_patterns.index, [day_map[day] for day in weekly_patterns.index])
     plt.grid(True)
     plt.show()
+    return weekly_patterns
 
 def analyse_series(series:pd.Series,
                    series_name:str ='',
