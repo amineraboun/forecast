@@ -31,6 +31,9 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
+                    <a class="function" href="#mape">mape</a>
+            </li>
+            <li>
                     <a class="function" href="#evaluate_metrics">evaluate_metrics</a>
             </li>
             <li>
@@ -70,105 +73,174 @@
 </span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a>    <span class="n">median_absolute_error</span>
 </span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="p">)</span>
 </span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a>
-</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="k">def</span> <span class="nf">evaluate_metrics</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="k">def</span> <span class="nf">mape</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
 </span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="sd">    Computes performance metrics for the fitted curve. The currently covered performance metrics include </span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="sd">    - RMSE: Root Mean Squared Error</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="sd">    - MAE: Mean Absolute Error</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="sd">    - MAPE: Mean Absolute Percentage Error</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="sd">    - R2: R-squared</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="sd">    - MedianAE: Median Absolute Error</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a>
-</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="sd">    Parameters:</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="sd">    -----------</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a><span class="sd">        y_true (array-like): </span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a><span class="sd">            The true values.</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a><span class="sd">        y_pred (array-like): </span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a><span class="sd">            The predicted values.</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a>
-</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a><span class="sd">    Returns:</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a><span class="sd">    --------</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a><span class="sd">        Series: A series containing the performance metrics.</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a>    <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a>        <span class="s1">&#39;RMSE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)),</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>        <span class="s1">&#39;MAE&#39;</span><span class="p">:</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>        <span class="s1">&#39;MAPE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">y_true</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">)</span> <span class="o">/</span> <span class="n">y_true</span><span class="p">)),</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>        <span class="s1">&#39;R2&#39;</span><span class="p">:</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>        <span class="s1">&#39;MedianAE&#39;</span><span class="p">:</span> <span class="n">median_absolute_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>    <span class="p">}</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>
-</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="k">def</span> <span class="nf">summary_perf</span><span class="p">(</span><span class="n">insample_result_df</span><span class="p">,</span> 
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>			 <span class="n">grouper</span><span class="p">,</span> 
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>			 <span class="n">y_true_col</span> <span class="o">=</span> <span class="s1">&#39;y_true&#39;</span><span class="p">,</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>			 <span class="n">y_pred_col</span> <span class="o">=</span> <span class="s1">&#39;y_pred&#39;</span><span class="p">,</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>			<span class="p">):</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="sd">	Compute summary performance metrics for a given forecast.</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="sd">    - RMSE: Root Mean Squared Error</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="sd">    - MAE: Mean Absolute Error</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="sd">    - MAPE: Mean Absolute Percentage Error</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="sd">    - R2: R-squared</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="sd">    - MedianAE: Median Absolute Error</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>
-</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">	Parameters:</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="sd">    -----------</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="sd">	    insample_result_df (DataFrame): </span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a><span class="sd">            A DataFrame containing the forecast results.</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="sd">		grouper (str): </span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="sd">            The column name to group the forecast results for computing summary metrics.</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">		y_true_col (str, optional):</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="sd">            The column name representing the true values. Default is &#39;y_true&#39;.</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="sd">		y_pred_col (str, optional): </span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="sd">            The column name representing the predicted values. Default is &#39;y_pred&#39;.</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">	Returns:</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">    --------</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">		DataFrame: A DataFrame containing summary performance metrics.</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">	&quot;&quot;&quot;</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>
-</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>    <span class="n">horizon_metrics</span> <span class="o">=</span> <span class="n">insample_result_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">grouper</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">evaluate_metrics</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">y_true_col</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="n">y_pred_col</span><span class="p">]))</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>    <span class="k">return</span> <span class="n">horizon_metrics</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="sd">    Compute the Mean Absolute Percentage Error (MAPE) for a forecast.</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="sd">    Parameters:</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="sd">    -----------</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="sd">        y_true (array-like): </span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="sd">            The true values.</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="sd">        y_pred (array-like): </span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="sd">            The predicted values.</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>
+</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a><span class="sd">    Returns:</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a><span class="sd">    --------</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a><span class="sd">        float: The MAPE value.</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a>    <span class="n">denominator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y_true</span><span class="o">==</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_pred</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_true</span><span class="p">))</span> 
+</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a>    <span class="n">ape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_true</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ape</span><span class="p">)</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>
+</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a><span class="k">def</span> <span class="nf">evaluate_metrics</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a><span class="sd">    Computes performance metrics for the fitted curve. The currently covered performance metrics include </span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a><span class="sd">    - RMSE: Root Mean Squared Error</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a><span class="sd">    - MAE: Mean Absolute Error</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a><span class="sd">    - MAPE: Mean Absolute Percentage Error</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="sd">    - R2: R-squared</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="sd">    - MedianAE: Median Absolute Error</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="sd">    Parameters:</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="sd">    -----------</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="sd">        y_true (array-like): </span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="sd">            The true values.</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="sd">        y_pred (array-like): </span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="sd">            The predicted values.</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="sd">    Returns:</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="sd">    --------</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="sd">        Series: A series containing the performance metrics.</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>    <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>        <span class="s1">&#39;RMSE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)),</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>        <span class="s1">&#39;MAE&#39;</span><span class="p">:</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>        <span class="s1">&#39;MAPE&#39;</span><span class="p">:</span> <span class="n">mape</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>        <span class="s1">&#39;R2&#39;</span><span class="p">:</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>        <span class="s1">&#39;MedianAE&#39;</span><span class="p">:</span> <span class="n">median_absolute_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>    <span class="p">}</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="k">def</span> <span class="nf">summary_perf</span><span class="p">(</span><span class="n">insample_result_df</span><span class="p">,</span> 
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>			 <span class="n">grouper</span><span class="p">,</span> 
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>			 <span class="n">y_true_col</span> <span class="o">=</span> <span class="s1">&#39;y_true&#39;</span><span class="p">,</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>			 <span class="n">y_pred_col</span> <span class="o">=</span> <span class="s1">&#39;y_pred&#39;</span><span class="p">,</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>			<span class="p">):</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">	Compute summary performance metrics for a given forecast.</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">    - RMSE: Root Mean Squared Error</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">    - MAE: Mean Absolute Error</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">    - MAPE: Mean Absolute Percentage Error</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">    - R2: R-squared</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">    - MedianAE: Median Absolute Error</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>
 </span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="k">def</span> <span class="nf">calculate_prediction_interval</span><span class="p">(</span><span class="n">historical_errors</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">coverage</span><span class="o">=</span><span class="mf">0.90</span><span class="p">):</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">    Calculate the prediction interval for given predictions based on historical errors.</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="sd">    Parameters:</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="sd">    -----------</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">    historical_errors : array-like</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="sd">        Array of historical prediction errors (actual - predicted values).</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">    y_pred : float or array-like</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="sd">        Predicted value(s) for which the prediction interval is required.</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">    coverage : float, optional</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">        Desired coverage of the prediction interval. Default is 0.90.</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a><span class="sd">    Returns:</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">    --------</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a><span class="sd">    interval : tuple</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a><span class="sd">        A tuple containing the lower and upper bounds of the prediction interval.</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>    <span class="c1"># Calculate the mean and standard deviation of the errors</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>    <span class="n">sigma_e</span> <span class="o">=</span> <span class="n">historical_errors</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;horizon&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>    <span class="n">sigma_e</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">index</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>    <span class="c1"># Determine the z-score for the desired coverage</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>    <span class="n">z</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="n">coverage</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="c1"># Calculate the prediction interval</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>    <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">y_pred</span> <span class="o">-</span> <span class="n">z</span> <span class="o">*</span> <span class="n">sigma_e</span>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>    <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">y_pred</span> <span class="o">+</span> <span class="n">z</span> <span class="o">*</span> <span class="n">sigma_e</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>    <span class="n">ypred_int</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>    <span class="n">ypred_int</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">([(</span><span class="n">y_pred</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">coverage</span><span class="p">,</span> <span class="s1">&#39;lower&#39;</span><span class="p">),</span>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>                                                  <span class="p">(</span><span class="n">y_pred</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">coverage</span><span class="p">,</span> <span class="s1">&#39;upper&#39;</span><span class="p">)])</span>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>    <span class="k">return</span> <span class="n">ypred_int</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">	Parameters:</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">    -----------</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">	    insample_result_df (DataFrame): </span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">            A DataFrame containing the forecast results.</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="sd">		grouper (str): </span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="sd">            The column name to group the forecast results for computing summary metrics.</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">		y_true_col (str, optional):</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="sd">            The column name representing the true values. Default is &#39;y_true&#39;.</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">		y_pred_col (str, optional): </span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="sd">            The column name representing the predicted values. Default is &#39;y_pred&#39;.</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">	Returns:</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">    --------</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a><span class="sd">		DataFrame: A DataFrame containing summary performance metrics.</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">	&quot;&quot;&quot;</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>    <span class="n">horizon_metrics</span> <span class="o">=</span> <span class="n">insample_result_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">grouper</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">evaluate_metrics</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">y_true_col</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="n">y_pred_col</span><span class="p">]))</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>    <span class="k">return</span> <span class="n">horizon_metrics</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="k">def</span> <span class="nf">calculate_prediction_interval</span><span class="p">(</span><span class="n">historical_errors</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">coverage</span><span class="o">=</span><span class="mf">0.90</span><span class="p">):</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="sd">    Calculate the prediction interval for given predictions based on historical errors.</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">    Parameters:</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="sd">    -----------</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="sd">    historical_errors : array-like</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a><span class="sd">        Array of historical prediction errors (actual - predicted values).</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="sd">    y_pred : float or array-like</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">        Predicted value(s) for which the prediction interval is required.</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="sd">    coverage : float, optional</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">        Desired coverage of the prediction interval. Default is 0.90.</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">    Returns:</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="sd">    --------</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="sd">    interval : tuple</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="sd">        A tuple containing the lower and upper bounds of the prediction interval.</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>    <span class="c1"># Calculate the mean and standard deviation of the errors</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>    <span class="n">sigma_e</span> <span class="o">=</span> <span class="n">historical_errors</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;horizon&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>    <span class="n">sigma_e</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">index</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>    <span class="c1"># Determine the z-score for the desired coverage</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>    <span class="n">z</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="n">coverage</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>    <span class="c1"># Calculate the prediction interval</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>    <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">y_pred</span> <span class="o">-</span> <span class="n">z</span> <span class="o">*</span> <span class="n">sigma_e</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>    <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">y_pred</span> <span class="o">+</span> <span class="n">z</span> <span class="o">*</span> <span class="n">sigma_e</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>    <span class="n">ypred_int</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>    <span class="n">ypred_int</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">([(</span><span class="n">y_pred</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">coverage</span><span class="p">,</span> <span class="s1">&#39;lower&#39;</span><span class="p">),</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>                                                  <span class="p">(</span><span class="n">y_pred</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">coverage</span><span class="p">,</span> <span class="s1">&#39;upper&#39;</span><span class="p">)])</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>    <span class="k">return</span> <span class="n">ypred_int</span>
 </span></pre></div>
 
 
             </section>
+                <section id="mape">
+                            <input id="mape-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">mape</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">y_true</span>, </span><span class="param"><span class="n">y_pred</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="mape-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#mape"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="mape-12"><a href="#mape-12"><span class="linenos">12</span></a><span class="k">def</span> <span class="nf">mape</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+</span><span id="mape-13"><a href="#mape-13"><span class="linenos">13</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="mape-14"><a href="#mape-14"><span class="linenos">14</span></a><span class="sd">    Compute the Mean Absolute Percentage Error (MAPE) for a forecast.</span>
+</span><span id="mape-15"><a href="#mape-15"><span class="linenos">15</span></a>
+</span><span id="mape-16"><a href="#mape-16"><span class="linenos">16</span></a><span class="sd">    Parameters:</span>
+</span><span id="mape-17"><a href="#mape-17"><span class="linenos">17</span></a><span class="sd">    -----------</span>
+</span><span id="mape-18"><a href="#mape-18"><span class="linenos">18</span></a><span class="sd">        y_true (array-like): </span>
+</span><span id="mape-19"><a href="#mape-19"><span class="linenos">19</span></a><span class="sd">            The true values.</span>
+</span><span id="mape-20"><a href="#mape-20"><span class="linenos">20</span></a><span class="sd">        y_pred (array-like): </span>
+</span><span id="mape-21"><a href="#mape-21"><span class="linenos">21</span></a><span class="sd">            The predicted values.</span>
+</span><span id="mape-22"><a href="#mape-22"><span class="linenos">22</span></a>
+</span><span id="mape-23"><a href="#mape-23"><span class="linenos">23</span></a><span class="sd">    Returns:</span>
+</span><span id="mape-24"><a href="#mape-24"><span class="linenos">24</span></a><span class="sd">    --------</span>
+</span><span id="mape-25"><a href="#mape-25"><span class="linenos">25</span></a><span class="sd">        float: The MAPE value.</span>
+</span><span id="mape-26"><a href="#mape-26"><span class="linenos">26</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="mape-27"><a href="#mape-27"><span class="linenos">27</span></a>    <span class="n">denominator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y_true</span><span class="o">==</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_pred</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_true</span><span class="p">))</span> 
+</span><span id="mape-28"><a href="#mape-28"><span class="linenos">28</span></a>    <span class="n">ape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_true</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span>
+</span><span id="mape-29"><a href="#mape-29"><span class="linenos">29</span></a>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ape</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Compute the Mean Absolute Percentage Error (MAPE) for a forecast.</p>
+
+<h2 id="parameters">Parameters:</h2>
+
+<pre><code>y_true (array-like): 
+    The true values.
+y_pred (array-like): 
+    The predicted values.
+</code></pre>
+
+<h2 id="returns">Returns:</h2>
+
+<pre><code>float: The MAPE value.
+</code></pre>
+</div>
+
+
+                </section>
                 <section id="evaluate_metrics">
                             <input id="evaluate_metrics-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -180,34 +252,34 @@
 
     </div>
     <a class="headerlink" href="#evaluate_metrics"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="evaluate_metrics-12"><a href="#evaluate_metrics-12"><span class="linenos">12</span></a><span class="k">def</span> <span class="nf">evaluate_metrics</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
-</span><span id="evaluate_metrics-13"><a href="#evaluate_metrics-13"><span class="linenos">13</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="evaluate_metrics-14"><a href="#evaluate_metrics-14"><span class="linenos">14</span></a><span class="sd">    Computes performance metrics for the fitted curve. The currently covered performance metrics include </span>
-</span><span id="evaluate_metrics-15"><a href="#evaluate_metrics-15"><span class="linenos">15</span></a><span class="sd">    - RMSE: Root Mean Squared Error</span>
-</span><span id="evaluate_metrics-16"><a href="#evaluate_metrics-16"><span class="linenos">16</span></a><span class="sd">    - MAE: Mean Absolute Error</span>
-</span><span id="evaluate_metrics-17"><a href="#evaluate_metrics-17"><span class="linenos">17</span></a><span class="sd">    - MAPE: Mean Absolute Percentage Error</span>
-</span><span id="evaluate_metrics-18"><a href="#evaluate_metrics-18"><span class="linenos">18</span></a><span class="sd">    - R2: R-squared</span>
-</span><span id="evaluate_metrics-19"><a href="#evaluate_metrics-19"><span class="linenos">19</span></a><span class="sd">    - MedianAE: Median Absolute Error</span>
-</span><span id="evaluate_metrics-20"><a href="#evaluate_metrics-20"><span class="linenos">20</span></a>
-</span><span id="evaluate_metrics-21"><a href="#evaluate_metrics-21"><span class="linenos">21</span></a><span class="sd">    Parameters:</span>
-</span><span id="evaluate_metrics-22"><a href="#evaluate_metrics-22"><span class="linenos">22</span></a><span class="sd">    -----------</span>
-</span><span id="evaluate_metrics-23"><a href="#evaluate_metrics-23"><span class="linenos">23</span></a><span class="sd">        y_true (array-like): </span>
-</span><span id="evaluate_metrics-24"><a href="#evaluate_metrics-24"><span class="linenos">24</span></a><span class="sd">            The true values.</span>
-</span><span id="evaluate_metrics-25"><a href="#evaluate_metrics-25"><span class="linenos">25</span></a><span class="sd">        y_pred (array-like): </span>
-</span><span id="evaluate_metrics-26"><a href="#evaluate_metrics-26"><span class="linenos">26</span></a><span class="sd">            The predicted values.</span>
-</span><span id="evaluate_metrics-27"><a href="#evaluate_metrics-27"><span class="linenos">27</span></a>
-</span><span id="evaluate_metrics-28"><a href="#evaluate_metrics-28"><span class="linenos">28</span></a><span class="sd">    Returns:</span>
-</span><span id="evaluate_metrics-29"><a href="#evaluate_metrics-29"><span class="linenos">29</span></a><span class="sd">    --------</span>
-</span><span id="evaluate_metrics-30"><a href="#evaluate_metrics-30"><span class="linenos">30</span></a><span class="sd">        Series: A series containing the performance metrics.</span>
-</span><span id="evaluate_metrics-31"><a href="#evaluate_metrics-31"><span class="linenos">31</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="evaluate_metrics-32"><a href="#evaluate_metrics-32"><span class="linenos">32</span></a>    <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="evaluate_metrics-33"><a href="#evaluate_metrics-33"><span class="linenos">33</span></a>        <span class="s1">&#39;RMSE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)),</span>
-</span><span id="evaluate_metrics-34"><a href="#evaluate_metrics-34"><span class="linenos">34</span></a>        <span class="s1">&#39;MAE&#39;</span><span class="p">:</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span>
-</span><span id="evaluate_metrics-35"><a href="#evaluate_metrics-35"><span class="linenos">35</span></a>        <span class="s1">&#39;MAPE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">y_true</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">)</span> <span class="o">/</span> <span class="n">y_true</span><span class="p">)),</span>
-</span><span id="evaluate_metrics-36"><a href="#evaluate_metrics-36"><span class="linenos">36</span></a>        <span class="s1">&#39;R2&#39;</span><span class="p">:</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span>
-</span><span id="evaluate_metrics-37"><a href="#evaluate_metrics-37"><span class="linenos">37</span></a>        <span class="s1">&#39;MedianAE&#39;</span><span class="p">:</span> <span class="n">median_absolute_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
-</span><span id="evaluate_metrics-38"><a href="#evaluate_metrics-38"><span class="linenos">38</span></a>    <span class="p">}</span>
-</span><span id="evaluate_metrics-39"><a href="#evaluate_metrics-39"><span class="linenos">39</span></a>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="evaluate_metrics-31"><a href="#evaluate_metrics-31"><span class="linenos">31</span></a><span class="k">def</span> <span class="nf">evaluate_metrics</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+</span><span id="evaluate_metrics-32"><a href="#evaluate_metrics-32"><span class="linenos">32</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="evaluate_metrics-33"><a href="#evaluate_metrics-33"><span class="linenos">33</span></a><span class="sd">    Computes performance metrics for the fitted curve. The currently covered performance metrics include </span>
+</span><span id="evaluate_metrics-34"><a href="#evaluate_metrics-34"><span class="linenos">34</span></a><span class="sd">    - RMSE: Root Mean Squared Error</span>
+</span><span id="evaluate_metrics-35"><a href="#evaluate_metrics-35"><span class="linenos">35</span></a><span class="sd">    - MAE: Mean Absolute Error</span>
+</span><span id="evaluate_metrics-36"><a href="#evaluate_metrics-36"><span class="linenos">36</span></a><span class="sd">    - MAPE: Mean Absolute Percentage Error</span>
+</span><span id="evaluate_metrics-37"><a href="#evaluate_metrics-37"><span class="linenos">37</span></a><span class="sd">    - R2: R-squared</span>
+</span><span id="evaluate_metrics-38"><a href="#evaluate_metrics-38"><span class="linenos">38</span></a><span class="sd">    - MedianAE: Median Absolute Error</span>
+</span><span id="evaluate_metrics-39"><a href="#evaluate_metrics-39"><span class="linenos">39</span></a>
+</span><span id="evaluate_metrics-40"><a href="#evaluate_metrics-40"><span class="linenos">40</span></a><span class="sd">    Parameters:</span>
+</span><span id="evaluate_metrics-41"><a href="#evaluate_metrics-41"><span class="linenos">41</span></a><span class="sd">    -----------</span>
+</span><span id="evaluate_metrics-42"><a href="#evaluate_metrics-42"><span class="linenos">42</span></a><span class="sd">        y_true (array-like): </span>
+</span><span id="evaluate_metrics-43"><a href="#evaluate_metrics-43"><span class="linenos">43</span></a><span class="sd">            The true values.</span>
+</span><span id="evaluate_metrics-44"><a href="#evaluate_metrics-44"><span class="linenos">44</span></a><span class="sd">        y_pred (array-like): </span>
+</span><span id="evaluate_metrics-45"><a href="#evaluate_metrics-45"><span class="linenos">45</span></a><span class="sd">            The predicted values.</span>
+</span><span id="evaluate_metrics-46"><a href="#evaluate_metrics-46"><span class="linenos">46</span></a>
+</span><span id="evaluate_metrics-47"><a href="#evaluate_metrics-47"><span class="linenos">47</span></a><span class="sd">    Returns:</span>
+</span><span id="evaluate_metrics-48"><a href="#evaluate_metrics-48"><span class="linenos">48</span></a><span class="sd">    --------</span>
+</span><span id="evaluate_metrics-49"><a href="#evaluate_metrics-49"><span class="linenos">49</span></a><span class="sd">        Series: A series containing the performance metrics.</span>
+</span><span id="evaluate_metrics-50"><a href="#evaluate_metrics-50"><span class="linenos">50</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="evaluate_metrics-51"><a href="#evaluate_metrics-51"><span class="linenos">51</span></a>    <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="evaluate_metrics-52"><a href="#evaluate_metrics-52"><span class="linenos">52</span></a>        <span class="s1">&#39;RMSE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)),</span>
+</span><span id="evaluate_metrics-53"><a href="#evaluate_metrics-53"><span class="linenos">53</span></a>        <span class="s1">&#39;MAE&#39;</span><span class="p">:</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span>
+</span><span id="evaluate_metrics-54"><a href="#evaluate_metrics-54"><span class="linenos">54</span></a>        <span class="s1">&#39;MAPE&#39;</span><span class="p">:</span> <span class="n">mape</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span>
+</span><span id="evaluate_metrics-55"><a href="#evaluate_metrics-55"><span class="linenos">55</span></a>        <span class="s1">&#39;R2&#39;</span><span class="p">:</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span>
+</span><span id="evaluate_metrics-56"><a href="#evaluate_metrics-56"><span class="linenos">56</span></a>        <span class="s1">&#39;MedianAE&#39;</span><span class="p">:</span> <span class="n">median_absolute_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+</span><span id="evaluate_metrics-57"><a href="#evaluate_metrics-57"><span class="linenos">57</span></a>    <span class="p">}</span>
+</span><span id="evaluate_metrics-58"><a href="#evaluate_metrics-58"><span class="linenos">58</span></a>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -248,38 +320,38 @@ y_pred (array-like):
 
     </div>
     <a class="headerlink" href="#summary_perf"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="summary_perf-41"><a href="#summary_perf-41"><span class="linenos">41</span></a><span class="k">def</span> <span class="nf">summary_perf</span><span class="p">(</span><span class="n">insample_result_df</span><span class="p">,</span> 
-</span><span id="summary_perf-42"><a href="#summary_perf-42"><span class="linenos">42</span></a>			 <span class="n">grouper</span><span class="p">,</span> 
-</span><span id="summary_perf-43"><a href="#summary_perf-43"><span class="linenos">43</span></a>			 <span class="n">y_true_col</span> <span class="o">=</span> <span class="s1">&#39;y_true&#39;</span><span class="p">,</span>
-</span><span id="summary_perf-44"><a href="#summary_perf-44"><span class="linenos">44</span></a>			 <span class="n">y_pred_col</span> <span class="o">=</span> <span class="s1">&#39;y_pred&#39;</span><span class="p">,</span>
-</span><span id="summary_perf-45"><a href="#summary_perf-45"><span class="linenos">45</span></a>			<span class="p">):</span>
-</span><span id="summary_perf-46"><a href="#summary_perf-46"><span class="linenos">46</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="summary_perf-47"><a href="#summary_perf-47"><span class="linenos">47</span></a><span class="sd">	Compute summary performance metrics for a given forecast.</span>
-</span><span id="summary_perf-48"><a href="#summary_perf-48"><span class="linenos">48</span></a><span class="sd">    - RMSE: Root Mean Squared Error</span>
-</span><span id="summary_perf-49"><a href="#summary_perf-49"><span class="linenos">49</span></a><span class="sd">    - MAE: Mean Absolute Error</span>
-</span><span id="summary_perf-50"><a href="#summary_perf-50"><span class="linenos">50</span></a><span class="sd">    - MAPE: Mean Absolute Percentage Error</span>
-</span><span id="summary_perf-51"><a href="#summary_perf-51"><span class="linenos">51</span></a><span class="sd">    - R2: R-squared</span>
-</span><span id="summary_perf-52"><a href="#summary_perf-52"><span class="linenos">52</span></a><span class="sd">    - MedianAE: Median Absolute Error</span>
-</span><span id="summary_perf-53"><a href="#summary_perf-53"><span class="linenos">53</span></a>
-</span><span id="summary_perf-54"><a href="#summary_perf-54"><span class="linenos">54</span></a>
-</span><span id="summary_perf-55"><a href="#summary_perf-55"><span class="linenos">55</span></a><span class="sd">	Parameters:</span>
-</span><span id="summary_perf-56"><a href="#summary_perf-56"><span class="linenos">56</span></a><span class="sd">    -----------</span>
-</span><span id="summary_perf-57"><a href="#summary_perf-57"><span class="linenos">57</span></a><span class="sd">	    insample_result_df (DataFrame): </span>
-</span><span id="summary_perf-58"><a href="#summary_perf-58"><span class="linenos">58</span></a><span class="sd">            A DataFrame containing the forecast results.</span>
-</span><span id="summary_perf-59"><a href="#summary_perf-59"><span class="linenos">59</span></a><span class="sd">		grouper (str): </span>
-</span><span id="summary_perf-60"><a href="#summary_perf-60"><span class="linenos">60</span></a><span class="sd">            The column name to group the forecast results for computing summary metrics.</span>
-</span><span id="summary_perf-61"><a href="#summary_perf-61"><span class="linenos">61</span></a><span class="sd">		y_true_col (str, optional):</span>
-</span><span id="summary_perf-62"><a href="#summary_perf-62"><span class="linenos">62</span></a><span class="sd">            The column name representing the true values. Default is &#39;y_true&#39;.</span>
-</span><span id="summary_perf-63"><a href="#summary_perf-63"><span class="linenos">63</span></a><span class="sd">		y_pred_col (str, optional): </span>
-</span><span id="summary_perf-64"><a href="#summary_perf-64"><span class="linenos">64</span></a><span class="sd">            The column name representing the predicted values. Default is &#39;y_pred&#39;.</span>
-</span><span id="summary_perf-65"><a href="#summary_perf-65"><span class="linenos">65</span></a>
-</span><span id="summary_perf-66"><a href="#summary_perf-66"><span class="linenos">66</span></a><span class="sd">	Returns:</span>
-</span><span id="summary_perf-67"><a href="#summary_perf-67"><span class="linenos">67</span></a><span class="sd">    --------</span>
-</span><span id="summary_perf-68"><a href="#summary_perf-68"><span class="linenos">68</span></a><span class="sd">		DataFrame: A DataFrame containing summary performance metrics.</span>
-</span><span id="summary_perf-69"><a href="#summary_perf-69"><span class="linenos">69</span></a><span class="sd">	&quot;&quot;&quot;</span>
-</span><span id="summary_perf-70"><a href="#summary_perf-70"><span class="linenos">70</span></a>
-</span><span id="summary_perf-71"><a href="#summary_perf-71"><span class="linenos">71</span></a>    <span class="n">horizon_metrics</span> <span class="o">=</span> <span class="n">insample_result_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">grouper</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">evaluate_metrics</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">y_true_col</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="n">y_pred_col</span><span class="p">]))</span>
-</span><span id="summary_perf-72"><a href="#summary_perf-72"><span class="linenos">72</span></a>    <span class="k">return</span> <span class="n">horizon_metrics</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="summary_perf-60"><a href="#summary_perf-60"><span class="linenos">60</span></a><span class="k">def</span> <span class="nf">summary_perf</span><span class="p">(</span><span class="n">insample_result_df</span><span class="p">,</span> 
+</span><span id="summary_perf-61"><a href="#summary_perf-61"><span class="linenos">61</span></a>			 <span class="n">grouper</span><span class="p">,</span> 
+</span><span id="summary_perf-62"><a href="#summary_perf-62"><span class="linenos">62</span></a>			 <span class="n">y_true_col</span> <span class="o">=</span> <span class="s1">&#39;y_true&#39;</span><span class="p">,</span>
+</span><span id="summary_perf-63"><a href="#summary_perf-63"><span class="linenos">63</span></a>			 <span class="n">y_pred_col</span> <span class="o">=</span> <span class="s1">&#39;y_pred&#39;</span><span class="p">,</span>
+</span><span id="summary_perf-64"><a href="#summary_perf-64"><span class="linenos">64</span></a>			<span class="p">):</span>
+</span><span id="summary_perf-65"><a href="#summary_perf-65"><span class="linenos">65</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="summary_perf-66"><a href="#summary_perf-66"><span class="linenos">66</span></a><span class="sd">	Compute summary performance metrics for a given forecast.</span>
+</span><span id="summary_perf-67"><a href="#summary_perf-67"><span class="linenos">67</span></a><span class="sd">    - RMSE: Root Mean Squared Error</span>
+</span><span id="summary_perf-68"><a href="#summary_perf-68"><span class="linenos">68</span></a><span class="sd">    - MAE: Mean Absolute Error</span>
+</span><span id="summary_perf-69"><a href="#summary_perf-69"><span class="linenos">69</span></a><span class="sd">    - MAPE: Mean Absolute Percentage Error</span>
+</span><span id="summary_perf-70"><a href="#summary_perf-70"><span class="linenos">70</span></a><span class="sd">    - R2: R-squared</span>
+</span><span id="summary_perf-71"><a href="#summary_perf-71"><span class="linenos">71</span></a><span class="sd">    - MedianAE: Median Absolute Error</span>
+</span><span id="summary_perf-72"><a href="#summary_perf-72"><span class="linenos">72</span></a>
+</span><span id="summary_perf-73"><a href="#summary_perf-73"><span class="linenos">73</span></a>
+</span><span id="summary_perf-74"><a href="#summary_perf-74"><span class="linenos">74</span></a><span class="sd">	Parameters:</span>
+</span><span id="summary_perf-75"><a href="#summary_perf-75"><span class="linenos">75</span></a><span class="sd">    -----------</span>
+</span><span id="summary_perf-76"><a href="#summary_perf-76"><span class="linenos">76</span></a><span class="sd">	    insample_result_df (DataFrame): </span>
+</span><span id="summary_perf-77"><a href="#summary_perf-77"><span class="linenos">77</span></a><span class="sd">            A DataFrame containing the forecast results.</span>
+</span><span id="summary_perf-78"><a href="#summary_perf-78"><span class="linenos">78</span></a><span class="sd">		grouper (str): </span>
+</span><span id="summary_perf-79"><a href="#summary_perf-79"><span class="linenos">79</span></a><span class="sd">            The column name to group the forecast results for computing summary metrics.</span>
+</span><span id="summary_perf-80"><a href="#summary_perf-80"><span class="linenos">80</span></a><span class="sd">		y_true_col (str, optional):</span>
+</span><span id="summary_perf-81"><a href="#summary_perf-81"><span class="linenos">81</span></a><span class="sd">            The column name representing the true values. Default is &#39;y_true&#39;.</span>
+</span><span id="summary_perf-82"><a href="#summary_perf-82"><span class="linenos">82</span></a><span class="sd">		y_pred_col (str, optional): </span>
+</span><span id="summary_perf-83"><a href="#summary_perf-83"><span class="linenos">83</span></a><span class="sd">            The column name representing the predicted values. Default is &#39;y_pred&#39;.</span>
+</span><span id="summary_perf-84"><a href="#summary_perf-84"><span class="linenos">84</span></a>
+</span><span id="summary_perf-85"><a href="#summary_perf-85"><span class="linenos">85</span></a><span class="sd">	Returns:</span>
+</span><span id="summary_perf-86"><a href="#summary_perf-86"><span class="linenos">86</span></a><span class="sd">    --------</span>
+</span><span id="summary_perf-87"><a href="#summary_perf-87"><span class="linenos">87</span></a><span class="sd">		DataFrame: A DataFrame containing summary performance metrics.</span>
+</span><span id="summary_perf-88"><a href="#summary_perf-88"><span class="linenos">88</span></a><span class="sd">	&quot;&quot;&quot;</span>
+</span><span id="summary_perf-89"><a href="#summary_perf-89"><span class="linenos">89</span></a>
+</span><span id="summary_perf-90"><a href="#summary_perf-90"><span class="linenos">90</span></a>    <span class="n">horizon_metrics</span> <span class="o">=</span> <span class="n">insample_result_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">grouper</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">evaluate_metrics</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">y_true_col</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="n">y_pred_col</span><span class="p">]))</span>
+</span><span id="summary_perf-91"><a href="#summary_perf-91"><span class="linenos">91</span></a>    <span class="k">return</span> <span class="n">horizon_metrics</span>
 </span></pre></div>
 
 
@@ -324,39 +396,39 @@ y_pred (array-like):
 
     </div>
     <a class="headerlink" href="#calculate_prediction_interval"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="calculate_prediction_interval-74"><a href="#calculate_prediction_interval-74"><span class="linenos"> 74</span></a><span class="k">def</span> <span class="nf">calculate_prediction_interval</span><span class="p">(</span><span class="n">historical_errors</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">coverage</span><span class="o">=</span><span class="mf">0.90</span><span class="p">):</span>
-</span><span id="calculate_prediction_interval-75"><a href="#calculate_prediction_interval-75"><span class="linenos"> 75</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="calculate_prediction_interval-76"><a href="#calculate_prediction_interval-76"><span class="linenos"> 76</span></a><span class="sd">    Calculate the prediction interval for given predictions based on historical errors.</span>
-</span><span id="calculate_prediction_interval-77"><a href="#calculate_prediction_interval-77"><span class="linenos"> 77</span></a>
-</span><span id="calculate_prediction_interval-78"><a href="#calculate_prediction_interval-78"><span class="linenos"> 78</span></a><span class="sd">    Parameters:</span>
-</span><span id="calculate_prediction_interval-79"><a href="#calculate_prediction_interval-79"><span class="linenos"> 79</span></a><span class="sd">    -----------</span>
-</span><span id="calculate_prediction_interval-80"><a href="#calculate_prediction_interval-80"><span class="linenos"> 80</span></a><span class="sd">    historical_errors : array-like</span>
-</span><span id="calculate_prediction_interval-81"><a href="#calculate_prediction_interval-81"><span class="linenos"> 81</span></a><span class="sd">        Array of historical prediction errors (actual - predicted values).</span>
-</span><span id="calculate_prediction_interval-82"><a href="#calculate_prediction_interval-82"><span class="linenos"> 82</span></a><span class="sd">    y_pred : float or array-like</span>
-</span><span id="calculate_prediction_interval-83"><a href="#calculate_prediction_interval-83"><span class="linenos"> 83</span></a><span class="sd">        Predicted value(s) for which the prediction interval is required.</span>
-</span><span id="calculate_prediction_interval-84"><a href="#calculate_prediction_interval-84"><span class="linenos"> 84</span></a><span class="sd">    coverage : float, optional</span>
-</span><span id="calculate_prediction_interval-85"><a href="#calculate_prediction_interval-85"><span class="linenos"> 85</span></a><span class="sd">        Desired coverage of the prediction interval. Default is 0.90.</span>
-</span><span id="calculate_prediction_interval-86"><a href="#calculate_prediction_interval-86"><span class="linenos"> 86</span></a>
-</span><span id="calculate_prediction_interval-87"><a href="#calculate_prediction_interval-87"><span class="linenos"> 87</span></a><span class="sd">    Returns:</span>
-</span><span id="calculate_prediction_interval-88"><a href="#calculate_prediction_interval-88"><span class="linenos"> 88</span></a><span class="sd">    --------</span>
-</span><span id="calculate_prediction_interval-89"><a href="#calculate_prediction_interval-89"><span class="linenos"> 89</span></a><span class="sd">    interval : tuple</span>
-</span><span id="calculate_prediction_interval-90"><a href="#calculate_prediction_interval-90"><span class="linenos"> 90</span></a><span class="sd">        A tuple containing the lower and upper bounds of the prediction interval.</span>
-</span><span id="calculate_prediction_interval-91"><a href="#calculate_prediction_interval-91"><span class="linenos"> 91</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="calculate_prediction_interval-92"><a href="#calculate_prediction_interval-92"><span class="linenos"> 92</span></a>    <span class="c1"># Calculate the mean and standard deviation of the errors</span>
-</span><span id="calculate_prediction_interval-93"><a href="#calculate_prediction_interval-93"><span class="linenos"> 93</span></a>    <span class="n">sigma_e</span> <span class="o">=</span> <span class="n">historical_errors</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;horizon&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
-</span><span id="calculate_prediction_interval-94"><a href="#calculate_prediction_interval-94"><span class="linenos"> 94</span></a>    <span class="n">sigma_e</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">index</span>
-</span><span id="calculate_prediction_interval-95"><a href="#calculate_prediction_interval-95"><span class="linenos"> 95</span></a>
-</span><span id="calculate_prediction_interval-96"><a href="#calculate_prediction_interval-96"><span class="linenos"> 96</span></a>    <span class="c1"># Determine the z-score for the desired coverage</span>
-</span><span id="calculate_prediction_interval-97"><a href="#calculate_prediction_interval-97"><span class="linenos"> 97</span></a>    <span class="n">z</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="n">coverage</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-</span><span id="calculate_prediction_interval-98"><a href="#calculate_prediction_interval-98"><span class="linenos"> 98</span></a>
-</span><span id="calculate_prediction_interval-99"><a href="#calculate_prediction_interval-99"><span class="linenos"> 99</span></a>    <span class="c1"># Calculate the prediction interval</span>
-</span><span id="calculate_prediction_interval-100"><a href="#calculate_prediction_interval-100"><span class="linenos">100</span></a>    <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">y_pred</span> <span class="o">-</span> <span class="n">z</span> <span class="o">*</span> <span class="n">sigma_e</span>
-</span><span id="calculate_prediction_interval-101"><a href="#calculate_prediction_interval-101"><span class="linenos">101</span></a>    <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">y_pred</span> <span class="o">+</span> <span class="n">z</span> <span class="o">*</span> <span class="n">sigma_e</span>
-</span><span id="calculate_prediction_interval-102"><a href="#calculate_prediction_interval-102"><span class="linenos">102</span></a>
-</span><span id="calculate_prediction_interval-103"><a href="#calculate_prediction_interval-103"><span class="linenos">103</span></a>    <span class="n">ypred_int</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</span><span id="calculate_prediction_interval-104"><a href="#calculate_prediction_interval-104"><span class="linenos">104</span></a>    <span class="n">ypred_int</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">([(</span><span class="n">y_pred</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">coverage</span><span class="p">,</span> <span class="s1">&#39;lower&#39;</span><span class="p">),</span>
-</span><span id="calculate_prediction_interval-105"><a href="#calculate_prediction_interval-105"><span class="linenos">105</span></a>                                                  <span class="p">(</span><span class="n">y_pred</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">coverage</span><span class="p">,</span> <span class="s1">&#39;upper&#39;</span><span class="p">)])</span>
-</span><span id="calculate_prediction_interval-106"><a href="#calculate_prediction_interval-106"><span class="linenos">106</span></a>    <span class="k">return</span> <span class="n">ypred_int</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="calculate_prediction_interval-93"><a href="#calculate_prediction_interval-93"><span class="linenos"> 93</span></a><span class="k">def</span> <span class="nf">calculate_prediction_interval</span><span class="p">(</span><span class="n">historical_errors</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">coverage</span><span class="o">=</span><span class="mf">0.90</span><span class="p">):</span>
+</span><span id="calculate_prediction_interval-94"><a href="#calculate_prediction_interval-94"><span class="linenos"> 94</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="calculate_prediction_interval-95"><a href="#calculate_prediction_interval-95"><span class="linenos"> 95</span></a><span class="sd">    Calculate the prediction interval for given predictions based on historical errors.</span>
+</span><span id="calculate_prediction_interval-96"><a href="#calculate_prediction_interval-96"><span class="linenos"> 96</span></a>
+</span><span id="calculate_prediction_interval-97"><a href="#calculate_prediction_interval-97"><span class="linenos"> 97</span></a><span class="sd">    Parameters:</span>
+</span><span id="calculate_prediction_interval-98"><a href="#calculate_prediction_interval-98"><span class="linenos"> 98</span></a><span class="sd">    -----------</span>
+</span><span id="calculate_prediction_interval-99"><a href="#calculate_prediction_interval-99"><span class="linenos"> 99</span></a><span class="sd">    historical_errors : array-like</span>
+</span><span id="calculate_prediction_interval-100"><a href="#calculate_prediction_interval-100"><span class="linenos">100</span></a><span class="sd">        Array of historical prediction errors (actual - predicted values).</span>
+</span><span id="calculate_prediction_interval-101"><a href="#calculate_prediction_interval-101"><span class="linenos">101</span></a><span class="sd">    y_pred : float or array-like</span>
+</span><span id="calculate_prediction_interval-102"><a href="#calculate_prediction_interval-102"><span class="linenos">102</span></a><span class="sd">        Predicted value(s) for which the prediction interval is required.</span>
+</span><span id="calculate_prediction_interval-103"><a href="#calculate_prediction_interval-103"><span class="linenos">103</span></a><span class="sd">    coverage : float, optional</span>
+</span><span id="calculate_prediction_interval-104"><a href="#calculate_prediction_interval-104"><span class="linenos">104</span></a><span class="sd">        Desired coverage of the prediction interval. Default is 0.90.</span>
+</span><span id="calculate_prediction_interval-105"><a href="#calculate_prediction_interval-105"><span class="linenos">105</span></a>
+</span><span id="calculate_prediction_interval-106"><a href="#calculate_prediction_interval-106"><span class="linenos">106</span></a><span class="sd">    Returns:</span>
+</span><span id="calculate_prediction_interval-107"><a href="#calculate_prediction_interval-107"><span class="linenos">107</span></a><span class="sd">    --------</span>
+</span><span id="calculate_prediction_interval-108"><a href="#calculate_prediction_interval-108"><span class="linenos">108</span></a><span class="sd">    interval : tuple</span>
+</span><span id="calculate_prediction_interval-109"><a href="#calculate_prediction_interval-109"><span class="linenos">109</span></a><span class="sd">        A tuple containing the lower and upper bounds of the prediction interval.</span>
+</span><span id="calculate_prediction_interval-110"><a href="#calculate_prediction_interval-110"><span class="linenos">110</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="calculate_prediction_interval-111"><a href="#calculate_prediction_interval-111"><span class="linenos">111</span></a>    <span class="c1"># Calculate the mean and standard deviation of the errors</span>
+</span><span id="calculate_prediction_interval-112"><a href="#calculate_prediction_interval-112"><span class="linenos">112</span></a>    <span class="n">sigma_e</span> <span class="o">=</span> <span class="n">historical_errors</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;horizon&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+</span><span id="calculate_prediction_interval-113"><a href="#calculate_prediction_interval-113"><span class="linenos">113</span></a>    <span class="n">sigma_e</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">index</span>
+</span><span id="calculate_prediction_interval-114"><a href="#calculate_prediction_interval-114"><span class="linenos">114</span></a>
+</span><span id="calculate_prediction_interval-115"><a href="#calculate_prediction_interval-115"><span class="linenos">115</span></a>    <span class="c1"># Determine the z-score for the desired coverage</span>
+</span><span id="calculate_prediction_interval-116"><a href="#calculate_prediction_interval-116"><span class="linenos">116</span></a>    <span class="n">z</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="n">coverage</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+</span><span id="calculate_prediction_interval-117"><a href="#calculate_prediction_interval-117"><span class="linenos">117</span></a>
+</span><span id="calculate_prediction_interval-118"><a href="#calculate_prediction_interval-118"><span class="linenos">118</span></a>    <span class="c1"># Calculate the prediction interval</span>
+</span><span id="calculate_prediction_interval-119"><a href="#calculate_prediction_interval-119"><span class="linenos">119</span></a>    <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">y_pred</span> <span class="o">-</span> <span class="n">z</span> <span class="o">*</span> <span class="n">sigma_e</span>
+</span><span id="calculate_prediction_interval-120"><a href="#calculate_prediction_interval-120"><span class="linenos">120</span></a>    <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">y_pred</span> <span class="o">+</span> <span class="n">z</span> <span class="o">*</span> <span class="n">sigma_e</span>
+</span><span id="calculate_prediction_interval-121"><a href="#calculate_prediction_interval-121"><span class="linenos">121</span></a>
+</span><span id="calculate_prediction_interval-122"><a href="#calculate_prediction_interval-122"><span class="linenos">122</span></a>    <span class="n">ypred_int</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="calculate_prediction_interval-123"><a href="#calculate_prediction_interval-123"><span class="linenos">123</span></a>    <span class="n">ypred_int</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">([(</span><span class="n">y_pred</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">coverage</span><span class="p">,</span> <span class="s1">&#39;lower&#39;</span><span class="p">),</span>
+</span><span id="calculate_prediction_interval-124"><a href="#calculate_prediction_interval-124"><span class="linenos">124</span></a>                                                  <span class="p">(</span><span class="n">y_pred</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">coverage</span><span class="p">,</span> <span class="s1">&#39;upper&#39;</span><span class="p">)])</span>
+</span><span id="calculate_prediction_interval-125"><a href="#calculate_prediction_interval-125"><span class="linenos">125</span></a>    <span class="k">return</span> <span class="n">ypred_int</span>
 </span></pre></div>
 
 
