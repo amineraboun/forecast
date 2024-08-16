@@ -661,7 +661,7 @@ class ForecastModelSelect:
                 return pd.concat(error_horizon_l, axis=0).reset_index(drop=True)
             
             elif mode =='average':
-                return errors_df.groupby(['cutoff', 'horizon']).error.mean().reset_index()               
+                return errors_df.groupby(['prediction_date', 'horizon']).error.mean().reset_index()               
             
             elif mode =='inverse_score':
                 if self.summary_results is None:
@@ -670,12 +670,12 @@ class ForecastModelSelect:
                 _score = _score/_score.sum()
                 errors_df['_score'] = errors_df['forecaster'].map(_score.to_dict())
                 errors_df['weighted_error'] = errors_df['_score']*errors_df['error']
-                return errors_df.groupby(['cutoff', 'horizon']).weighted_error.sum().reset_index()
+                return errors_df.groupby(['prediction_date', 'horizon']).weighted_error.sum().reset_index()
             
             elif mode =='nbest_average':
                 if self._best_x_overall is None:
                     self.select_best()
-                return errors_df.loc[errors_df.forecaster.isin(self._best_x_overall[score])].groupby(['cutoff', 'horizon']).error.mean().reset_index()
+                return errors_df.loc[errors_df.forecaster.isin(self._best_x_overall[score])].groupby(['prediction_date', 'horizon']).error.mean().reset_index()
             
             elif mode =='nbest_average_horizon':
                 if self.model_rank_perhorizon is None:
@@ -685,7 +685,7 @@ class ForecastModelSelect:
                 errors_best_horizon = []
                 for h, best_mod_h in best_horizon.items():
                     errors_best_horizon.append(errors_df.loc[(errors_df.horizon==h) & errors_df.forecaster.isin(best_mod_h)]\
-                        .groupby(['cutoff', 'horizon']).error.mean().reset_index())
+                        .groupby(['prediction_date', 'horizon']).error.mean().reset_index())
                 return pd.concat(errors_best_horizon, axis=0).reset_index(drop=True)            
             
             else:
